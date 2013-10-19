@@ -1,0 +1,6 @@
+{
+  "hostname": "maxdegterev.name",
+  "debug": false,
+  "workers": 4,
+  "port": 8000
+}

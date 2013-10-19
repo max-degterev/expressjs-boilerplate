@@ -1,0 +1,11 @@
+{
+  "name": "express-boilerplate",
+  "private": true,
+  "dependencies": {
+    "jquery": "~2.0.3",
+    "lodash": "~2.2.1",
+    "backbone": "~1.1.0",
+
+    "normalize-css": "2.1.3"
+  }
+}

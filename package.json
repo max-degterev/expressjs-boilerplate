@@ -1,0 +1,50 @@
+{
+  "name": "ExpressJS_Boilerplate",
+  "description": "Opinionated ExpressJS boilerplate",
+  "version": "0.0.1",
+  "private": true,
+  "homepage": "http://maxdegterev.name/",
+  "author": {
+    "name": "Max Degterev",
+    "email": "me@maxdegterev.name",
+    "url": "http://maxdegterev.name/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:suprMax/express-boilerplate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/suprMax/express-boilerplate/issues"
+  },
+  "readmeFilename": "README.md",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "devDependencies": {
+    "nodemon":                                    "*"
+  },
+  "dependencies": {
+    "sty":                                        "~0.6.1",
+    "nodemailer":                                 "~0.5.3",
+
+    "express":                                    "~3.4.2",
+    "config":                                     ">=0.4.31",
+
+    "coffee-script":                              ">=1.6.3",
+    "jade":                                       ">=0.35.0",
+
+    "grunt":                                      "~0.4.1",
+    "grunt-contrib-clean":                        "~0.5.0",
+    "grunt-snocketsify":                          ">=0.0.2",
+    "grunt-contrib-stylus":                       "~0.8.0",
+    "grunt-jade-plugin":                          "~0.5.0",
+
+    "grunt-contrib-cssmin":                       "~0.6.2",
+    "grunt-contrib-uglify":                       "~0.2.4",
+
+    "grunt-hashify":                              ">=0.0.5",
+    "grunt-contrib-compress":                     "~0.5.2",
+
+    "grunt-contrib-watch":                        "~0.5.3"
+  }
+}
