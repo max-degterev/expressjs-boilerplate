@@ -42,8 +42,8 @@ module.exports = (grunt) ->
           compileDebug: false
           client: true
           namespace: 'app.templates'
-          processName: (file)-> file.replace(/views\/client\/([\w\/]+).jade/gi, '$1').replace('/', '_')
-        src: ['views/client/*.jade', 'views/client/**/*.jade']
+          processName: (file)-> file.replace(/views\/client\/([\w\/]+).jade/gi, '$1')
+        src: ['views/client/**/*.jade']
         dest: 'public/assets/views.js'
 
 
@@ -56,13 +56,6 @@ module.exports = (grunt) ->
 
 
     uglify:
-      # options:
-        # mangle: false
-        # compress:
-        #   dead_code: true
-        # sourceMap: (file)-> file.replace(/\.js$/, '.map').replace(/\-min/, '')
-        # sourceMappingURL: (file)-> file.replace(/\.js$/, '.map').replace(/^public/, '').replace(/\-min/, '')
-
       app:
         src: 'public/assets/app.js'
         dest: 'public/assets/app-min.js'
@@ -136,43 +129,34 @@ module.exports = (grunt) ->
 
       app_js:
         files: [
-          'app/client/*.js'
-          'app/client/*.coffee'
-
           'app/client/**/*.js'
           'app/client/**/*.coffee'
 
-          'app/shared/*.js'
-          'app/shared/*.coffee'
+          'app/shared/**/*.js'
+          'app/shared/**/*.coffee'
 
           '!app/client/dependencies.js'
-
-          '!app/client/vendor/*.js'
-          '!app/client/vendor/*.coffee'
-
-          '!app/client/vendor/**/*.js'
-          '!app/client/vendor/**/*.coffee'
         ]
         tasks: ['snocketsify:app']
 
       libs_js:
         files: [
           'app/client/dependencies.js'
-
-          'app/client/vendor/*.js'
-          'app/client/vendor/*.coffee'
-
-          'app/client/vendor/**/*.js'
-          'app/client/vendor/**/*.coffee'
         ]
         tasks: ['snocketsify:dependencies']
 
       css:
-        files: ['css/*.css', 'css/*.styl', 'css/**/*.css', 'css/**/*.styl']
+        files: [
+          'css/**/*.css'
+          'css/**/*.styl'
+        ]
         tasks: ['stylus']
 
       views:
-        files: ['views/client/*.jade', 'views/client/**/*.jade']
+        files: [
+          'views/client/**/*.jade'
+          'views/shared/**/*.jade'
+        ]
         tasks: ['jade2js']
 
       # images:
@@ -181,15 +165,6 @@ module.exports = (grunt) ->
       #     'public/images/**/*.jpg', 'public/images/**/*.jpeg', 'public/images/**/*.png'
       #   ]
       #   tasks: ['imagemin']
-
-
-
-    # mapper:
-    #   options:
-    #     fileRoot: 'public/assets/'
-    #     urlRoot: '/assets/'
-    #   defaults:
-    #     src: 'public/assets/hashmap.json'
 
 
 
@@ -211,7 +186,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-watch')
 
   # TODO:
-  # 1. Update Jade
+  # 1. Update Jade compiler
 
   grunt.registerTask('default', [
     'clean'
