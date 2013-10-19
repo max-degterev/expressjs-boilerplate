@@ -1,6 +1,6 @@
 # Opitionated ExpressJS Boilerplate
 
-When you need to start a new NodeJS project, this is a good start.
+A good way to start your NodeJS project.
 
 
 ## Usage:
