@@ -146,6 +146,9 @@ sendMail = (type = 'deploy')->
 task 'versions', '[DEV]: Check package.json versions state', ->
   checkVersions(require('./package').dependencies)
 
+task 'install', '[DEV]: Install all dependencies', ->
+  npmInstall bowerInstall
+
 task 'coffee', '[DEV]: Watch and compile serverside coffee', ->
   watchCoffee()
 
