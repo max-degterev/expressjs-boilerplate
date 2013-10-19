@@ -4,8 +4,8 @@
 
   logPrefix = "[app]:";
 
-  global.log = function(message, prefix) {
-    return console.log("[" + ((new Date()).toUTCString()) + "] " + (prefix || logPrefix) + " " + message);
+  global.log = function(message) {
+    return console.log("[" + ((new Date()).toUTCString()) + "] " + (this.logPrefix || logPrefix) + " " + message);
   };
 
   cluster = require('cluster');
@@ -86,15 +86,9 @@
         return log("Server listening on http://127.0.0.1:" + (app.get('port')) + " (unbound)");
       });
     } else {
-      if (config.bound) {
-        app.listen(app.get('port'), config.bound, function() {
-          return log("Server listening on http://" + config.bound + ":" + (app.get('port')) + " (bound to ip)");
-        });
-      } else {
-        app.listen(app.get('port'), function() {
-          return log("Server listening on http://127.0.0.1:" + (app.get('port')) + " (unbound)");
-        });
-      }
+      app.listen(app.get('port'), '127.0.0.1', function() {
+        return log("Server listening on http://127.0.0.1:" + (app.get('port')) + " (bound to ip)");
+      });
     }
   }
 

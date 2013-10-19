@@ -42,7 +42,7 @@
     "grunt-contrib-cssmin":                       "~0.6.2",
     "grunt-contrib-uglify":                       "~0.2.4",
 
-    "grunt-hashify":                              ">=0.0.5",
+    "grunt-hashify":                              ">=0.0.6",
     "grunt-contrib-compress":                     "~0.5.2",
 
     "grunt-contrib-watch":                        "~0.5.3"

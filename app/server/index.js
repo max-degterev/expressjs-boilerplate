@@ -7,6 +7,10 @@
   Server = (function() {
     function Server() {}
 
+    Server.prototype.logPrefix = "[app.server]:";
+
+    Server.prototype.log = log;
+
     Server.prototype.router = function() {
       return this.app.get('/', function(req, res) {
         return res.render('layout');
@@ -16,7 +20,7 @@
     Server.prototype.use = function(app) {
       this.app = app;
       this.router();
-      return log('Server initialized');
+      return this.log('initialized');
     };
 
     return Server;

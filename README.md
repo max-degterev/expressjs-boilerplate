@@ -12,7 +12,7 @@ A good way to start your NodeJS project.
 
 2. Install globals:
 
-  `sudo npm install -g coffee-script nodemon grunt-cli bower`
+  `sudo npm install -g coffee-script nodemon forever bower grunt-cli`
 
 3. Edit your hosts:
 

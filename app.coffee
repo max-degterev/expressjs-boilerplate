@@ -2,7 +2,8 @@
 # DEPENDENCIES & CONSTANTS
 #=========================================================================================
 logPrefix = "[app]:"
-global.log = (message, prefix)-> console.log("[#{(new Date()).toUTCString()}] #{prefix or logPrefix} #{message}")
+global.log = (message)->
+  console.log("[#{(new Date()).toUTCString()}] #{@logPrefix or logPrefix} #{message}")
 
 cluster = require('cluster')
 config = require('config')
@@ -105,12 +106,8 @@ else
   server.use(app)
 
   if config.debug
-      app.listen app.get('port'), ->
-        log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)")
+    app.listen app.get('port'), ->
+      log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)")
   else
-    if config.bound
-      app.listen app.get('port'), config.bound, ->
-        log("Server listening on http://#{config.bound}:#{app.get('port')} (bound to ip)")
-    else
-      app.listen app.get('port'), ->
-        log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)")
+    app.listen app.get('port'), '127.0.0.1', ->
+      log("Server listening on http://127.0.0.1:#{app.get('port')} (bound to ip)")

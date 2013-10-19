@@ -1,6 +1,9 @@
 config = require('config')
 
 class Server
+  logPrefix: "[app.server]:"
+  log: log
+
   # handle404: (req, res, next)->
   #   res.status(404)
   #   res.render('error')
@@ -15,6 +18,6 @@ class Server
     # 404 handler
     # @app.use(@handle404)
 
-    log('Server initialized')
+    @log('initialized')
 
 module.exports = new Server()

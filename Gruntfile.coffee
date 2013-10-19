@@ -133,7 +133,7 @@ module.exports = (grunt) ->
           'app/client/**/*.coffee'
 
           'app/shared/**/*.js'
-          'app/shared/**/*.coffee'
+          '!app/shared/**/*.coffee'
 
           '!app/client/dependencies.js'
         ]
