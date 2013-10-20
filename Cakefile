@@ -156,16 +156,10 @@ task 'grunt', '[DEV]: Watch and compile clientside assets', ->
   watchGrunt()
 
 task 'dev', '[DEV]: Devserver with autoreload', ->
-  npmInstall ->
-    bowerInstall ->
-      compileGrunt ->
-        startServer()
+  npmInstall bowerInstall compileGrunt startServer
 
 task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
-  npmInstall ->
-    bowerInstall ->
-      compileGrunt ->
-        startServer(true)
+  npmInstall bowerInstall compileGrunt -> startServer(true)
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
   console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postdeploy")
@@ -189,11 +183,10 @@ task 'postdeploy', '[PROD]: Update current app state from the repo and restart t
   console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Pulling updates from the repo")
   exec 'git pull', (error, stdout, stderr) ->
     unless error
-      npmInstall ->
-        buildGrunt ->
-          console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Restarting forever")
-          exec("forever restartall")
-          sendMail()
+      npmInstall buildGrunt ->
+        console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Restarting forever")
+        exec("forever restartall")
+        sendMail()
 
     else
       console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Git pull failed with an error: #{error}")
