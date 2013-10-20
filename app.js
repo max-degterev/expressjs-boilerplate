@@ -84,7 +84,7 @@
         return log("Server listening on http://127.0.0.1:" + (app.get('port')) + " (unbound)");
       });
     } else {
-      app.listen(app.get('port'), '127.0.0.1', function() {
+      app.listen(app.get('port'), config.ip || '127.0.0.1', function() {
         return log("Server listening on http://127.0.0.1:" + (app.get('port')) + " (bound to ip)");
       });
     }

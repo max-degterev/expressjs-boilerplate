@@ -107,5 +107,5 @@ else
     app.listen app.get('port'), ->
       log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)")
   else
-    app.listen app.get('port'), '127.0.0.1', ->
+    app.listen app.get('port'), config.ip or '127.0.0.1', ->
       log("Server listening on http://127.0.0.1:#{app.get('port')} (bound to ip)")
