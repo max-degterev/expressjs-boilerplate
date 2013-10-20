@@ -1,13 +1,11 @@
 #=========================================================================================
 # DEPENDENCIES & CONSTANTS
 #=========================================================================================
-logPrefix = "[app]:"
-global.log = (message)->
-  console.log("[#{(new Date()).toUTCString()}] #{@logPrefix or logPrefix} #{message}")
+helpers = require('./app/shared/helpers')
+global.log = helpers.log
 
 cluster = require('cluster')
 config = require('config')
-
 express = require('express')
 
 

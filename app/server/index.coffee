@@ -9,8 +9,7 @@ class Server
   #   res.render('error')
 
   router: ->
-    @app.get '/', (req, res)->
-      res.render('layout')
+    @app.get '/', (req, res)-> res.render('layout')
 
   use: (@app)->
     @router()

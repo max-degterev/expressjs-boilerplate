@@ -1,6 +1,9 @@
 ((exports) ->
   exports.noop = ->
 
+  exports.log = (message, prefix)->
+    console.log("[#{(new Date()).toUTCString()}] #{@logPrefix or prefix or '[app]:'} #{message}")
+
   exports.numOrdinalSuffix = (i) ->
     j = i % 10
     return i + 'st'  if j is 1 and i isnt 11

@@ -2,6 +2,9 @@
 (function() {
   (function(exports) {
     exports.noop = function() {};
+    exports.log = function(message, prefix) {
+      return console.log("[" + ((new Date()).toUTCString()) + "] " + (this.logPrefix || prefix || '[app]:') + " " + message);
+    };
     exports.numOrdinalSuffix = function(i) {
       var j;
       j = i % 10;
