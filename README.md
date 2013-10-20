@@ -1,6 +1,7 @@
-# Opitionated ExpressJS Boilerplate
+# Opinionated ExpressJS Boilerplate
 
 A good way to start your NodeJS project.
+
 
 
 ## Usage:
