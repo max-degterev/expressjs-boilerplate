@@ -21,11 +21,9 @@ VPS_LOG = '/var/log/maxdegterev'
 # =======================================================================================
 # Utility functions
 # =======================================================================================
-log = (data)->
-  print(data.toString())
-
-warn = (data)->
-  process.stderr.write(data.toString())
+log = (message)-> console.log("[#{(new Date()).toUTCString()}] #{logPrefix} #{message}")
+proxyLog = (data)-> print(data.toString())
+proxyWarn = (data)-> process.stderr.write(data.toString())
 
 checkVersions = (list)->
   sty = require('sty')
@@ -44,73 +42,73 @@ checkVersions = (list)->
           else
             console.warn("#{sty.bold sty.red 'WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
       else
-        console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Failed to fetch latest version for #{lib} with an error: #{error}")
+        log("Failed to fetch latest version for #{lib} with an error: #{error}")
 
   _checkVersion(lib, version) for lib, version of list
 
 npmInstall = (callb)->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Updating npm dependency tree")
+  log('Updating npm dependency tree')
 
   exec 'npm install', (error, stdout, stderr) ->
     unless error
       callb?()
     else
-      console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Dependencies installation failed with an error: #{error}")
+      log("Dependencies installation failed with an error: #{error}")
 
 bowerInstall = (callb)->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Updating bower dependency tree")
+  log('Updating bower dependency tree')
 
   exec 'bower install', (error, stdout, stderr) ->
     unless error
       callb?()
     else
-      console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Dependencies installation failed with an error: #{error}")
+      log("Dependencies installation failed with an error: #{error}")
 
 compileGrunt = (callb)->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Executing grunt defaults")
+  log('Executing grunt defaults')
 
   exec 'grunt', (error, stdout, stderr) ->
     unless error
       callb?()
     else
-      console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Grunt defaults failed with an error: #{error}")
+      log("Grunt defaults failed with an error: #{error}")
 
 buildGrunt = (callb)->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Executing grunt build")
+  log('Executing grunt build')
 
   exec 'grunt build', (error, stdout, stderr) ->
     unless error
       callb?()
     else
-      console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Grunt build failed with an error: #{error}")
+      log("Grunt build failed with an error: #{error}")
 
 watchCoffee = ->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Spawning coffeescript watcher")
+  log('Spawning coffeescript watcher')
 
   coffee = spawn('coffee', ['-c', '-w', 'app/server/', 'app/shared/', "#{SERVER_FILE}.coffee"])
-  coffee.stdout.on('data', log)
-  coffee.stderr.on('data', warn)
+  coffee.stdout.on('data', proxyLog)
+  coffee.stderr.on('data', proxyWarn)
 
 watchGrunt = ->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Spawning grunt watcher")
+  log('Spawning grunt watcher')
 
   grunt = spawn('grunt', ['watch'])
-  grunt.stdout.on('data', log)
-  grunt.stderr.on('data', warn)
+  grunt.stdout.on('data', proxyLog)
+  grunt.stderr.on('data', proxyWarn)
 
 # startDatabase = (debug)->
-#   console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Spawning redis")
+#   log('Spawning redis')
 
 #   redis = spawn('redis-server', ['/usr/local/etc/redis.conf'])
-#   redis.stdout.on('data', log)
-#   redis.stderr.on('data', warn)
+#   redis.stdout.on('data', proxyLog)
+#   redis.stderr.on('data', proxyWarn)
 
 startServer = (debug)->
   watchCoffee()
   watchGrunt()
   # startDatabase()
 
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Starting server")
+  log('Starting server')
 
   params = "NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y " +
     "nodemon -w app/server/ -w app/shared/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js" +
@@ -118,8 +116,8 @@ startServer = (debug)->
 
   setTimeout ->
     nodemon = exec(params)
-    nodemon.stdout.on('data', log)
-    nodemon.stderr.on('data', warn)
+    nodemon.stdout.on('data', proxyLog)
+    nodemon.stderr.on('data', proxyWarn)
   , 1000
 
 sendMail = (type = 'deploy')->
@@ -137,8 +135,7 @@ sendMail = (type = 'deploy')->
     mailOptions.subject = 'Your website has been pushed to the server'
     mailOptions.text = "Push of #{pkg.description} was successful, v#{pkg.version} @ #{(new Date).toString()}"
 
-  mailer.sendMail mailOptions, (error, status)->
-    console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Sendmail failed with an error: #{error}") if error
+  mailer.sendMail mailOptions, (error, status)-> log("Sendmail failed with an error: #{error}") if error
 
 # =======================================================================================
 # Tasks
@@ -162,47 +159,47 @@ task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
   npmInstall bowerInstall compileGrunt -> startServer(true)
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postdeploy")
+  log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postdeploy")
   exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake postdeploy'",
     (error, stdout, stderr) ->
       unless error
-        console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Triggered deploy, wait for email confirmation 👍")
+        log('Triggered deploy, wait for email confirmation 👍')
       else
-        console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Deploy failed with an error: #{error}")
+        log("Deploy failed with an error: #{error}")
 
 task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting the server', ->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postpush")
+  log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postpush")
   exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake postpush'",
     (error, stdout, stderr) ->
       unless error
-        console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Triggered publish, wait for email confirmation 👍")
+        log('Triggered publish, wait for email confirmation 👍')
       else
-        console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Publish failed with an error: #{error}")
+        log("Publish failed with an error: #{error}")
 
 task 'postdeploy', '[PROD]: Update current app state from the repo and restart the server', ->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Pulling updates from the repo")
+  log('Pulling updates from the repo')
   exec 'git pull', (error, stdout, stderr) ->
     unless error
       npmInstall buildGrunt ->
-        console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Restarting forever")
+        log('Restarting forever')
         exec("forever restartall")
         sendMail()
 
     else
-      console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Git pull failed with an error: #{error}")
+      log("Git pull failed with an error: #{error}")
 
 task 'postpush', '[PROD]: Update current app state from the repo', ->
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Pulling updates from the repo")
+  log('Pulling updates from the repo')
   exec 'git pull', (error, stdout, stderr) ->
     unless error
       sendMail('push')
     else
-      console.warn("[#{(new Date()).toUTCString()}] #{logPrefix} Git pull failed with an error: #{error}")
+      log("Git pull failed with an error: #{error}")
 
 task 'forever', '[PROD]: Start server in PRODUCTION environmont', ->
   server = "NODE_ENV=production NODE_CONFIG_DISABLE_FILE_WATCH=Y " +
     "forever start -l #{VPS_LOG}/#{SERVER_FILE}.log --append " +
     "--sourceDir #{VPS_HOME} #{SERVER_FILE}.js"
 
-  console.log("[#{(new Date()).toUTCString()}] #{logPrefix} Starting server: #{server}")
+  log("Starting server: #{server}")
   exec(server)
