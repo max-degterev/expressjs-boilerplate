@@ -21,7 +21,7 @@
     "node": "0.10.x"
   },
   "devDependencies": {
-    "nodemon":                                    "*"
+    "nodemon":                                    ">=0.7.10"
   },
   "dependencies": {
     "sty":                                        "~0.6.1",
@@ -36,7 +36,7 @@
     "grunt":                                      "~0.4.1",
     "grunt-contrib-clean":                        "~0.5.0",
     "grunt-snocketsify":                          ">=0.0.2",
-    "grunt-contrib-stylus":                       "~0.8.0",
+    "grunt-contrib-stylus":                       "~0.9.0",
     "grunt-jade-plugin":                          "~0.5.0",
 
     "grunt-contrib-cssmin":                       "~0.6.2",

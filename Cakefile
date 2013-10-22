@@ -141,10 +141,9 @@ sendMail = (type = 'deploy')->
 # Tasks
 # =======================================================================================
 task 'versions', '[DEV]: Check package.json versions state', ->
-  list = ['dependencies', 'devDependencies', 'peerDependencies']
-  package = require('./package')
-  for item in list
-    checkVersions() if package[item]
+  pkg = require('./package')
+  for item in ['dependencies', 'devDependencies', 'peerDependencies']
+    checkVersions(pkg[item]) if pkg[item]
 
 task 'install', '[DEV]: Install all dependencies', ->
   npmInstall bowerInstall
