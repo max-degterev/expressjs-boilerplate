@@ -94,7 +94,7 @@ module.exports = (grunt) ->
         options:
           mode: 'gzip'
         expand: true
-        src: ['public/assets/*.min.*.*']
+        src: 'public/assets/*.min.*.*'
         dest: './'
 
 
