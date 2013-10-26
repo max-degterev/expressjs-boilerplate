@@ -166,18 +166,14 @@ module.exports = (grunt) ->
 
 
   grunt.loadNpmTasks('grunt-contrib-clean')
-
   grunt.loadNpmTasks('grunt-snocketsify')
   grunt.loadNpmTasks('grunt-contrib-stylus')
   grunt.loadNpmTasks('grunt-contrib-jade')
-
   grunt.loadNpmTasks('grunt-contrib-cssmin')
   grunt.loadNpmTasks('grunt-contrib-uglify')
-
   grunt.loadNpmTasks('grunt-hashify')
   grunt.loadNpmTasks('grunt-contrib-compress')
   # grunt.loadNpmTasks('grunt-contrib-imagemin')
-
   grunt.loadNpmTasks('grunt-contrib-watch')
 
   grunt.registerTask('default', [
