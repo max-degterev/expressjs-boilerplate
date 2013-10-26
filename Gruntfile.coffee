@@ -1,13 +1,11 @@
 module.exports = (grunt) ->
-  grunt.initConfig(
+  grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
-
 
 
     clean:
       build:
         src: 'public/assets/*.*'
-
 
 
     snocketsify:
@@ -18,7 +16,6 @@ module.exports = (grunt) ->
       dependencies:
         src: 'app/client/dependencies.coffee'
         dest: 'public/assets/dependencies.js'
-
 
 
     stylus:
@@ -34,40 +31,36 @@ module.exports = (grunt) ->
         dest: 'public/assets/app.css'
 
 
-
-    jade2js:
+    jade:
       views:
         options:
           pretty: true
           compileDebug: false
           client: true
           namespace: 'app.templates'
-          processName: (file)-> file.replace(/views\/client\/([\w\/]+).jade/gi, '$1')
-        src: ['views/client/**/*.jade']
+          processName: (file)-> file.replace(/views\/client\/([\w\/]+).jade/gi, '$1').replace('/', '_')
+        src: 'views/client/**/*.jade'
         dest: 'public/assets/views.js'
 
 
-
     cssmin:
-      minify:
+      build:
         src: 'public/assets/app.css'
-        dest: 'public/assets/app-min.css'
-
+        dest: 'public/assets/app.min.css'
 
 
     uglify:
       app:
         src: 'public/assets/app.js'
-        dest: 'public/assets/app-min.js'
+        dest: 'public/assets/app.min.js'
 
       dependencies:
-        src: 'public/assets/dependencies.coffee'
-        dest: 'public/assets/dependencies-min.js'
+        src: 'public/assets/dependencies.js'
+        dest: 'public/assets/dependencies.min.js'
 
       views:
         src: 'public/assets/views.js'
-        dest: 'public/assets/views-min.js'
-
+        dest: 'public/assets/views.min.js'
 
 
     hashify:
@@ -76,35 +69,33 @@ module.exports = (grunt) ->
         hashmap: 'hashmap.json'
 
       app_js:
-        src: 'public/assets/app-min.js'
-        dest: 'app-min-{{hash}}.js'
+        src: 'public/assets/app.min.js'
+        dest: 'app.min.{{hash}}.js'
         key: 'app.js'
 
-      libs_js:
-        src: 'public/assets/dependencies-min.js'
-        dest: 'dependencies-min-{{hash}}.js'
-        key: 'dependencies.coffee'
+      dependencies_js:
+        src: 'public/assets/dependencies.min.js'
+        dest: 'dependencies.min.{{hash}}.js'
+        key: 'dependencies.js'
 
       views_js:
-        src: 'public/assets/views-min.js'
-        dest: 'views-min-{{hash}}.js'
+        src: 'public/assets/views.min.js'
+        dest: 'views.min.{{hash}}.js'
         key: 'views.js'
 
       app_css:
-        src: 'public/assets/app-min.css'
-        dest: 'app-min-{{hash}}.css'
+        src: 'public/assets/app.min.css'
+        dest: 'app.min.{{hash}}.css'
         key: 'app.css'
 
 
-
     compress:
-      gzip:
+      build:
         options:
           mode: 'gzip'
         expand: true
-        src: ['public/assets/*-min-*.*']
+        src: ['public/assets/*.min.*.*']
         dest: './'
-
 
 
     # imagemin:
@@ -113,11 +104,11 @@ module.exports = (grunt) ->
     #   files:
     #     expand: true
     #     src: [
-    #       'public/images/*.jpg', 'public/images/*.jpeg', 'public/images/*.png',
-    #       'public/images/**/*.jpg', 'public/images/**/*.jpeg', 'public/images/**/*.png'
+    #       'public/images/**/*.jpg'
+    #       'public/images/**/*.jpeg'
+    #       'public/images/**/*.png'
     #     ]
     #     dest: './'
-
 
 
     watch:
@@ -139,9 +130,12 @@ module.exports = (grunt) ->
         ]
         tasks: ['snocketsify:app']
 
-      libs_js:
+      dependencies_js:
         files: [
           'app/client/dependencies.coffee'
+
+          'vendor/**/*.js'
+          'vendor/**/*.coffee'
         ]
         tasks: ['snocketsify:dependencies']
 
@@ -149,6 +143,9 @@ module.exports = (grunt) ->
         files: [
           'css/**/*.css'
           'css/**/*.styl'
+
+          'vendor/**/*.css'
+          'vendor/**/*.styl'
         ]
         tasks: ['stylus']
 
@@ -157,24 +154,22 @@ module.exports = (grunt) ->
           'views/client/**/*.jade'
           'views/shared/**/*.jade'
         ]
-        tasks: ['jade2js']
+        tasks: ['jade']
 
       # images:
       #   files: [
-      #     'public/images/*.jpg', 'public/images/*.jpeg', 'public/images/*.png',
-      #     'public/images/**/*.jpg', 'public/images/**/*.jpeg', 'public/images/**/*.png'
+      #     'public/images/**/*.jpg'
+      #     'public/images/**/*.jpeg'
+      #     'public/images/**/*.png'
       #   ]
       #   tasks: ['imagemin']
 
-
-
-  )
 
   grunt.loadNpmTasks('grunt-contrib-clean')
 
   grunt.loadNpmTasks('grunt-snocketsify')
   grunt.loadNpmTasks('grunt-contrib-stylus')
-  grunt.loadNpmTasks('grunt-jade-plugin')
+  grunt.loadNpmTasks('grunt-contrib-jade')
 
   grunt.loadNpmTasks('grunt-contrib-cssmin')
   grunt.loadNpmTasks('grunt-contrib-uglify')
@@ -185,23 +180,16 @@ module.exports = (grunt) ->
 
   grunt.loadNpmTasks('grunt-contrib-watch')
 
-  # TODO:
-  # 1. Update Jade compiler
-
   grunt.registerTask('default', [
     'clean'
 
     'snocketsify'
     'stylus'
-    'jade2js'
+    'jade'
   ])
 
   grunt.registerTask('build', [
-    'clean'
-
-    'snocketsify'
-    'stylus'
-    'jade2js'
+    'default'
 
     'cssmin'
     'uglify'

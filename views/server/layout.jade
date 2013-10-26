@@ -1,3 +1,4 @@
+- jade.helpers = helpers
 !!!
 html.no-js(lang="en-US")
   head
@@ -23,7 +24,9 @@ html.no-js(lang="en-US")
 
     script.
       var app = {
-        env: !{JSON.stringify(env)}
+        env: !{JSON.stringify(client_env)},
+        models: {},
+        views: {}
       };
 
     include blocks/analytics

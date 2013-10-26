@@ -2,12 +2,11 @@
 # DEPENDENCIES & CONSTANTS
 #=========================================================================================
 helpers = require('./app/shared/helpers')
-global.log = helpers.log
+log = helpers.log
 
 cluster = require('cluster')
 config = require('config')
 express = require('express')
-
 
 
 #=========================================================================================
@@ -29,7 +28,6 @@ if cluster.isMaster
 else
 
 
-
 #=========================================================================================
 # INIT DB CONNECTION AND INSTANTIATE SERVER
 #=========================================================================================
@@ -39,20 +37,20 @@ else
   app = express()
 
 
-
 #=========================================================================================
 # TEMPLATE GLOBABS
 #=========================================================================================
   generateTemplateGlobals = ->
     app.locals.pretty = config.debug
-    app.locals.env =
+    app.locals.env = process.env.NODE_ENV
+    app.locals.client_env =
       hostname: config.hostname
       base_url: config.base_url
       debug: config.debug
       ga_id: config.ga_id
+      rendered: (new Date()).toUTCString()
 
       version: require('./package').version
-
 
 
 #=========================================================================================
@@ -65,7 +63,7 @@ else
       ext = name.split('.').pop()
       baseName = name.replace('.' + ext, '')
       hash = assetsHashMap[name]
-      "#{config.assets_host}/assets/#{baseName}-min-#{hash}.#{ext}"
+      "#{config.assets_host}/assets/#{baseName}.min.#{hash}.#{ext}"
 
   gruntAssets = (req, res, next)->
     req.app.locals.getAsset = _getAsset
@@ -83,7 +81,6 @@ else
     else
       app.use(express.errorHandler(dumpExceptions: true, showStack: true))
       app.use(express.logger('dev'))
-
 
 
 #=========================================================================================
@@ -104,8 +101,9 @@ else
   server.use(app)
 
   if config.debug
-    app.listen app.get('port'), ->
-      log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)")
+    app.listen(app.get('port'), -> log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)"))
   else
-    app.listen app.get('port'), config.ip or '127.0.0.1', ->
-      log("Server listening on http://127.0.0.1:#{app.get('port')} (bound to ip)")
+    if config.ip
+      app.listen(app.get('port'), config.ip, -> log("Server listening on http://#{config.ip}:#{app.get('port')} (bound to ip)"))
+    else
+      app.listen(app.get('port'), -> log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)"))
