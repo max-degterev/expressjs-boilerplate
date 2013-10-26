@@ -37,9 +37,6 @@
       }
       return url;
     };
-    exports.stripTags = function(str) {
-      return str.replace(/(<([^>]+)>)/g, '');
-    };
     exports.shorten = function(str, len, pos) {
       var lim, res;
       str = str || '';
@@ -59,9 +56,21 @@
       }
       return res;
     };
-    return exports.capFirst = function(string) {
+    exports.capFirst = function(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     };
-  })((typeof exports === 'undefined' ? this['helpers'] = {} : exports));
+    exports.stripTags = function(str) {
+      if (typeof str === 'string') {
+        return str.replace(/(<([^>]+)>)/g, '');
+      } else {
+        return '';
+      }
+    };
+    return exports.sanitizeString = function(string) {
+      string = string.replace(/\r\n/g, '\n');
+      string = string.replace(/<\/script>/g, '<\\/script>');
+      return unescape(encodeURIComponent(string));
+    };
+  })(typeof exports === 'undefined' ? this['helpers'] = {} : exports);
 
 }).call(this);

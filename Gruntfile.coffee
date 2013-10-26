@@ -16,7 +16,7 @@ module.exports = (grunt) ->
         dest: 'public/assets/app.js'
 
       dependencies:
-        src: 'app/client/dependencies.js'
+        src: 'app/client/dependencies.coffee'
         dest: 'public/assets/dependencies.js'
 
 
@@ -61,7 +61,7 @@ module.exports = (grunt) ->
         dest: 'public/assets/app-min.js'
 
       dependencies:
-        src: 'public/assets/dependencies.js'
+        src: 'public/assets/dependencies.coffee'
         dest: 'public/assets/dependencies-min.js'
 
       views:
@@ -83,7 +83,7 @@ module.exports = (grunt) ->
       libs_js:
         src: 'public/assets/dependencies-min.js'
         dest: 'dependencies-min-{{hash}}.js'
-        key: 'dependencies.js'
+        key: 'dependencies.coffee'
 
       views_js:
         src: 'public/assets/views-min.js'
@@ -135,13 +135,13 @@ module.exports = (grunt) ->
           'app/shared/**/*.js'
           '!app/shared/**/*.coffee'
 
-          '!app/client/dependencies.js'
+          '!app/client/dependencies.coffee'
         ]
         tasks: ['snocketsify:app']
 
       libs_js:
         files: [
-          'app/client/dependencies.js'
+          'app/client/dependencies.coffee'
         ]
         tasks: ['snocketsify:dependencies']
 
