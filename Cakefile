@@ -146,7 +146,7 @@ task 'versions', '[DEV]: Check package.json versions state', ->
     checkVersions(pkg[item]) if pkg[item]
 
 task 'install', '[DEV]: Install all dependencies', ->
-  npmInstall bowerInstall
+  npmInstall -> bowerInstall()
 
 task 'coffee', '[DEV]: Watch and compile serverside coffee', ->
   watchCoffee()
@@ -155,10 +155,10 @@ task 'grunt', '[DEV]: Watch and compile clientside assets', ->
   watchGrunt()
 
 task 'dev', '[DEV]: Devserver with autoreload', ->
-  npmInstall -> bowerInstall -> compileGrunt -> startServer()
+  compileGrunt -> startServer()
 
 task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
-  npmInstall -> bowerInstall -> compileGrunt -> startServer(true)
+  compileGrunt -> startServer(true)
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postdeploy")
