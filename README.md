@@ -1,8 +1,6 @@
 # Opinionated ExpressJS Boilerplate
 
-A good way to start your NodeJS project.
-
-
+A good way to start your NodeJS project. Additional flavours available under different branches.
 
 ## Usage:
 ### Development:
@@ -11,11 +9,13 @@ A good way to start your NodeJS project.
 
   `brew install node`
 
-2. Install globals:
+2. Install dependencies:
 
   `sudo npm install -g coffee-script nodemon forever bower grunt-cli`
 
-3. Edit your hosts:
+  `cake install`
+
+3. Edit your hosts (optional):
 
   `vim /private/etc/hosts`
 
@@ -27,7 +27,7 @@ A good way to start your NodeJS project.
 
   `cake dev`
 
-  and navigate your browser to http://express.dev:3000/
+  and navigate your browser to http://express.dev:3000/ or http://localhost:3000/
 
 5. ???
 
@@ -35,7 +35,7 @@ A good way to start your NodeJS project.
 
 ### Vendor dependencies management:
 
-There is a `vendor/bower` folder included. To install all the dependencies just run `bower install`. Cakefile takes care of it for you, though.
+`cake install`
 
 ### Assets management:
 

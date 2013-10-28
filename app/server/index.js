@@ -13,13 +13,8 @@
 
     Server.prototype.log = helpers.log;
 
-    Server.prototype.handle404 = function(req, res, next) {
-      res.status(404);
-      return res.render('pages/404');
-    };
-
     Server.prototype.router = function() {
-      return this.app.get('/', function(req, res) {
+      return this.app.get('/*', function(req, res) {
         return res.render('layout');
       });
     };
@@ -27,7 +22,6 @@
     Server.prototype.use = function(app) {
       this.app = app;
       this.router();
-      this.app.use(this.handle404);
       return this.log('initialized');
     };
 
