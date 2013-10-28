@@ -63,7 +63,7 @@ else
       ext = name.split('.').pop()
       baseName = name.replace('.' + ext, '')
       hash = assetsHashMap[name]
-      "#{config.assets_host}/assets/#{baseName}.min.#{hash}.#{ext}"
+      "/assets/#{baseName}.min.#{hash}.#{ext}"
 
   gruntAssets = (req, res, next)->
     req.app.locals.getAsset = _getAsset

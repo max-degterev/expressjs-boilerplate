@@ -51,7 +51,7 @@
         ext = name.split('.').pop();
         baseName = name.replace('.' + ext, '');
         hash = assetsHashMap[name];
-        return "" + config.assets_host + "/assets/" + baseName + ".min." + hash + "." + ext;
+        return "/assets/" + baseName + ".min." + hash + "." + ext;
       }
     };
     gruntAssets = function(req, res, next) {

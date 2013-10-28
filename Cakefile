@@ -180,7 +180,7 @@ startServer = (debug)->
   , 1000
 
 startProductionServer = ->
-  startDatabase()
+  # startDatabase()
 
   log('Starting node')
 
