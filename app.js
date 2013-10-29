@@ -18,7 +18,7 @@
       cluster.fork();
     }
     cluster.on('exit', function(worker, code, signal) {
-      log("Worker " + worker.process.pid + " died after " + (Math.round(worker.process.uptime())) + "s");
+      log("Worker " + worker.process.pid + " died");
       if (!config.debug) {
         return cluster.fork();
       } else {

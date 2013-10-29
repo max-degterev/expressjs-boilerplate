@@ -18,7 +18,7 @@ if cluster.isMaster
     cluster.fork()
 
   cluster.on 'exit', (worker, code, signal) ->
-    log("Worker #{worker.process.pid} died after #{Math.round(worker.process.uptime())}s")
+    log("Worker #{worker.process.pid} died")
 
     unless config.debug
       cluster.fork()
