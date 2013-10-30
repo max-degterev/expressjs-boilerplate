@@ -1,6 +1,6 @@
 # Opinionated ExpressJS Boilerplate
 
-A good way to start your NodeJS project. Additional flavours available under different branches.
+A good way to start your NodeJS project. Additional flavours available under different branches. Read this awesome [blog post](http://maxdegterev.name/blog/express-boilerplate) that covers what's inside.
 
 ## Usage:
 ### Development:
