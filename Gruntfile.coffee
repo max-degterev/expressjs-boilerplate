@@ -38,7 +38,7 @@ module.exports = (grunt) ->
           compileDebug: false
           client: true
           namespace: 'app.templates'
-          processName: (file)-> file.replace(/views\/client\/([\w\/]+).jade/gi, '$1').replace('/', '_')
+          processName: (file)-> file.replace(/views\/client\/([\w\/]+).jade/gi, '$1')
         src: 'views/client/**/*.jade'
         dest: 'public/assets/views.js'
 
