@@ -33,6 +33,7 @@
     app = express();
     generateTemplateGlobals = function() {
       app.locals.pretty = config.debug;
+      app.locals.helpers = helpers;
       app.locals.env = process.env.NODE_ENV;
       return app.locals.client_env = {
         hostname: config.hostname,
