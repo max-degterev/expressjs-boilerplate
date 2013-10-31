@@ -42,6 +42,7 @@ else
 #=========================================================================================
   generateTemplateGlobals = ->
     app.locals.pretty = config.debug
+    app.locals.helpers = helpers
     app.locals.env = process.env.NODE_ENV
     app.locals.client_env =
       hostname: config.hostname
