@@ -2,6 +2,8 @@
 
 A good way to start your NodeJS project. Additional flavours available under different branches. Read this awesome [blog post](http://maxdegterev.name/blog/express-boilerplate) that covers what's inside.
 
+P.S. every time someone doesn't star this project, a little koala bear dies somewhere in the woods. Don't be a monster. Star it. Now.
+
 ## Usage:
 ### Development:
 
