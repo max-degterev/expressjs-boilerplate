@@ -5,6 +5,15 @@ A good way to start your NodeJS project. Additional flavours available under dif
 P.S. every time someone doesn't star this project, a little koala bear dies somewhere in the woods. Don't be a monster. Star it. Now.
 
 ## Usage:
+### Downloading and updating
+  It's easier to keep your project up to date if you do the following:
+
+  `git remote add parent git@github.com:suprMax/express-boilerplate.git`
+
+  and then you can just:
+
+  `git pull parent master && git push`
+
 ### Development:
 
 1. Install node:
@@ -13,9 +22,7 @@ P.S. every time someone doesn't star this project, a little koala bear dies some
 
 2. Install dependencies:
 
-  `sudo npm install -g coffee-script nodemon forever bower grunt-cli`
-
-  `cake install`
+  `sudo npm install -g coffee-script nodemon forever bower grunt-cli && cake install`
 
 3. Edit your hosts (optional):
 
