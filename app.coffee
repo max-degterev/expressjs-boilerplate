@@ -102,9 +102,9 @@ else
   server.use(app)
 
   if config.debug
-    app.listen(app.get('port'), -> log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)"))
+    app.listen(app.get('port'), -> log("Server listening on http://#{config.hostname}:#{app.get('port')} (unbound)"))
   else
     if config.ip
-      app.listen(app.get('port'), config.ip, -> log("Server listening on http://#{config.ip}:#{app.get('port')} (bound to ip)"))
+      app.listen(app.get('port'), config.ip, -> log("Server listening on http://#{config.hostname}:#{app.get('port')} (bound to ip: #{config.ip})"))
     else
-      app.listen(app.get('port'), -> log("Server listening on http://127.0.0.1:#{app.get('port')} (unbound)"))
+      app.listen(app.get('port'), -> log("Server listening on http://#{config.hostname}:#{app.get('port')} (unbound)"))
