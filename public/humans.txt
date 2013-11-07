@@ -59,6 +59,6 @@
 
 
 
-Based on Express Boilerplate by Max Degterev @suprMax. Fascinating.
+Running on NodeJS, ExpressJS, CoffeeScript, Stylus, Jade. Fascinating.
 
-Running on NodeJS, ExpressJS, CoffeeScript, Stylus, Jade
+Based on Express Boilerplate (https://github.com/suprMax/express-boilerplate)
