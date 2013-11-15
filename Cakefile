@@ -155,23 +155,24 @@ watchGrunt = ->
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
-# startDatabase = (debug)->
+# startDatabase = ->
 #   log('Spawning redis')
 
 #   runner = spawn('redis-server', ['/usr/local/etc/redis.conf'])
 #   runner.stdout.on('data', proxyLog)
 #   runner.stderr.on('data', proxyWarn)
 
-startServer = (debug)->
-  watchCoffee()
-  watchGrunt()
+startServer = (options = {})->
+  unless options.skipwatch
+    watchCoffee()
+    watchGrunt()
   # startDatabase()
 
   log('Starting nodemon')
 
   params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y ' +
     "nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js " +
-    (if debug then '--debug' else '') + " #{SERVER_FILE}.js"
+    (if options.debug then '--debug' else '') + " #{SERVER_FILE}.js"
 
   setTimeout ->
     runner = exec(params)
@@ -247,7 +248,10 @@ task 'dev', '[DEV]: Devserver with autoreload', ->
   compileGrunt -> startServer()
 
 task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
-  compileGrunt -> startServer(true)
+  compileGrunt -> startServer(debug: true)
+
+task 'dev:skipwatch', '[DEV]: Devserver with autoreload', ->
+  compileCoffee -> compileGrunt -> startServer(skipwatch: true)
 
 task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', ->
   compileCoffee -> buildGrunt -> startProductionServer()
