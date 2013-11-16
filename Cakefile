@@ -168,11 +168,14 @@ startServer = (options = {})->
     watchGrunt()
   # startDatabase()
 
-  log('Starting nodemon')
+  log('Starting node')
 
-  params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y ' +
-    "nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js " +
-    (if options.debug then '--debug' else '') + " #{SERVER_FILE}.js"
+  params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y '
+  unless options.skipwatch
+    params += "nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js " +
+      (if options.debug then '--debug' else '') + " #{SERVER_FILE}.js"
+  else
+    params += 'node' + (if options.debug then ' --debug' else '') + " #{SERVER_FILE}.js"
 
   setTimeout ->
     runner = exec(params)
@@ -250,7 +253,7 @@ task 'dev', '[DEV]: Devserver with autoreload', ->
 task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
   compileGrunt -> startServer(debug: true)
 
-task 'dev:skipwatch', '[DEV]: Devserver with autoreload, no grunt watcher', ->
+task 'dev:skipwatch', '[DEV]: Devserver with autoreload, without grunt watcher', ->
   compileCoffee -> compileGrunt -> startServer(skipwatch: true)
 
 task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', ->
