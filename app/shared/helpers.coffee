@@ -14,7 +14,7 @@
   exports.choosePlural = (number, endings)->
     number + ' ' + if number is 1 then endings[0] else endings[1]
 
-  exports.makeURL = (url, params)->
+  exports.makeUrl = (url, params)->
     matches = url.match(/[:|*]\w+/g)
 
     if matches and (typeof params is 'string' or typeof params is 'number')
