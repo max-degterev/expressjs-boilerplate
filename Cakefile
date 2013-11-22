@@ -168,11 +168,14 @@ startServer = (options = {})->
     watchGrunt()
   # startDatabase()
 
-  log('Starting nodemon')
+  log('Starting node')
 
-  params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y ' +
-    "nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js " +
-    (if options.debug then '--debug' else '') + " #{SERVER_FILE}.js"
+  params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y '
+  unless options.skipwatch
+    params += "nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js " +
+      (if options.debug then '--debug' else '') + " #{SERVER_FILE}.js"
+  else
+    params += 'node' + (if options.debug then ' --debug' else '') + " #{SERVER_FILE}.js"
 
   setTimeout ->
     runner = exec(params)
@@ -250,15 +253,15 @@ task 'dev', '[DEV]: Devserver with autoreload', ->
 task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
   compileGrunt -> startServer(debug: true)
 
-task 'dev:skipwatch', '[DEV]: Devserver with autoreload', ->
+task 'dev:skipwatch', '[DEV]: Devserver with autoreload, without grunt watcher', ->
   compileCoffee -> compileGrunt -> startServer(skipwatch: true)
 
 task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', ->
   compileCoffee -> buildGrunt -> startProductionServer()
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
-  log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postdeploy")
-  exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake postdeploy'",
+  log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running deploy:action")
+  exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake deploy:action'",
     (error, stdout, stderr) ->
       unless error
         log('Triggered deploy, wait for email confirmation 👍')
@@ -266,15 +269,15 @@ task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the s
         log("Deploy failed with an error: #{error}")
 
 task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting the server', ->
-  log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running postpush")
-  exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake postpush'",
+  log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running push:action")
+  exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake push:action'",
     (error, stdout, stderr) ->
       unless error
         log('Triggered push, wait for email confirmation 👍')
       else
         log("Push failed with an error: #{error}")
 
-task 'postdeploy', '[PROD]: Update current app state from the repo and restart the server', ->
+task 'deploy:action', '[PROD]: Update current app state from the repo and restart the server', ->
   log('Pulling updates from the repo')
   exec 'git pull', (error, stdout, stderr) ->
     unless error
@@ -287,7 +290,7 @@ task 'postdeploy', '[PROD]: Update current app state from the repo and restart t
     else
       log("Git pull failed with an error: #{error}")
 
-task 'postpush', '[PROD]: Update current app state from the repo', ->
+task 'push:action', '[PROD]: Update current app state from the repo', ->
   log('Pulling updates from the repo')
   exec 'git pull', (error, stdout, stderr) ->
     unless error
