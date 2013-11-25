@@ -18,4 +18,4 @@ npm-debug.log
 nvm/
 .build-auth-env
 config/development.json
-public/assets/
+public/assets/*.*
