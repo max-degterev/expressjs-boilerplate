@@ -22,7 +22,7 @@
     exports.choosePlural = function(number, endings) {
       return number + ' ' + (number === 1 ? endings[0] : endings[1]);
     };
-    exports.makeURL = function(url, params) {
+    exports.makeUrl = function(url, params) {
       var i, l, matches;
       matches = url.match(/[:|*]\w+/g);
       if (matches && (typeof params === 'string' || typeof params === 'number')) {
