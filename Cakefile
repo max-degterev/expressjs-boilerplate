@@ -253,7 +253,7 @@ task 'dev', '[DEV]: Devserver with autoreload', ->
 task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
   compileGrunt -> startServer(debug: true)
 
-task 'dev:skipwatch', '[DEV]: Devserver with autoreload, without grunt watcher', ->
+task 'dev:skipwatch', '[DEV]: Devserver without autoreload', ->
   compileCoffee -> compileGrunt -> startServer(skipwatch: true)
 
 task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', ->

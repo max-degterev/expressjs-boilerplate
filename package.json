@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "sty":                                        "~0.6.1",
-    "nodemailer":                                 "~0.5.8",
+    "nodemailer":                                 "~0.5.11",
 
-    "express":                                    "~3.4.4",
+    "express":                                    "~3.4.5",
     "config":                                     ">=0.4.33",
 
     "coffee-script":                              ">=1.6.3",
@@ -41,7 +41,7 @@
     "grunt-contrib-cssmin":                       "~0.7.0",
     "grunt-contrib-uglify":                       "~0.2.7",
     "grunt-hashify":                              ">=0.0.6",
-    "grunt-contrib-compress":                     "~0.5.2",
+    "grunt-contrib-compress":                     "~0.5.3",
     "grunt-contrib-watch":                        "~0.5.3"
   }
 }
