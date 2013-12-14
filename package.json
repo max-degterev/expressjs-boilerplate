@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "sty":                                        "~0.6.1",
-    "nodemailer":                                 "~0.5.8",
+    "nodemailer":                                 "~0.5.15",
 
-    "express":                                    "~3.4.4",
+    "express":                                    "~3.4.7",
     "config":                                     ">=0.4.33",
 
     "coffee-script":                              ">=1.6.3",
@@ -36,12 +36,12 @@
     "grunt":                                      "~0.4.2",
     "grunt-contrib-clean":                        "~0.5.0",
     "grunt-snocketsify":                          ">=0.0.2",
-    "grunt-contrib-stylus":                       "~0.10.0",
+    "grunt-contrib-stylus":                       "~0.11.0",
     "grunt-contrib-jade":                         "~0.8.0",
     "grunt-contrib-cssmin":                       "~0.7.0",
     "grunt-contrib-uglify":                       "~0.2.7",
-    "grunt-hashify":                              ">=0.0.6",
-    "grunt-contrib-compress":                     "~0.5.2",
+    "grunt-hashify":                              "~0.0.7",
+    "grunt-contrib-compress":                     "~0.5.3",
     "grunt-contrib-watch":                        "~0.5.3"
   }
 }
