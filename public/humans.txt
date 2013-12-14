@@ -58,7 +58,5 @@
  /-.                                                      J  |
 
 
-
 Running on NodeJS, ExpressJS, CoffeeScript, Stylus, Jade. Fascinating.
-
 Based on Express Boilerplate (https://github.com/suprMax/express-boilerplate)

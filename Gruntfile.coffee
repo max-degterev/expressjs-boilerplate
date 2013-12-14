@@ -5,7 +5,7 @@ module.exports = (grunt) ->
 
     clean:
       build:
-        src: 'public/assets/*.*'
+        src: 'public/assets'
 
 
     snocketsify:

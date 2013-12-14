@@ -6,7 +6,7 @@ class Server
   log: helpers.log
 
   router: ->
-    @app.get('/*', (req, res)-> res.render('layout'))
+    @app.get('*', (req, res)-> res.render('layout'))
 
   use: (@app)->
     @router()

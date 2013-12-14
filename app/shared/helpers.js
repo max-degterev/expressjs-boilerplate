@@ -5,7 +5,7 @@
     exports.log = function(message, prefix) {
       return console.log("[" + ((new Date()).toUTCString()) + "] " + (this.logPrefix || prefix || '[app]:') + " " + message);
     };
-    exports.numOrdinalSuffix = function(i) {
+    exports.numberOrdinalSuffix = function(i) {
       var j;
       j = i % 10;
       if (j === 1 && i !== 11) {
@@ -18,6 +18,12 @@
         return i + 'rd';
       }
       return i + 'th';
+    };
+    exports.numberFormat = function(number) {
+      var parts;
+      parts = number.toString().split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return parts.join('.');
     };
     exports.choosePlural = function(number, endings) {
       return number + ' ' + (number === 1 ? endings[0] : endings[1]);
@@ -66,10 +72,19 @@
         return '';
       }
     };
-    return exports.sanitizeString = function(string) {
+    exports.sanitizeString = function(string) {
       string = string.replace(/\r\n/g, '\n');
       string = string.replace(/<\/script>/g, '<\\/script>');
       return unescape(encodeURIComponent(string));
+    };
+    return exports.getClientEnv = function(prop) {
+      if (typeof client_env !== "undefined" && client_env !== null) {
+        return client_env[prop];
+      } else if (typeof app !== "undefined" && app !== null) {
+        return app.env[prop];
+      } else {
+        return null;
+      }
     };
   })(typeof exports === 'undefined' ? this['helpers'] = {} : exports);
 

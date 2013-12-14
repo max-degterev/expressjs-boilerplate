@@ -14,7 +14,7 @@
     Server.prototype.log = helpers.log;
 
     Server.prototype.router = function() {
-      return this.app.get('/*', function(req, res) {
+      return this.app.get('*', function(req, res) {
         return res.render('layout');
       });
     };

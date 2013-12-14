@@ -156,7 +156,7 @@ watchGrunt = ->
   runner.stderr.on('data', proxyWarn)
 
 # startDatabase = ->
-#   log('Spawning redis')
+#   log('Spawning database')
 
 #   runner = spawn('redis-server', ['/usr/local/etc/redis.conf'])
 #   runner.stdout.on('data', proxyLog)
