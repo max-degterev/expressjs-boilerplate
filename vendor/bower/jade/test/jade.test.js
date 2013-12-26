@@ -23,12 +23,12 @@ describe('jade', function(){
 
   describe('.compile()', function(){
     it('should support doctypes', function(){
-      assert.equal('<?xml version="1.0" encoding="utf-8" ?>', jade.render('!!! xml'));
+      assert.equal('<?xml version="1.0" encoding="utf-8" ?>', jade.render('doctype xml'));
       assert.equal('<!DOCTYPE html>', jade.render('doctype html'));
       assert.equal('<!DOCTYPE foo bar baz>', jade.render('doctype foo bar baz'));
-      assert.equal('<!DOCTYPE html>', jade.render('!!! 5'));
-      assert.equal('<!DOCTYPE html>', jade.render('!!!', { doctype:'html' }));
-      assert.equal('<!DOCTYPE html>', jade.render('!!! html', { doctype:'xml' }));
+      assert.equal('<!DOCTYPE html>', jade.render('doctype html'));
+      assert.equal('<!DOCTYPE html>', jade.render('doctype', { doctype:'html' }));
+      assert.equal('<!DOCTYPE html>', jade.render('doctype html', { doctype:'xml' }));
       assert.equal('<html></html>', jade.render('html'));
       assert.equal('<!DOCTYPE html><html></html>', jade.render('html', { doctype:'html' }));
       assert.equal('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN>', jade.render('doctype html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN'));
@@ -349,9 +349,9 @@ describe('jade', function(){
     });
 
     it('should support test html 5 mode', function(){
-      assert.equal('<!DOCTYPE html><input type="checkbox" checked>', jade.render('!!! 5\ninput(type="checkbox", checked)'));
-      assert.equal('<!DOCTYPE html><input type="checkbox" checked>', jade.render('!!! 5\ninput(type="checkbox", checked=true)'));
-      assert.equal('<!DOCTYPE html><input type="checkbox">', jade.render('!!! 5\ninput(type="checkbox", checked= false)'));
+      assert.equal('<!DOCTYPE html><input type="checkbox" checked>', jade.render('doctype html\ninput(type="checkbox", checked)'));
+      assert.equal('<!DOCTYPE html><input type="checkbox" checked>', jade.render('doctype html\ninput(type="checkbox", checked=true)'));
+      assert.equal('<!DOCTYPE html><input type="checkbox">', jade.render('doctype html\ninput(type="checkbox", checked= false)'));
     });
 
     it('should support multi-line attrs', function(){
@@ -422,10 +422,6 @@ describe('jade', function(){
       assert.equal('<a data-obj="{ foo: \'bar\' }"></a>', jade.render("a(data-obj= \"{ foo: 'bar' }\")"));
 
       assert.equal('<meta content="what\'s up? \'weee\'"/>', jade.render('meta(content="what\'s up? \'weee\'")'));
-    });
-
-    it('should support colons option', function(){
-      assert.equal('<a href="/bar"></a>', jade.render('a(href:"/bar")', { colons: true }));
     });
 
     it('should support class attr array', function(){
@@ -960,17 +956,6 @@ describe('jade', function(){
       assert.equal(tag.getAttribute(name), val)
       tag.removeAttribute(name)
       assert.ok(!tag.getAttribute(name))
-    });
-
-    it('should support assignment', function(){
-      assert.equal('<div>5</div>', jade.render('a = 5;\ndiv= a'));
-      assert.equal('<div>5</div>', jade.render('a = 5\ndiv= a'));
-      assert.equal('<div>foo bar baz</div>', jade.render('a = "foo bar baz"\ndiv= a'));
-      assert.equal('<div>5</div>', jade.render('a = 5      \ndiv= a'));
-      assert.equal('<div>5</div>', jade.render('a = 5      ; \ndiv= a'));
-
-      var fn = jade.compile('test = local\np=test');
-      assert.equal('<p>bar</p>', fn({ local: 'bar' }));
     });
 
     it('should be reasonably fast', function(){
