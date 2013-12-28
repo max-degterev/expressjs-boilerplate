@@ -170,12 +170,13 @@ startServer = (options = {})->
 
   log('Starting node')
 
-  params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y '
+  params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y'
   unless options.skipwatch
-    params += "nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js " +
-      (if options.debug then '--debug' else '') + " #{SERVER_FILE}.js"
+    params += " nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js"
   else
-    params += 'node' + (if options.debug then ' --debug' else '') + " #{SERVER_FILE}.js"
+    params += ' node'
+  params += ' --debug' if options.debug
+  params += " #{SERVER_FILE}.js"
 
   setTimeout ->
     runner = exec(params)
