@@ -120,12 +120,8 @@ module.exports = (grunt) ->
 
       app_js:
         files: [
-          'app/client/**/*.js'
           'app/client/**/*.coffee'
-
-          'app/shared/**/*.js'
-          '!app/shared/**/*.coffee'
-
+          'app/shared/**/*.coffee'
           '!app/client/dependencies.coffee'
         ]
         tasks: ['snocketsify:app']
@@ -133,7 +129,6 @@ module.exports = (grunt) ->
       dependencies_js:
         files: [
           'app/client/dependencies.coffee'
-
           'vendor/**/*.js'
           'vendor/**/*.coffee'
         ]
@@ -141,9 +136,7 @@ module.exports = (grunt) ->
 
       css:
         files: [
-          'css/**/*.css'
           'css/**/*.styl'
-
           'vendor/**/*.css'
           'vendor/**/*.styl'
         ]

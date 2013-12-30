@@ -2,7 +2,7 @@
   exports.noop = ->
 
   exports.log = (message, prefix)->
-    console.log("[#{(new Date()).toUTCString()}] #{@logPrefix or prefix or '[app]:'} #{message}")
+    console.log("[#{(new Date).toUTCString()}] #{@logPrefix or prefix or '[app]:'} #{message}")
 
   exports.numberOrdinalSuffix = (i)->
     j = i % 10

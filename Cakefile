@@ -2,9 +2,7 @@
 # Dependencies and constants
 # =======================================================================================
 logPrefix = '[Cake]:'
-
 SERVER_FILE = 'app'
-COFFEE_FILES = "app/server/ app/shared/ #{SERVER_FILE}.coffee"
 
 USER_NAME = 'Max Degterev'
 USER_EMAIL = 'me@maxdegterev.name'
@@ -22,7 +20,7 @@ VPS_LOG = '/var/log/maxdegterev'
 # =======================================================================================
 # Utility functions
 # =======================================================================================
-log = (message)-> console.log("[#{(new Date()).toUTCString()}] #{logPrefix} #{message}")
+log = (message)-> console.log("[#{(new Date).toUTCString()}] #{logPrefix} #{message}")
 proxyLog = (data)-> print(data.toString())
 proxyWarn = (data)-> process.stderr.write(data.toString())
 
@@ -102,18 +100,6 @@ bowerInstall = (callb)->
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
-compileCoffee = (callb)->
-  log('Compiling coffee')
-
-  runner = exec "coffee -c #{COFFEE_FILES}", (error, stdout, stderr) ->
-    unless error
-      callb?()
-    else
-      log("Coffee build failed with an error: #{error}")
-
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
-
 compileGrunt = (callb)->
   log('Executing grunt defaults')
 
@@ -138,16 +124,6 @@ buildGrunt = (callb)->
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
-watchCoffee = ->
-  log('Spawning coffeescript watcher')
-  parameters = COFFEE_FILES.split(' ')
-  parameters.unshift('-w')
-  parameters.unshift('-c')
-
-  runner = spawn('coffee', parameters)
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
-
 watchGrunt = ->
   log('Spawning grunt watcher')
 
@@ -164,7 +140,6 @@ watchGrunt = ->
 
 startServer = (options = {})->
   unless options.skipwatch
-    watchCoffee()
     watchGrunt()
   # startDatabase()
 
@@ -172,11 +147,11 @@ startServer = (options = {})->
 
   params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y'
   unless options.skipwatch
-    params += " nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.js"
+    params += " nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.coffee"
   else
-    params += ' node'
+    params += ' coffee'
   params += ' --debug' if options.debug
-  params += " #{SERVER_FILE}.js"
+  params += " #{SERVER_FILE}.coffee"
 
   setTimeout ->
     runner = exec(params)
@@ -189,7 +164,7 @@ startProductionServer = ->
 
   log('Starting node')
 
-  params = "NODE_ENV=production NODE_CONFIG_DISABLE_FILE_WATCH=Y node #{SERVER_FILE}.js"
+  params = "NODE_ENV=production NODE_CONFIG_DISABLE_FILE_WATCH=Y coffee #{SERVER_FILE}.coffee"
 
   runner = exec(params)
   runner.stdout.on('data', proxyLog)
@@ -242,9 +217,6 @@ task 'versions:bower', '[DEV]: Check bower.json versions state', ->
 task 'install', '[DEV]: Install all dependencies', ->
   npmInstall -> bowerInstall()
 
-task 'coffee', '[DEV]: Watch and compile serverside coffee', ->
-  watchCoffee()
-
 task 'grunt', '[DEV]: Watch and compile clientside assets', ->
   watchGrunt()
 
@@ -255,10 +227,10 @@ task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
   compileGrunt -> startServer(debug: true)
 
 task 'dev:skipwatch', '[DEV]: Devserver without autoreload', ->
-  compileCoffee -> compileGrunt -> startServer(skipwatch: true)
+  compileGrunt -> startServer(skipwatch: true)
 
 task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', ->
-  compileCoffee -> buildGrunt -> startProductionServer()
+  buildGrunt -> startProductionServer()
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running deploy:action")
@@ -283,10 +255,11 @@ task 'deploy:action', '[PROD]: Update current app state from the repo and restar
   exec 'git pull', (error, stdout, stderr) ->
     unless error
       npmInstall ->
-        buildGrunt ->
-          log('Restarting forever')
-          exec('forever restartall')
-          sendMail()
+        bowerInstall ->
+          buildGrunt ->
+            log('Restarting forever')
+            exec('forever restartall')
+            sendMail()
 
     else
       log("Git pull failed with an error: #{error}")
@@ -300,9 +273,9 @@ task 'push:action', '[PROD]: Update current app state from the repo', ->
       log("Git pull failed with an error: #{error}")
 
 task 'forever', '[PROD]: Start server in PRODUCTION environmont', ->
-  server = "NODE_ENV=production NODE_CONFIG_DISABLE_FILE_WATCH=Y " +
-    "forever start -l #{VPS_LOG}/#{SERVER_FILE}.log --append " +
-    "--sourceDir #{VPS_HOME} #{SERVER_FILE}.js"
+  server = "NODE_ENV=production NODE_CONFIG_DISABLE_FILE_WATCH=Y" +
+    " forever start -l #{VPS_LOG}/#{SERVER_FILE}.log --append" +
+    " --minUptime 1000 --spinSleepTime 1000 --sourceDir #{VPS_HOME} -c coffee #{SERVER_FILE}.coffee"
 
   log("Starting server: #{server}")
   exec(server)

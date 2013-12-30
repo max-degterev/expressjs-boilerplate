@@ -17,5 +17,6 @@ npm-debug.log
 
 nvm/
 .build-auth-env
+vendor/bower
 config/development.json
 public/assets/*.*
