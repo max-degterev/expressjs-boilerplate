@@ -147,7 +147,7 @@ startServer = (options = {})->
 
   params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y'
   unless options.skipwatch
-    params += " nodemon -w app/shared/ -w app/server/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.coffee"
+    params += " nodemon -w app/server/ -w app/shared/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.coffee"
   else
     params += ' coffee'
   params += ' --debug' if options.debug
