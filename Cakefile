@@ -153,11 +153,9 @@ startServer = (options = {})->
   params += ' --debug' if options.debug
   params += " #{SERVER_FILE}.coffee"
 
-  setTimeout ->
-    runner = exec(params)
-    runner.stdout.on('data', proxyLog)
-    runner.stderr.on('data', proxyWarn)
-  , 1000
+  runner = exec(params)
+  runner.stdout.on('data', proxyLog)
+  runner.stderr.on('data', proxyWarn)
 
 startProductionServer = ->
   # startDatabase()
