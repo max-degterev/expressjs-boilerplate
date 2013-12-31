@@ -49,7 +49,7 @@ else
       base_url: config.base_url
       debug: config.debug
       ga_id: config.ga_id
-      rendered: (new Date()).toUTCString()
+      rendered: (new Date).toUTCString()
 
       version: require('./package').version
 
