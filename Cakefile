@@ -34,14 +34,14 @@ checkNpmVersions = (list)->
         current = version.replace(/[\<\>\=\~]*/, '')
 
         if current is latest
-          console.log("#{sty.bold sty.green 'OK:'} #{lib} #{current}")
+          console.log("#{sty.bold sty.green 'NPM OK:'} #{lib} #{current}")
         else
           if current is '*'
-            console.warn("#{sty.bold sty.cyan 'NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.cyan 'NPM NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
           else
-            console.warn("#{sty.bold sty.red 'WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.red 'NPM WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
       else
-        log("Failed to fetch latest version for #{lib}")
+        log("NPM Failed to fetch latest version for #{lib}")
 
   _checkVersion(lib, version) for lib, version of list
 
@@ -56,17 +56,17 @@ checkBowerVersions = (list)->
         current = version.replace(/[\<\>\=\~]*/, '')
 
         if !!~current.indexOf('git')
-          return console.warn("#{sty.bold sty.cyan 'NOTICE:'} using #{lib} with git repo instead of a version number: #{current}")
+          return console.warn("#{sty.bold sty.cyan 'BWR NOTICE:'} using #{lib} with git repo instead of a version number: #{current}")
 
         if current is latest
-          console.log("#{sty.bold sty.green 'OK:'} #{lib} #{current}")
+          console.log("#{sty.bold sty.green 'BWR OK:'} #{lib} #{current}")
         else
           if current is '*'
-            console.warn("#{sty.bold sty.cyan 'NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.cyan 'BWR NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
           else
-            console.warn("#{sty.bold sty.red 'WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.red 'BWR WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
       else
-        log("Failed to fetch latest version for #{lib}")
+        log("BOWER Failed to fetch latest version for #{lib}")
 
   for lib, version of list
     do (lib, version)->
