@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-US" class="no-js">
+<html lang="en-US">
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,34 +8,34 @@
     <meta name="author" content="Max Degterev">
     <meta name="Generator" content="Microsoft FrontPage 2.3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static.css?v=1">
   </head>
   <body>
-    <h1>Deploying</h1>
-    <p>
-      Please hold, we're deploying a new version of the website. It'll be back in <span>30</span> seconds.
-    </p>
-
-    <script>
-      var message = document.querySelector('p'),
-          counter = message.querySelector('span'),
-          count = parseInt(counter.innerHTML, 10);
-
-      var refresh = function() {
-        window.location.href = '/';
-      };
-
-      var updateCounter = function() {
-        if (count) {
-          counter.innerHTML = count--;
-          window.setTimeout(updateCounter, 1000);
-        }
-        else {
-          message.innerHTML = "It's live!";
-        }
-      };
-
-      window.setTimeout(refresh, count * 1000);
-      updateCounter();
-    </script>
+    <div class="p-static">
+      <h2>Deploying</h2>
+      <p>Please hold, we're deploying a new version of the website. It'll be back in <span>30</span> seconds.</p>
+      <script>
+        var message = document.querySelector('p'),
+            counter = message.querySelector('span'),
+            count = parseInt(counter.innerHTML, 10);
+            
+        var refresh = function() {
+          window.location.href = '/';
+        };
+        
+        var updateCounter = function() {
+          if (count) {
+            counter.innerHTML = count--;
+            window.setTimeout(updateCounter, 1000);
+          }
+          else {
+            message.innerHTML = "It's live!";
+          }
+        };
+        
+        window.setTimeout(refresh, count * 1000);
+        updateCounter();
+      </script>
+    </div>
   </body>
 </html>
