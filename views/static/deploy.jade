@@ -1,0 +1,26 @@
+extend _layout
+block content
+  h2 Deploying
+  p Please hold, we're deploying a new version of the website. It'll be back in <span>30</span> seconds.
+
+  script.
+    var message = document.querySelector('p'),
+        counter = message.querySelector('span'),
+        count = parseInt(counter.innerHTML, 10);
+
+    var refresh = function() {
+      window.location.href = '/';
+    };
+
+    var updateCounter = function() {
+      if (count) {
+        counter.innerHTML = count--;
+        window.setTimeout(updateCounter, 1000);
+      }
+      else {
+        message.innerHTML = "It's live!";
+      }
+    };
+
+    window.setTimeout(refresh, count * 1000);
+    updateCounter();
