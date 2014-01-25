@@ -22,7 +22,11 @@ P.S. every time someone doesn't star this project, a little koala bear dies some
 
 2. Install dependencies:
 
-  `sudo npm install -g coffee-script nodemon forever bower grunt-cli && cake install`
+  `sudo npm install -g coffee-script nodemon forever bower grunt-cli`
+
+  and then
+
+  `cake install`
 
 3. Edit your hosts (optional):
 
