@@ -20,11 +20,10 @@ if cluster.isMaster
   cluster.on 'exit', (worker, code, signal) ->
     log("Worker #{worker.process.pid} died")
 
-    unless config.debug
-      cluster.fork()
-    else
+    if config.debug
       process.exit()
-
+    else
+      cluster.fork()
 else
 
 
@@ -44,14 +43,12 @@ else
     app.locals.pretty = config.debug
     app.locals.helpers = helpers
     app.locals.env = process.env.NODE_ENV
-    app.locals.client_env =
-      hostname: config.hostname
-      base_url: config.base_url
-      debug: config.debug
-      ga_id: config.ga_id
-      rendered: (new Date).toUTCString()
 
-      version: require('./package').version
+    env = {}
+    env[key] = config[key] for key in ['hostname', 'base_url', 'debug', 'ga_id']
+    env.version = require('./package').version
+
+    app.locals.client_env = env
 
 
 #=========================================================================================

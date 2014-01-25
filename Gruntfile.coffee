@@ -1,4 +1,6 @@
 module.exports = (grunt) ->
+  require('time-grunt')(grunt)
+
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
 
@@ -30,6 +32,17 @@ module.exports = (grunt) ->
         src: 'css/app.styl'
         dest: 'public/assets/app.css'
 
+      static:
+        options:
+          compress: false
+          'include css': true
+          urlfunc: 'embedurl'
+          linenos: true
+          define:
+            '$version': '<%= pkg.version %>'
+        src: 'css/static.styl'
+        dest: 'public/static.css'
+
 
     jade:
       views:
@@ -42,11 +55,26 @@ module.exports = (grunt) ->
         src: 'views/client/**/*.jade'
         dest: 'public/assets/views.js'
 
+      static:
+        options:
+          pretty: true
+          compileDebug: false
+
+        expand: true
+        cwd: 'views/static'
+        src: ['**/*.jade', '!**/_*.jade']
+        dest: 'public'
+        ext: '.html'
+
 
     cssmin:
-      build:
+      app:
         src: 'public/assets/app.css'
         dest: 'public/assets/app.min.css'
+
+      static:
+        src: 'public/static.css'
+        dest: 'public/static.css'
 
 
     uglify:
@@ -140,14 +168,20 @@ module.exports = (grunt) ->
           'vendor/**/*.css'
           'vendor/**/*.styl'
         ]
-        tasks: ['stylus']
+        tasks: ['stylus:app']
 
       views:
         files: [
           'views/client/**/*.jade'
           'views/shared/**/*.jade'
         ]
-        tasks: ['jade']
+        tasks: ['jade:views']
+
+      static:
+        files: [
+          'views/static/**/*.jade'
+        ]
+        tasks: ['jade:static']
 
       # images:
       #   files: [

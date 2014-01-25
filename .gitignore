@@ -10,9 +10,9 @@ lib-cov
 pids
 logs
 results
-node_modules
 
 npm-debug.log
+node_modules
 .DS_Store
 
 nvm/
@@ -20,3 +20,6 @@ nvm/
 vendor/bower
 config/development.json
 public/assets/*.*
+public/static.css
+public/404.html
+public/deploy.html

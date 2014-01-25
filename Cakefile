@@ -34,14 +34,14 @@ checkNpmVersions = (list)->
         current = version.replace(/[\<\>\=\~]*/, '')
 
         if current is latest
-          console.log("#{sty.bold sty.green 'OK:'} #{lib} #{current}")
+          console.log("#{sty.bold sty.green 'NPM OK:'} #{lib} #{current}")
         else
           if current is '*'
-            console.warn("#{sty.bold sty.cyan 'NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.cyan 'NPM NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
           else
-            console.warn("#{sty.bold sty.red 'WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.red 'NPM WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
       else
-        log("Failed to fetch latest version for #{lib}")
+        log("NPM Failed to fetch latest version for #{lib}")
 
   _checkVersion(lib, version) for lib, version of list
 
@@ -56,17 +56,17 @@ checkBowerVersions = (list)->
         current = version.replace(/[\<\>\=\~]*/, '')
 
         if !!~current.indexOf('git')
-          return console.warn("#{sty.bold sty.cyan 'NOTICE:'} using #{lib} with git repo instead of a version number: #{current}")
+          return console.warn("#{sty.bold sty.cyan 'BWR NOTICE:'} using #{lib} with git repo instead of a version number: #{current}")
 
         if current is latest
-          console.log("#{sty.bold sty.green 'OK:'} #{lib} #{current}")
+          console.log("#{sty.bold sty.green 'BWR OK:'} #{lib} #{current}")
         else
           if current is '*'
-            console.warn("#{sty.bold sty.cyan 'NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.cyan 'BWR NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
           else
-            console.warn("#{sty.bold sty.red 'WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
+            console.warn("#{sty.bold sty.red 'BWR WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
       else
-        log("Failed to fetch latest version for #{lib}")
+        log("BOWER Failed to fetch latest version for #{lib}")
 
   for lib, version of list
     do (lib, version)->
@@ -147,7 +147,7 @@ startServer = (options = {})->
 
   params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y'
   unless options.skipwatch
-    params += " nodemon -w #{SERVER_FILE}.coffee"
+    params += " nodemon -w app/server/ -w app/shared/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.coffee"
   else
     params += ' coffee'
   params += ' --debug' if options.debug
@@ -250,13 +250,15 @@ task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting 
 
 task 'deploy:action', '[PROD]: Update current app state from the repo and restart the server', ->
   log('Pulling updates from the repo')
+
+  exec("forever stop #{SERVER_FILE}.coffee")
   exec 'git pull', (error, stdout, stderr) ->
     unless error
       npmInstall ->
         bowerInstall ->
           buildGrunt ->
             log('Restarting forever')
-            exec('forever restartall')
+            exec('cake forever')
             sendMail()
 
     else
