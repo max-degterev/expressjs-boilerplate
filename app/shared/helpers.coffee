@@ -56,7 +56,7 @@
   exports.stripTags = (str)-> if typeof str is 'string' then str.replace(/(<([^>]+)>)/g, '') else ''
 
   # Use when outputting string from untrusted source directly to the DOM, especially as JSON
-  helpers.sanitizeString = (string) ->
+  exports.sanitizeString = (string) ->
     string
       .replace(/\r\n/g, '\n')
       .replace(/<\/script>/g, '<\\/script>')
