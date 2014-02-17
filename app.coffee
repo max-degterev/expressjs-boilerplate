@@ -24,6 +24,7 @@ if cluster.isMaster
       process.exit()
     else
       cluster.fork()
+
 else
 
 
@@ -73,12 +74,13 @@ else
 
     app.use(gruntAssets)
 
-    unless config.debug
-      app.use(express.compress())
-      app.use(express.logger('default'))
-    else
+  errorReporters = ->
+    if config.debug
       app.use(express.errorHandler(dumpExceptions: true, showStack: true))
       app.use(express.logger('dev'))
+    else
+      app.use(express.compress())
+      app.use(express.logger('default'))
 
 
 #=========================================================================================
@@ -96,6 +98,8 @@ else
 
   # Fire up the server
   app.use(app.router)
+  errorReporters()
+
   server.use(app)
 
   if config.debug
