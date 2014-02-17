@@ -1,0 +1,6 @@
+--compilers coffee:coffee-script/register
+--colors
+--ui bdd
+--reporter nyan
+--debug
+--timeout 15000

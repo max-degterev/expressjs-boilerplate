@@ -22,7 +22,7 @@ P.S. every time someone doesn't star this project, a little koala bear dies some
 
 2. Install dependencies:
 
-  `sudo npm install -g coffee-script nodemon forever bower grunt-cli`
+  `sudo npm install -g coffee-script bower grunt-cli forever mocha nodemon`
 
   and then
 
@@ -69,6 +69,10 @@ Build assets for development once
 Watch for assets changes
 
   `grunt watch`
+
+### Run tests:
+
+  `mocha`
 
 ### Deployment:
 
