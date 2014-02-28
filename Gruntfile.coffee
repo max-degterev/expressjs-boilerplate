@@ -77,6 +77,22 @@ module.exports = (grunt) ->
         dest: 'public/static.css'
 
 
+    htmlmin:
+      compile:
+        options:
+          removeComments: true
+          collapseWhitespace: true
+          collapseBooleanAttributes: true
+          removeAttributeQuotes: true
+          removeRedundantAttributes: true
+          useShortDoctype: true
+          removeEmptyAttributes: true
+          # removeOptionalTags: true
+        expand: true
+        src: 'public/*.html'
+        dest: './'
+
+
     uglify:
       app:
         src: 'public/assets/app.js'
@@ -125,6 +141,13 @@ module.exports = (grunt) ->
         src: 'public/assets/*.min.*.*'
         dest: './'
 
+      static:
+        options:
+          mode: 'gzip'
+        expand: true
+        src: 'public/*.css'
+        dest: './'
+
 
     # imagemin:
     #   options:
@@ -167,6 +190,7 @@ module.exports = (grunt) ->
           'css/**/*.styl'
           'vendor/**/*.css'
           'vendor/**/*.styl'
+          '!css/static.styl'
         ]
         tasks: ['stylus:app']
 
@@ -197,6 +221,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-stylus')
   grunt.loadNpmTasks('grunt-contrib-jade')
   grunt.loadNpmTasks('grunt-contrib-cssmin')
+  grunt.loadNpmTasks('grunt-contrib-htmlmin')
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-hashify')
   grunt.loadNpmTasks('grunt-contrib-compress')
@@ -215,6 +240,7 @@ module.exports = (grunt) ->
     'default'
 
     'cssmin'
+    'htmlmin'
     'uglify'
 
     'hashify'
