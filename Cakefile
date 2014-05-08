@@ -50,9 +50,9 @@ checkBowerVersions = (list)->
   i = 0
 
   _checkVersion = (lib, version)->
-    exec "bower -q info #{lib} version", (error, stdout, stderr) ->
+    exec "bower info #{lib} version", (error, stdout, stderr) ->
       unless error
-        latest = stdout.replace(/\s*/g, '').replace(/\'/g, '')
+        [matches, latest] = stdout.match(/\'([\d\.]+)\'/)
         current = version.replace(/[\<\>\=\~]*/, '')
 
         if !!~current.indexOf('git')

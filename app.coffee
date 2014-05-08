@@ -6,7 +6,7 @@ log = helpers.log
 
 cluster = require('cluster')
 config = require('config')
-express = require('express')
+app = require('express')()
 
 
 #=========================================================================================
@@ -34,8 +34,6 @@ else
   server = require('./app/server')
   assetsHashMap = require('./public/assets/hashmap.json') unless config.debug
 
-  app = express()
-
 
 #=========================================================================================
 # TEMPLATE GLOBABS
@@ -55,6 +53,23 @@ else
 #=========================================================================================
 # MIDDLEWARE
 #=========================================================================================
+  normalizeUrl = (req, res, next) ->
+    try
+      decodeURIComponent(req.originalUrl)
+    catch
+      url = '/'
+      log("malformed URL, redirecting to #{url}")
+      return res.redirect(301, url)
+
+    [href, qs...] = req.originalUrl.split('?')
+
+    if qs.length > 1 # should be 1?2, [2].length = 1
+      url = href + '?' + qs.join('&')
+      log("malformed URL, redirecting to #{url}")
+      return res.redirect(301, url)
+
+    next()
+
   _getAsset = (name)->
     if config.debug
       "/assets/#{name}"
@@ -68,19 +83,26 @@ else
     req.app.locals.getAsset = _getAsset
     next()
 
-  setupMiddleware = ->
-    app.use(express.static(__dirname + '/public'))
-    # app.use(express.bodyParser())
+  preRouteMiddleware = ->
+    morgan = require('morgan')
+
+    if config.debug
+      app.use(morgan('dev'))
+    else
+      app.use(morgan('default'))
+
+    app.use(normalizeUrl)
+
+    app.use(require('serve-favicon')(__dirname + '/public/favicon.ico'))
+    app.use(require('serve-static')(__dirname + '/public', redirect: false))
 
     app.use(gruntAssets)
 
-  errorReporters = ->
+  postRouteMiddleware = ->
     if config.debug
-      app.use(express.errorHandler(dumpExceptions: true, showStack: true))
-      app.use(express.logger('dev'))
+      app.use(require('errorhandler')(dumpExceptions: true, showStack: true))
     else
-      app.use(express.compress())
-      app.use(express.logger('default'))
+      app.use(require('compression')())
 
 
 #=========================================================================================
@@ -92,15 +114,13 @@ else
   app.set('port', config.port)
   app.set('views', __dirname + '/views/server')
   app.set('view engine', 'jade')
+  app.set('json spaces', 2) if config.debug
 
   generateTemplateGlobals()
-  setupMiddleware()
 
-  # Fire up the server
-  app.use(app.router)
-  errorReporters()
-
-  server.use(app)
+  preRouteMiddleware()
+  server.use(app) # Fire up the server, all the routes go here
+  postRouteMiddleware()
 
   if config.debug
     app.listen(app.get('port'), -> log("Server listening on http://#{config.hostname}:#{app.get('port')} (unbound)"))
