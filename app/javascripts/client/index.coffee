@@ -14,6 +14,7 @@ env =
   jquery: $.fn.jquery
   underscore: _.VERSION
   backbone: Backbone.VERSION
+  'Backbone.$': !!Backbone.$
   jade: !!jade
 
 _.extend(env, app.env)
