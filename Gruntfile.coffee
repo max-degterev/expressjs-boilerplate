@@ -7,9 +7,11 @@ module.exports = (grunt) ->
     pkg: pkg
     cfg: cfg
 
+
     clean:
       compile:
         src: ['.tmp', 'public/assets']
+
 
     browserify:
       options:
@@ -20,6 +22,7 @@ module.exports = (grunt) ->
       compile:
         src: 'app/javascripts/client/index.coffee'
         dest: 'public/assets/app.js'
+
 
     stylus:
       stylesheets:
