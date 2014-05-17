@@ -9,7 +9,7 @@ module.exports = (grunt) ->
 
     clean:
       compile:
-        src: 'public/assets'
+        src: ['.tmp', 'public/assets']
 
     browserify:
       options:

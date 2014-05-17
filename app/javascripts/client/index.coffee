@@ -19,6 +19,5 @@ env =
 _.extend(env, app.env)
 
 
-console.warn Backbone
 $('body').append(templates.sample_template({ env }))
 helpers.log('initialized')
