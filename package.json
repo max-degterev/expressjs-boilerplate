@@ -49,6 +49,7 @@
 
     "browserify": "4.1.5",
     "coffeeify": "0.6.0",
+    "browserify-shim": "3.5.0",
     "grunt-browserify": "2.1.0",
 
     "grunt-contrib-stylus": "0.16.0",
@@ -61,7 +62,16 @@
     "grunt-contrib-watch": "0.6.1",
     "time-grunt": "0.3.1"
   },
-  "browserify": {
-    "transform": ["coffeeify"]
+  "browser": {
+    "backbone": "./node_modules/backbone/backbone.js",
+    "jquery": "./node_modules/jquery/dist/jquery.js",
+    "underscore": "./node_modules/lodash/dist/lodash.underscore.js",
+    "templates": "./.tmp/jst.js"
+  },
+  "browserify-shim": {
+    "backbone": {
+      "exports": "Backbone",
+      "depends": ["jquery:$", "underscore:_"]
+    }
   }
 }
