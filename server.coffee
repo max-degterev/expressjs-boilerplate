@@ -1,7 +1,7 @@
 #=========================================================================================
 # DEPENDENCIES & CONSTANTS
 #=========================================================================================
-helpers = require('./app/javascripts/shared/helpers')
+helpers = require('shared/helpers')
 log = helpers.log
 
 cluster = require('cluster')
@@ -46,6 +46,7 @@ else
     env = {}
     env[key] = config[key] for key in ['hostname', 'base_url', 'debug', 'ga_id']
     env.version = require('./package').version
+    env.type = process.env.NODE_ENV
 
     app.locals.client_env = env
 

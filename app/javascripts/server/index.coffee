@@ -1,4 +1,4 @@
-helpers = require('../shared/helpers')
+helpers = require('shared/helpers')
 config = require('config')
 
 class Server

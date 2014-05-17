@@ -1,27 +1,31 @@
 module.exports = (grunt) ->
-  require('time-grunt')(grunt)
+  time = require('time-grunt')(grunt)
+  pkg = require('./package')
+  cfg = require('config')
 
   grunt.initConfig
-    pkg: grunt.file.readJSON('package.json')
-
+    pkg: pkg
+    cfg: cfg
 
     clean:
-      build:
+      compile:
         src: 'public/assets'
 
+    browserify:
+      options:
+        browserifyOptions: extensions: ['.coffee']
 
-    snocketsify:
-      app:
-        src: 'app/javascripts/client/app.coffee'
+        alias: [
+          'node_modules/lodash/dist/lodash.underscore:underscore'
+          '.tmp/jst.js:templates'
+        ]
+
+      compile:
+        src: 'app/javascripts/client/index.coffee'
         dest: 'public/assets/app.js'
 
-      dependencies:
-        src: 'app/javascripts/client/dependencies.coffee'
-        dest: 'public/assets/dependencies.js'
-
-
     stylus:
-      app:
+      stylesheets:
         options:
           compress: false
           'include css': true
@@ -45,15 +49,15 @@ module.exports = (grunt) ->
 
 
     jade:
-      views:
+      templates:
         options:
           pretty: true
           compileDebug: false
           client: true
-          namespace: 'app.templates'
+          node: true
           processName: (file)-> file.replace(/app\/templates\/client\/([\w\/]+).jade/gi, '$1')
         src: 'app/templates/client/**/*.jade'
-        dest: 'public/assets/views.js'
+        dest: '.tmp/jst.js'
 
       static:
         options:
@@ -68,7 +72,7 @@ module.exports = (grunt) ->
 
 
     cssmin:
-      app:
+      stylesheets:
         src: 'public/assets/app.css'
         dest: 'public/assets/app.min.css'
 
@@ -94,17 +98,9 @@ module.exports = (grunt) ->
 
 
     uglify:
-      app:
+      compile:
         src: 'public/assets/app.js'
         dest: 'public/assets/app.min.js'
-
-      dependencies:
-        src: 'public/assets/dependencies.js'
-        dest: 'public/assets/dependencies.min.js'
-
-      views:
-        src: 'public/assets/views.js'
-        dest: 'public/assets/views.min.js'
 
 
     hashify:
@@ -112,29 +108,19 @@ module.exports = (grunt) ->
         basedir: 'public/assets/'
         hashmap: 'hashmap.json'
 
-      app_js:
+      javascripts:
         src: 'public/assets/app.min.js'
         dest: 'app.min.{{hash}}.js'
         key: 'app.js'
 
-      dependencies_js:
-        src: 'public/assets/dependencies.min.js'
-        dest: 'dependencies.min.{{hash}}.js'
-        key: 'dependencies.js'
-
-      views_js:
-        src: 'public/assets/views.min.js'
-        dest: 'views.min.{{hash}}.js'
-        key: 'views.js'
-
-      app_css:
+      stylesheets:
         src: 'public/assets/app.min.css'
         dest: 'app.min.{{hash}}.css'
         key: 'app.css'
 
 
     compress:
-      build:
+      compile:
         options:
           mode: 'gzip'
         expand: true
@@ -166,46 +152,41 @@ module.exports = (grunt) ->
       options:
         spawn: false
         interrupt: true
-        dateFormat: (time) ->
+        dateFormat: (time)->
           grunt.log.writeln("Compiled in #{time}ms @ #{(new Date).toString()} 💪\n")
 
-      app_js:
+      javascripts:
         files: [
           'app/javascripts/client/**/*.coffee'
           'app/javascripts/shared/**/*.coffee'
-          '!app/javascripts/client/dependencies.coffee'
-        ]
-        tasks: ['snocketsify:app']
-
-      dependencies_js:
-        files: [
-          'app/javascripts/client/dependencies.coffee'
           'vendor/**/*.js'
           'vendor/**/*.coffee'
+          '.tmp/jst.js'
         ]
-        tasks: ['snocketsify:dependencies']
+        tasks: ['browserify']
 
-      css:
+      styles:
         files: [
           'app/stylesheets/**/*.styl'
           'vendor/**/*.css'
           'vendor/**/*.styl'
           '!app/stylesheets/static.styl'
         ]
-        tasks: ['stylus:app']
+        tasks: ['stylus:stylesheets']
 
-      views:
+      templates:
         files: [
           'app/templates/client/**/*.jade'
           'app/templates/shared/**/*.jade'
         ]
-        tasks: ['jade:views']
+        tasks: ['jade:templates']
 
       static:
         files: [
+          'app/stylesheets/static.styl'
           'app/templates/static/**/*.jade'
         ]
-        tasks: ['jade:static']
+        tasks: ['stylus:static', 'jade:static']
 
       # images:
       #   files: [
@@ -217,7 +198,7 @@ module.exports = (grunt) ->
 
 
   grunt.loadNpmTasks('grunt-contrib-clean')
-  grunt.loadNpmTasks('grunt-snocketsify')
+  grunt.loadNpmTasks('grunt-browserify')
   grunt.loadNpmTasks('grunt-contrib-stylus')
   grunt.loadNpmTasks('grunt-contrib-jade')
   grunt.loadNpmTasks('grunt-contrib-cssmin')
@@ -231,9 +212,9 @@ module.exports = (grunt) ->
   grunt.registerTask('default', [
     'clean'
 
-    'snocketsify'
+    'jade' # has to go before browserify
+    'browserify'
     'stylus'
-    'jade'
   ])
 
   grunt.registerTask('build', [

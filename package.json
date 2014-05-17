@@ -60,5 +60,8 @@
     "grunt-contrib-compress": "0.8.0",
     "grunt-contrib-watch": "0.6.1",
     "time-grunt": "0.3.1"
+  },
+  "browserify": {
+    "transform": ["coffeeify"]
   }
 }
