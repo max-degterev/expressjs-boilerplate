@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "homepage": "http://maxdegterev.name/",
+  "main": "server.coffee",
   "author": {
     "name": "Max Degterev",
     "email": "me@maxdegterev.name",

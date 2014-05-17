@@ -1,11 +1,21 @@
 {
   "ignore": [
-    "\\.git",
+    ".git",
     "node_modules/*",
     "public/*",
-    "npm-debug.log",
+    "app/javascripts/client/*",
+    "app/stylesheets/*",
+    "app/templates/client/*",
+    "vendor/*",
+    "npm-debug.log"
+  ],
+  "watch": [
+    "app/javascripts/server/",
+    "app/javascripts/shared/",
+    "app/templates/server/",
+    "config/",
     "*.coffee"
   ],
-  "ext": "js json jade",
-  "verbose": false
+  "ext": "js coffee json jade",
+  "verbose": true
 }

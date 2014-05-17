@@ -12,11 +12,11 @@ module.exports = (grunt) ->
 
     snocketsify:
       app:
-        src: 'app/client/app.coffee'
+        src: 'app/javascripts/client/app.coffee'
         dest: 'public/assets/app.js'
 
       dependencies:
-        src: 'app/client/dependencies.coffee'
+        src: 'app/javascripts/client/dependencies.coffee'
         dest: 'public/assets/dependencies.js'
 
 
@@ -29,7 +29,7 @@ module.exports = (grunt) ->
           linenos: true
           define:
             '$version': '<%= pkg.version %>'
-        src: 'css/app.styl'
+        src: 'app/stylesheets/app.styl'
         dest: 'public/assets/app.css'
 
       static:
@@ -40,7 +40,7 @@ module.exports = (grunt) ->
           linenos: true
           define:
             '$version': '<%= pkg.version %>'
-        src: 'css/static.styl'
+        src: 'app/stylesheets/static.styl'
         dest: 'public/static.css'
 
 
@@ -52,7 +52,7 @@ module.exports = (grunt) ->
           client: true
           namespace: 'app.templates'
           processName: (file)-> file.replace(/views\/client\/([\w\/]+).jade/gi, '$1')
-        src: 'views/client/**/*.jade'
+        src: 'app/templates/client/**/*.jade'
         dest: 'public/assets/views.js'
 
       static:
@@ -61,7 +61,7 @@ module.exports = (grunt) ->
           compileDebug: false
 
         expand: true
-        cwd: 'views/static'
+        cwd: 'app/templates/static'
         src: ['**/*.jade', '!**/_*.jade']
         dest: 'public'
         ext: '.html'
@@ -171,15 +171,15 @@ module.exports = (grunt) ->
 
       app_js:
         files: [
-          'app/client/**/*.coffee'
-          'app/shared/**/*.coffee'
-          '!app/client/dependencies.coffee'
+          'app/javascripts/client/**/*.coffee'
+          'app/javascripts/shared/**/*.coffee'
+          '!app/javascripts/client/dependencies.coffee'
         ]
         tasks: ['snocketsify:app']
 
       dependencies_js:
         files: [
-          'app/client/dependencies.coffee'
+          'app/javascripts/client/dependencies.coffee'
           'vendor/**/*.js'
           'vendor/**/*.coffee'
         ]
@@ -187,23 +187,23 @@ module.exports = (grunt) ->
 
       css:
         files: [
-          'css/**/*.styl'
+          'app/stylesheets/**/*.styl'
           'vendor/**/*.css'
           'vendor/**/*.styl'
-          '!css/static.styl'
+          '!app/stylesheets/static.styl'
         ]
         tasks: ['stylus:app']
 
       views:
         files: [
-          'views/client/**/*.jade'
-          'views/shared/**/*.jade'
+          'app/templates/client/**/*.jade'
+          'app/templates/shared/**/*.jade'
         ]
         tasks: ['jade:views']
 
       static:
         files: [
-          'views/static/**/*.jade'
+          'app/templates/static/**/*.jade'
         ]
         tasks: ['jade:static']
 

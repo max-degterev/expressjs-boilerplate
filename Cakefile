@@ -2,7 +2,7 @@
 # Dependencies and constants
 # =======================================================================================
 logPrefix = '[Cake]:'
-SERVER_FILE = 'app'
+SERVER_FILE = 'server'
 
 USER_NAME = 'Max Degterev'
 USER_EMAIL = 'me@maxdegterev.name'
@@ -147,7 +147,7 @@ startServer = (options = {})->
 
   params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y'
   unless options.skipwatch
-    params += " nodemon -w app/server/ -w app/shared/ -w config/ -w views/server/ -w views/shared/ -w #{SERVER_FILE}.coffee"
+    params += ' nodemon'
   else
     params += ' coffee'
   params += ' --debug' if options.debug

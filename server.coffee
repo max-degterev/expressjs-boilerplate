@@ -1,7 +1,7 @@
 #=========================================================================================
 # DEPENDENCIES & CONSTANTS
 #=========================================================================================
-helpers = require('./app/shared/helpers')
+helpers = require('./app/javascripts/shared/helpers')
 log = helpers.log
 
 cluster = require('cluster')
@@ -31,7 +31,7 @@ else
 #=========================================================================================
 # INIT DB CONNECTION AND INSTANTIATE SERVER
 #=========================================================================================
-  server = require('./app/server')
+  server = require('./app/javascripts/server')
   assetsHashMap = require('./public/assets/hashmap.json') unless config.debug
 
 
