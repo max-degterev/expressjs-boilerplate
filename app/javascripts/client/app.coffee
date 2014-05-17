@@ -3,6 +3,12 @@
 @jade.helpers = helpers
 @jade.client_env = app.env
 
-$('body').append(app.templates.sample_template())
+env =
+  jquery: jQuery.fn.jquery
+  underscore: _.VERSION
+  backbone: Backbone.VERSION
+  jade: !!jade
+
+$('body').append(app.templates.sample_template({ env }))
 
 helpers.log('initialized')

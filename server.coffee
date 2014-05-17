@@ -112,7 +112,7 @@ else
   app.disable('x-powered-by')
 
   app.set('port', config.port)
-  app.set('views', __dirname + '/views/server')
+  app.set('views', __dirname + '/app/templates/server')
   app.set('view engine', 'jade')
   app.set('json spaces', 2) if config.debug
 
