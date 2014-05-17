@@ -16,9 +16,8 @@ module.exports = (grunt) ->
     browserify:
       options:
         browserifyOptions: extensions: ['.coffee']
-        alias: [
-          '.tmp/jst.js:templates'
-        ]
+        require: Object.keys(pkg['browserify-shim'])
+        transform: ["coffeeify", "browserify-shim"]
 
       compile:
         src: 'app/javascripts/client/index.coffee'
