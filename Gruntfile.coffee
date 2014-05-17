@@ -165,7 +165,7 @@ module.exports = (grunt) ->
         ]
         tasks: ['browserify']
 
-      styles:
+      stylesheets:
         files: [
           'app/stylesheets/**/*.styl'
           'vendor/**/*.css'
