@@ -1,6 +1,6 @@
 jade = require('jade').runtime
 $ = require('jquery')
-_ = require('underscore')
+_ = require('lodash')
 Backbone = require('backbone')
 
 helpers = require('shared/helpers')

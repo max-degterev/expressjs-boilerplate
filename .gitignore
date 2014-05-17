@@ -24,3 +24,4 @@ public/assets/*.*
 public/static.css
 public/404.html
 public/deploy.html
+.tmp/
