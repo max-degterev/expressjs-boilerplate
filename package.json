@@ -44,14 +44,13 @@
     "backbone": "1.1.2",
     "lodash": "2.4.1",
 
-    "grunt": "0.4.5",
-    "grunt-contrib-clean": "0.5.0",
-
     "browserify": "4.1.5",
     "coffeeify": "0.6.0",
     "browserify-shim": "3.5.0",
-    "grunt-browserify": "2.1.0",
 
+    "grunt": "0.4.5",
+    "grunt-contrib-clean": "0.5.0",
+    "grunt-browserify": "2.1.0",
     "grunt-contrib-stylus": "0.16.0",
     "grunt-contrib-jade": "0.11.0",
     "grunt-contrib-cssmin": "0.9.0",
@@ -60,13 +59,23 @@
     "grunt-hashify": "0.0.7",
     "grunt-contrib-compress": "0.8.0",
     "grunt-contrib-watch": "0.6.1",
-    "time-grunt": "0.3.1"
+    "time-grunt": "0.3.1",
+
+    "gulp": "3.6.2",
+    "vinyl-source-stream": "0.1.1",
+    "vinyl-buffer": "0.0.0",
+    "gulp-rename": "1.2.0",
+    "gulp-stylus": "1.0.1",
+    "nib": "1.0.2"
   },
   "browser": {
     "backbone": "./node_modules/backbone/backbone.js",
     "jquery": "./node_modules/jquery/dist/jquery.js",
     "underscore": "./node_modules/lodash/dist/lodash.underscore.js",
     "templates": "./.tmp/jst.js"
+  },
+  "browserify": {
+    "transform": ["coffeeify", "browserify-shim"]
   },
   "browserify-shim": {
     "backbone": {

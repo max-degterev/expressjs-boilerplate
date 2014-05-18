@@ -100,34 +100,34 @@ bowerInstall = (callb)->
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
-compileGrunt = (callb)->
-  log('Executing grunt defaults')
+compileGulp = (callb)->
+  log('Executing gulp defaults')
 
-  runner = exec 'grunt', (error, stdout, stderr) ->
+  runner = exec 'gulp --require coffee-script/register', (error, stdout, stderr) ->
     unless error
       callb?()
     else
-      log("Grunt defaults failed with an error: #{error}")
+      log("Gulp defaults failed with an error: #{error}")
 
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
-buildGrunt = (callb)->
-  log('Executing grunt build')
+buildGulp = (callb)->
+  log('Executing gulp build')
 
-  runner = exec 'grunt build', (error, stdout, stderr) ->
+  runner = exec 'gulp --require coffee-script/register build', (error, stdout, stderr) ->
     unless error
       callb?()
     else
-      log("Grunt build failed with an error: #{error}")
+      log("Gulp build failed with an error: #{error}")
 
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
-watchGrunt = ->
-  log('Spawning grunt watcher')
+watchGulp = ->
+  log('Spawning gulp watcher')
 
-  runner = spawn('grunt', ['watch'])
+  runner = spawn('gulp --require coffee-script/register', ['watch'])
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
@@ -140,7 +140,7 @@ watchGrunt = ->
 
 startServer = (options = {})->
   unless options.skipwatch
-    watchGrunt()
+    watchGulp()
   # startDatabase()
 
   log('Starting node')
@@ -215,20 +215,20 @@ task 'versions:bower', '[DEV]: Check bower.json versions state', ->
 task 'install', '[DEV]: Install all dependencies', ->
   npmInstall -> bowerInstall()
 
-task 'grunt', '[DEV]: Watch and compile clientside assets', ->
-  watchGrunt()
+task 'gulp', '[DEV]: Watch and compile clientside assets', ->
+  watchGulp()
 
 task 'dev', '[DEV]: Devserver with autoreload', ->
-  compileGrunt -> startServer()
+  compileGulp -> startServer()
 
 task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
-  compileGrunt -> startServer(debug: true)
+  compileGulp -> startServer(debug: true)
 
 task 'dev:skipwatch', '[DEV]: Devserver without autoreload', ->
-  compileGrunt -> startServer(skipwatch: true)
+  compileGulp -> startServer(skipwatch: true)
 
 task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', ->
-  buildGrunt -> startProductionServer()
+  buildGulp -> startProductionServer()
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running deploy:action")
@@ -256,7 +256,7 @@ task 'deploy:action', '[PROD]: Update current app state from the repo and restar
     unless error
       npmInstall ->
         bowerInstall ->
-          buildGrunt ->
+          buildGulp ->
             log('Restarting forever')
             exec('cake forever')
             sendMail()
