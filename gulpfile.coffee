@@ -1,4 +1,5 @@
 pkg = require('./package')
+_ = require('lodash')
 
 gulp = require('gulp')
 util = require('gulp-util')
@@ -22,6 +23,10 @@ htmlmin = require('gulp-htmlmin')
 
 rev = require('gulp-rev')
 gzip = require('gulp-gzip')
+
+ASSETS_LOCATION = './public/assets'
+PUBLIC_LOCATION = './public'
+CORE_LOCATION = './app'
 
 watchReporter = (e)->
   util.log("File #{util.colors.cyan(e.path)} was #{util.colors.red(e.type)}, flexing 💪")
@@ -68,45 +73,49 @@ compileTemplates = (src, options)->
     ))
     .pipe(gulp.dest(options.dest))
 
-
-gulp.task 'clean', ->
-  gulp.src('./public/assets', read: false)
-    .pipe(clean())
-
-gulp.task 'browserify', ['clean'], ->
-  compileJavascripts './app/javascripts/client/index.coffee',
+processJavascripts = (options = {})->
+  settings = _.extend {}, options,
     name: 'app.js'
-    dest: './public/assets'
+    dest: ASSETS_LOCATION
 
-gulp.task 'stylus', ['clean'], ->
-  compileStylesheets './app/stylesheets/index.styl',
+  compileJavascripts("#{CORE_LOCATION}/javascripts/client/index.coffee", settings)
+
+processStylesheets = (options = {})->
+  settings = _.extend {}, options,
     name: 'app.css'
-    dest: './public/assets'
+    dest: ASSETS_LOCATION
 
-gulp.task 'static', ['clean'], ->
-  compileStylesheets './app/stylesheets/static.styl',
+  compileStylesheets("#{CORE_LOCATION}/stylesheets/index.styl", settings)
+
+processStatic = ->
+  compileStylesheets "#{CORE_LOCATION}/stylesheets/static.styl",
     name: 'static.css'
-    dest: './public'
+    dest: PUBLIC_LOCATION
 
-  compileTemplates ['./app/templates/static/**/*.jade', '!./app/templates/static/**/_*.jade'],
-    dest: './public'
+  compileTemplates ["#{CORE_LOCATION}/templates/static/**/*.jade", "!#{CORE_LOCATION}/templates/static/**/_*.jade"],
+    dest: PUBLIC_LOCATION
+
+gulp.task 'clean', -> gulp.src(ASSETS_LOCATION, read: false).pipe(clean())
+gulp.task 'browserify', ['clean'], -> processJavascripts()
+gulp.task 'stylus', ['clean'], -> processStylesheets()
+gulp.task 'static', ['clean'], -> processStatic()
 
 gulp.task 'minify', ['browserify', 'stylus'], ->
-  gulp.src('./public/assets/*.js')
+  gulp.src("#{ASSETS_LOCATION}/*.js")
     .pipe(uglify())
     .pipe(rename(suffix: '.min'))
-    .pipe(gulp.dest('./public/assets'))
+    .pipe(gulp.dest(ASSETS_LOCATION))
 
-  gulp.src('./public/assets/*.css')
+  gulp.src("#{ASSETS_LOCATION}/*.css")
     .pipe(minifyCSS())
     .pipe(rename(suffix: '.min'))
-    .pipe(gulp.dest('./public/assets'))
+    .pipe(gulp.dest(ASSETS_LOCATION))
 
-  gulp.src('./public/static.css')
+  gulp.src("#{PUBLIC_LOCATION}/static.css")
     .pipe(minifyCSS())
-    .pipe(gulp.dest('./public'))
+    .pipe(gulp.dest(PUBLIC_LOCATION))
 
-  gulp.src('./public/*.html')
+  gulp.src("#{PUBLIC_LOCATION}/*.html")
     .pipe(htmlmin(
       removeComments: true
       collapseWhitespace: true
@@ -116,56 +125,45 @@ gulp.task 'minify', ['browserify', 'stylus'], ->
       useShortDoctype: true
       removeEmptyAttributes: true
     ))
-    .pipe(gulp.dest('./public'))
+    .pipe(gulp.dest(PUBLIC_LOCATION))
 
 gulp.task 'hashify', ['minify'], ->
-  gulp.src('./public/assets/*.min.*')
+  gulp.src("#{ASSETS_LOCATION}/*.min.*")
     .pipe(rev())
-    .pipe(gulp.dest('./public/assets/'))
+    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
     .pipe(rev.manifest())
     .pipe(rename('hashmap.json'))
-    .pipe(gulp.dest('./public/assets/'))
+    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
 
 gulp.task 'compress', ['hashify'], ->
-  gulp.src('./public/assets/*.min-*.*')
+  gulp.src("#{ASSETS_LOCATION}/*.min-*.*")
     .pipe(gzip())
-    .pipe(gulp.dest('./public/assets'))
+    .pipe(gulp.dest(ASSETS_LOCATION))
 
-  gulp.src('./public/*.css')
+  gulp.src("#{PUBLIC_LOCATION}/*.css")
     .pipe(gzip())
-    .pipe(gulp.dest('./public'))
+    .pipe(gulp.dest(PUBLIC_LOCATION))
 
 gulp.task 'watch', ->
-  compileJavascripts './app/javascripts/client/index.coffee',
-    name: 'app.js'
-    dest: './public/assets'
-    watch: true
+  processJavascripts(watch: true)
 
   stylesheets = [
-    './app/stylesheets/**/*.styl'
+    "#{CORE_LOCATION}/stylesheets/**/*.styl"
     './vendor/**/*.css'
     './vendor/**/*.styl'
-    '!./app/stylesheets/static.styl'
+    "!#{CORE_LOCATION}/stylesheets/static.styl"
   ]
   gulp.watch(stylesheets).on 'change', (event)->
     watchReporter(event)
-    compileStylesheets './app/stylesheets/index.styl',
-      name: 'app.css'
-      dest: './public/assets'
+    processStylesheets()
 
   templates = [
-    './app/stylesheets/static.styl'
-    './app/templates/static/**/*.jade'
+    "#{CORE_LOCATION}/stylesheets/static.styl"
+    "#{CORE_LOCATION}/templates/static/**/*.jade"
   ]
   gulp.watch(templates).on 'change', (event)->
     watchReporter(event)
-    compileStylesheets './app/stylesheets/static.styl',
-      name: 'static.css'
-      dest: './public'
-
-    compileTemplates ['./app/templates/static/**/*.jade', '!./app/templates/static/**/_*.jade'],
-      dest: './public'
-
+    processStatic()
 
 gulp.task('default', ['browserify', 'stylus', 'static'])
 gulp.task('build', ['compress'])
