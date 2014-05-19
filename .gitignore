@@ -13,7 +13,10 @@ results
 
 npm-debug.log
 node_modules/*
+!node_modules/client
+!node_modules/server
 !node_modules/shared
+!node_modules/templates
 .DS_Store
 
 nvm/

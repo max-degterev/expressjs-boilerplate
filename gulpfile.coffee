@@ -2,6 +2,8 @@ pkg = require('./package')
 
 gulp = require('gulp')
 
+clean = require('gulp-clean')
+
 browserify = require('browserify')
 watchify = require('watchify')
 source = require('vinyl-source-stream')
@@ -11,25 +13,26 @@ rename = require('gulp-rename')
 nib = require('nib')
 
 jade = require('gulp-jade')
-commonjs = require('gulp-commonjs-jade')
-concat = require('gulp-concat')
 
-watch = false
+uglify = require('gulp-uglify')
+minifyCSS = require('gulp-minify-css')
+htmlmin = require('gulp-htmlmin')
 
-gulp.task 'browserify', ->
-  options = ['./app/javascripts/client/index.coffee', extensions: ['.coffee']]
-  bundler = if watch then watchify(options...) else browserify(options...)
+
+compileJavascripts = (src, options)->
+  args = [src, extensions: ['.coffee', '.jade']]
+  bundler = if options.watch then watchify(args...) else browserify(args...)
 
   compile = ->
     bundler.bundle()
-      .pipe(source('app.js'))
-      .pipe(gulp.dest('./public/assets'))
+      .pipe(source(options.name))
+      .pipe(gulp.dest(options.dest))
 
   bundler.on('update', compile)
   compile()
 
-gulp.task 'stylus', ->
-  gulp.src('./app/stylesheets/index.styl')
+compileStylesheets = (src, options)->
+  gulp.src(src)
     .pipe(stylus(
       errors: true
       use: [nib()]
@@ -39,22 +42,75 @@ gulp.task 'stylus', ->
       define:
         '$version': pkg.version
     ))
-    .pipe(rename('app.css'))
-    .pipe(gulp.dest('./public/assets'))
+    .pipe(rename(options.name))
+    .pipe(gulp.dest(options.dest))
 
-gulp.task 'jade', ->
-  gulp.src('./app/templates/client/**/*.jade')
+compileTemplates = (src, options)->
+  gulp.src(src)
     .pipe(jade(
       pretty: true
       compileDebug: false
-      client: true
     ))
-    .pipe(commonjs(
-      processName: (file)-> file.replace(/^.*app\/templates\/client\/([\w\/]+).js$/gi, '$1')
-    ))
-    .pipe(concat('jst.js'))
-    .pipe(gulp.dest('./.tmp'))
+    .pipe(gulp.dest(options.dest))
 
-gulp.task 'default', ['browserify', 'stylus'], ->
-gulp.task 'build', ['default'], ->
-gulp.task 'watch', ['default'], ->
+
+
+gulp.task 'clean', ->
+  gulp.src('./public/assets', read: false)
+    .pipe(clean())
+
+gulp.task 'browserify', ->
+  compileJavascripts './app/javascripts/client/index.coffee',
+    name: 'app.js'
+    dest: './public/assets'
+    watch: false
+
+gulp.task 'stylus', ->
+  compileStylesheets './app/stylesheets/index.styl',
+    name: 'app.css'
+    dest: './public/assets'
+
+gulp.task 'static', ->
+  compileStylesheets './app/stylesheets/static.styl',
+    name: 'static.css'
+    dest: './public'
+
+  compileTemplates ['./app/templates/static/**/*.jade', '!./app/templates/static/**/_*.jade'],
+    dest: './public'
+
+gulp.task 'compress', ->
+  gulp.src('./public/assets/*.js')
+    .pipe(uglify())
+    .pipe(rename(suffix: '.min'))
+    .pipe(gulp.dest('./public/assets'))
+
+  gulp.src(['./public/assets/*.css'])
+    .pipe(minifyCSS())
+    .pipe(rename(suffix: '.min'))
+    .pipe(gulp.dest('./public/assets'))
+
+  gulp.src(['./public/static.css'])
+    .pipe(minifyCSS())
+    .pipe(gulp.dest('./public'))
+
+  gulp.src('./public/*.html')
+    .pipe(htmlmin(
+      removeComments: true
+      collapseWhitespace: true
+      collapseBooleanAttributes: true
+      removeAttributeQuotes: true
+      removeRedundantAttributes: true
+      useShortDoctype: true
+      removeEmptyAttributes: true
+    ))
+    .pipe(gulp.dest('./public'))
+
+
+
+
+
+
+
+gulp.task 'default', ['browserify', 'stylus']
+gulp.task 'build', ['default']
+gulp.task 'watch', ['default']

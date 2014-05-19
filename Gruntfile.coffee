@@ -135,19 +135,6 @@ module.exports = (grunt) ->
         dest: './'
 
 
-    # imagemin:
-    #   options:
-    #     optimizationLevel: 7
-    #   files:
-    #     expand: true
-    #     src: [
-    #       'public/images/**/*.jpg'
-    #       'public/images/**/*.jpeg'
-    #       'public/images/**/*.png'
-    #     ]
-    #     dest: './'
-
-
     watch:
       options:
         spawn: false
@@ -188,14 +175,6 @@ module.exports = (grunt) ->
         ]
         tasks: ['stylus:static', 'jade:static']
 
-      # images:
-      #   files: [
-      #     'public/images/**/*.jpg'
-      #     'public/images/**/*.jpeg'
-      #     'public/images/**/*.png'
-      #   ]
-      #   tasks: ['imagemin']
-
 
   grunt.loadNpmTasks('grunt-contrib-clean')
   grunt.loadNpmTasks('grunt-browserify')
@@ -227,5 +206,4 @@ module.exports = (grunt) ->
     'hashify'
 
     'compress'
-    # 'imagemin' # rely on minification during development
   ])
