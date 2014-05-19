@@ -1,14 +1,17 @@
-jade = require('jade').runtime
+jade = require('jade/runtime')
 $ = require('jquery')
 _ = require('lodash')
 Backbone = require('backbone')
 
 helpers = require('shared/helpers')
-templates = require('templates')
+template = require('templates/sample_template')
 
 
 jade.helpers = helpers
 jade.client_env = app.env
+
+Backbone.$ = $
+
 
 env =
   jquery: $.fn.jquery
@@ -20,5 +23,5 @@ env =
 _.extend(env, app.env)
 
 
-$('body').append(templates.sample_template({ env }))
+$('body').append(template({ env }))
 helpers.log('initialized')
