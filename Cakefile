@@ -16,7 +16,7 @@ VPS_LOG = '/var/log/maxdegterev'
 {spawn, exec} = require 'child_process'
 {print} = require 'sys'
 
-option '-tr', '--taskrunner [gulp|grunt]', 'Task runner to use, default: gulp'
+option '-g', '--grunt', 'Use Grunt, default taskrunner: gulp'
 
 
 # =======================================================================================
@@ -160,7 +160,7 @@ buildGrunt = (callb)->
 watchGrunt = ->
   log('Spawning grunt watcher')
 
-  runner = spawn('grunt', ['watcher'])
+  runner = exec('grunt watcher')
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
@@ -258,19 +258,19 @@ task 'gulp', '[DEV]: Watch and compile clientside assets', ->
   watchGulp()
 
 task 'dev', '[DEV]: Devserver with autoreload', (options)->
-  compiler = if options.taskrunner is 'grunt' then compileGrunt else compileGulp
-  compiler -> startServer(grunt: options.taskrunner is 'grunt')
+  compiler = if options.grunt then compileGrunt else compileGulp
+  compiler -> startServer(grunt: options.grunt)
 
 task 'debug', '[DEV]: Devserver with autoreload and debugger', (options)->
-  compiler = if options.taskrunner is 'grunt' then compileGrunt else compileGulp
-  compiler -> startServer(debug: true, grunt: options.taskrunner is 'grunt')
+  compiler = if options.grunt then compileGrunt else compileGulp
+  compiler -> startServer(debug: true, grunt: options.grunt)
 
 task 'dev:skipwatch', '[DEV]: Devserver without autoreload', (options)->
-  compiler = if options.taskrunner is 'grunt' then compileGrunt else compileGulp
-  compiler -> startServer(skipwatch: true, grunt: options.taskrunner is 'grunt')
+  compiler = if options.grunt then compileGrunt else compileGulp
+  compiler -> startServer(skipwatch: true, grunt: options.grunt)
 
 task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', (options)->
-  builder = if options.taskrunner is 'grunt' then buildGrunt else buildGulp
+  builder = if options.grunt then buildGrunt else buildGulp
   builder -> startProductionServer()
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
@@ -293,7 +293,7 @@ task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting 
 
 task 'deploy:action', '[PROD]: Update current app state from the repo and restart the server', (options)->
   log('Pulling updates from the repo')
-  builder = if options.taskrunner is 'grunt' then buildGrunt else buildGulp
+  builder = if options.grunt then buildGrunt else buildGulp
 
   exec("forever stop #{SERVER_FILE}.coffee")
   exec 'git pull', (error, stdout, stderr) ->

@@ -32,7 +32,7 @@ module.exports = (grunt) ->
           linenos: true
           define:
             '$version': '<%= pkg.version %>'
-        src: 'app/stylesheets/app.styl'
+        src: 'app/stylesheets/index.styl'
         dest: 'public/assets/app.css'
 
       static:
@@ -131,16 +131,16 @@ module.exports = (grunt) ->
         dateFormat: (time)->
           grunt.log.writeln("Compiled in #{time}ms @ #{(new Date).toString()} 💪\n")
 
-      javascripts:
-        files: [
-          'app/javascripts/client/**/*.coffee'
-          'app/javascripts/shared/**/*.coffee'
-          'vendor/**/*.js'
-          'vendor/**/*.coffee'
-          'app/templates/client/**/*.jade'
-          'app/templates/shared/**/*.jade'
-        ]
-        tasks: ['browserify']
+      # javascripts:
+      #   files: [
+      #     'app/javascripts/client/**/*.coffee'
+      #     'app/javascripts/shared/**/*.coffee'
+      #     'vendor/**/*.js'
+      #     'vendor/**/*.coffee'
+      #     'app/templates/client/**/*.jade'
+      #     'app/templates/shared/**/*.jade'
+      #   ]
+      #   tasks: ['browserify']
 
       stylesheets:
         files: [
@@ -176,6 +176,11 @@ module.exports = (grunt) ->
     'browserify'
     'stylus'
     'jade'
+  ])
+
+  grunt.registerTask('watcher', [
+    'browserify'
+    'watch'
   ])
 
   grunt.registerTask('build', [
