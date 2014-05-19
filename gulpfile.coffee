@@ -24,19 +24,24 @@ rev = require('gulp-rev')
 gzip = require('gulp-gzip')
 
 watchReporter = (e)->
-  util.log("File #{util.colors.cyan(e.path)} was #{util.colors.red(e.type)}, compiling 💪")
+  util.log("File #{util.colors.cyan(e.path)} was #{util.colors.red(e.type)}, flexing 💪")
+errorReporter = (e)->
+  stack = e.stack or e
+  util.log("#{util.colors.magenta('Browserify error!')}\n#{util.colors.red(stack)}")
 
 compileJavascripts = (src, options)->
   args = [src, extensions: ['.coffee', '.jade']]
   bundler = if options.watch then watchify(args...) else browserify(args...)
 
-  compile = ->
+  compile = (files)->
+    watchReporter(path: files[0], type: 'changed') if files
     bundler.bundle()
-      # .pipe(plumber(util.log))
+      .on('error', errorReporter)
       .pipe(source(options.name))
       .pipe(gulp.dest(options.dest))
 
   bundler.on('update', compile) if options.watch
+  bundler.on('file', (file)-> util.log("Browserifying #{util.colors.cyan(file)}"))
   compile()
 
 compileStylesheets = (src, options)->
@@ -64,7 +69,6 @@ compileTemplates = (src, options)->
     .pipe(gulp.dest(options.dest))
 
 
-
 gulp.task 'clean', ->
   gulp.src('./public/assets', read: false)
     .pipe(clean())
@@ -79,7 +83,7 @@ gulp.task 'stylus', ['clean'], ->
     name: 'app.css'
     dest: './public/assets'
 
-gulp.task 'static', ->
+gulp.task 'static', ['clean'], ->
   compileStylesheets './app/stylesheets/static.styl',
     name: 'static.css'
     dest: './public'
@@ -137,30 +141,31 @@ gulp.task 'watch', ->
     dest: './public/assets'
     watch: true
 
-  javascripts = [
-    './app/javascripts/client/**/*.coffee'
-    './app/javascripts/shared/**/*.coffee'
-    './vendor/**/*.js'
-    './vendor/**/*.coffee'
-    './app/templates/client/**/*.jade'
-    './app/templates/shared/**/*.jade'
-  ]
-  gulp.watch(javascripts).on('change', watchReporter)
-
   stylesheets = [
     './app/stylesheets/**/*.styl'
     './vendor/**/*.css'
     './vendor/**/*.styl'
     '!./app/stylesheets/static.styl'
   ]
-  gulp.watch(stylesheets, ['stylus']).on('change', watchReporter)
+  gulp.watch(stylesheets).on 'change', (event)->
+    watchReporter(event)
+    compileStylesheets './app/stylesheets/index.styl',
+      name: 'app.css'
+      dest: './public/assets'
 
   templates = [
     './app/stylesheets/static.styl'
     './app/templates/static/**/*.jade'
   ]
-  gulp.watch(templates, ['static']).on('change', watchReporter)
+  gulp.watch(templates).on 'change', (event)->
+    watchReporter(event)
+    compileStylesheets './app/stylesheets/static.styl',
+      name: 'static.css'
+      dest: './public'
+
+    compileTemplates ['./app/templates/static/**/*.jade', '!./app/templates/static/**/_*.jade'],
+      dest: './public'
 
 
-gulp.task('default', ['browserify', 'stylus'])
+gulp.task('default', ['browserify', 'stylus', 'static'])
 gulp.task('build', ['compress'])
