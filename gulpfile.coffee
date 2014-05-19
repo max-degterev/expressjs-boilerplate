@@ -32,7 +32,7 @@ compileJavascripts = (src, options)->
 
   compile = ->
     bundler.bundle()
-      .pipe(plumber(util.log))
+      # .pipe(plumber(util.log))
       .pipe(source(options.name))
       .pipe(gulp.dest(options.dest))
 
@@ -69,12 +69,12 @@ gulp.task 'clean', ->
   gulp.src('./public/assets', read: false)
     .pipe(clean())
 
-gulp.task 'browserify', ->
+gulp.task 'browserify', ['clean'], ->
   compileJavascripts './app/javascripts/client/index.coffee',
     name: 'app.js'
     dest: './public/assets'
 
-gulp.task 'stylus', ->
+gulp.task 'stylus', ['clean'], ->
   compileStylesheets './app/stylesheets/index.styl',
     name: 'app.css'
     dest: './public/assets'
@@ -87,7 +87,7 @@ gulp.task 'static', ->
   compileTemplates ['./app/templates/static/**/*.jade', '!./app/templates/static/**/_*.jade'],
     dest: './public'
 
-gulp.task 'minify', ->
+gulp.task 'minify', ['browserify', 'stylus'], ->
   gulp.src('./public/assets/*.js')
     .pipe(uglify())
     .pipe(rename(suffix: '.min'))
@@ -114,7 +114,7 @@ gulp.task 'minify', ->
     ))
     .pipe(gulp.dest('./public'))
 
-gulp.task 'hashify', ->
+gulp.task 'hashify', ['minify'], ->
   gulp.src('./public/assets/*.min.*')
     .pipe(rev())
     .pipe(gulp.dest('./public/assets/'))
@@ -122,7 +122,7 @@ gulp.task 'hashify', ->
     .pipe(rename('hashmap.json'))
     .pipe(gulp.dest('./public/assets/'))
 
-gulp.task 'compress', ->
+gulp.task 'compress', ['hashify'], ->
   gulp.src('./public/assets/*.min-*.*')
     .pipe(gzip())
     .pipe(gulp.dest('./public/assets'))
@@ -162,6 +162,5 @@ gulp.task 'watch', ->
   gulp.watch(templates, ['static']).on('change', watchReporter)
 
 
-gulp.task 'default', ['browserify', 'stylus']
-gulp.task 'build', ['default']
-
+gulp.task('default', ['browserify', 'stylus'])
+gulp.task('build', ['compress'])
