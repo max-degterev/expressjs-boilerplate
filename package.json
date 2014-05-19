@@ -64,12 +64,9 @@
 
     "gulp": "3.6.2",
     "gulp-util": "2.2.14",
-    "gulp-plumber": "0.6.1",
-    "gulp-watch": "0.6.4",
     "gulp-clean": "0.2.4",
 
     "vinyl-source-stream": "0.1.1",
-    "vinyl-buffer": "0.0.0",
 
     "gulp-stylus": "1.0.1",
     "gulp-rename": "1.2.0",

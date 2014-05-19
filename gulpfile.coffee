@@ -3,7 +3,6 @@ _ = require('lodash')
 
 gulp = require('gulp')
 util = require('gulp-util')
-plumber = require('gulp-plumber')
 
 clean = require('gulp-clean')
 
@@ -29,7 +28,7 @@ PUBLIC_LOCATION = './public'
 CORE_LOCATION = './app'
 
 watchReporter = (e)->
-  util.log("File #{util.colors.cyan(e.path)} was #{util.colors.red(e.type)}, flexing 💪")
+  util.log("File #{util.colors.cyan(e.path)} #{util.colors.red(e.type)}, flexing 💪")
 errorReporter = (e)->
   stack = e.stack or e
   util.log("#{util.colors.magenta('Browserify error!')}\n#{util.colors.red(stack)}")
@@ -51,7 +50,6 @@ compileJavascripts = (src, options)->
 
 compileStylesheets = (src, options)->
   gulp.src(src)
-    .pipe(plumber(util.log))
     .pipe(stylus(
       errors: true
       use: [nib()]
@@ -66,7 +64,6 @@ compileStylesheets = (src, options)->
 
 compileTemplates = (src, options)->
   gulp.src(src)
-    .pipe(plumber(util.log))
     .pipe(jade(
       pretty: true
       compileDebug: false
