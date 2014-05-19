@@ -45,6 +45,7 @@
     "lodash": "2.4.1",
 
     "browserify": "4.1.5",
+    "watchify": "0.10.1",
     "coffeeify": "0.6.0",
     "jadeify": "2.2.0",
 
@@ -62,9 +63,11 @@
     "time-grunt": "0.3.1",
 
     "gulp": "3.6.2",
+    "gulp-util": "2.2.14",
+    "gulp-plumber": "0.6.1",
+    "gulp-watch": "0.6.4",
     "gulp-clean": "0.2.4",
 
-    "watchify": "0.10.1",
     "vinyl-source-stream": "0.1.1",
     "vinyl-buffer": "0.0.0",
 
@@ -72,9 +75,13 @@
     "gulp-rename": "1.2.0",
     "nib": "1.0.2",
 
+    "gulp-jade": "0.5.0",
+
+    "gulp-uglify": "0.3.0",
     "gulp-minify-css": "0.3.4",
     "gulp-htmlmin": "0.1.2",
-    "gulp-uglify": "0.3.0"
+    "gulp-rev": "0.3.2",
+    "gulp-gzip": "0.0.8"
   },
   "browserify": {
     "transform": ["coffeeify", "jadeify"]
