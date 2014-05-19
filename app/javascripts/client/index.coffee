@@ -12,6 +12,7 @@ jade.client_env = app.env
 
 Backbone.$ = $
 
+
 env =
   jquery: $.fn.jquery
   underscore: _.VERSION

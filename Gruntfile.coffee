@@ -10,14 +10,13 @@ module.exports = (grunt) ->
 
     clean:
       compile:
-        src: ['.tmp', 'public/assets']
+        src: 'public/assets'
 
 
     browserify:
       options:
-        browserifyOptions: extensions: ['.coffee']
-        require: Object.keys(pkg['browserify-shim'])
-        transform: ["coffeeify", "browserify-shim"]
+        browserifyOptions: extensions: ['.coffee', '.jade']
+        watch: grunt.cli.tasks[0] is 'watcher'
 
       compile:
         src: 'app/javascripts/client/index.coffee'
@@ -49,17 +48,7 @@ module.exports = (grunt) ->
 
 
     jade:
-      templates:
-        options:
-          pretty: true
-          compileDebug: false
-          client: true
-          node: true
-          processName: (file)-> file.replace(/app\/templates\/client\/([\w\/]+).jade/gi, '$1')
-        src: 'app/templates/client/**/*.jade'
-        dest: '.tmp/jst.js'
-
-      static:
+      compile:
         options:
           pretty: true
           compileDebug: false
@@ -148,7 +137,8 @@ module.exports = (grunt) ->
           'app/javascripts/shared/**/*.coffee'
           'vendor/**/*.js'
           'vendor/**/*.coffee'
-          '.tmp/jst.js'
+          'app/templates/client/**/*.jade'
+          'app/templates/shared/**/*.jade'
         ]
         tasks: ['browserify']
 
@@ -161,19 +151,12 @@ module.exports = (grunt) ->
         ]
         tasks: ['stylus:stylesheets']
 
-      templates:
-        files: [
-          'app/templates/client/**/*.jade'
-          'app/templates/shared/**/*.jade'
-        ]
-        tasks: ['jade:templates']
-
       static:
         files: [
           'app/stylesheets/static.styl'
           'app/templates/static/**/*.jade'
         ]
-        tasks: ['stylus:static', 'jade:static']
+        tasks: ['stylus:static', 'jade']
 
 
   grunt.loadNpmTasks('grunt-contrib-clean')
@@ -185,15 +168,14 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-contrib-uglify')
   grunt.loadNpmTasks('grunt-hashify')
   grunt.loadNpmTasks('grunt-contrib-compress')
-  # grunt.loadNpmTasks('grunt-contrib-imagemin')
   grunt.loadNpmTasks('grunt-contrib-watch')
 
   grunt.registerTask('default', [
     'clean'
 
-    'jade' # has to go before browserify
     'browserify'
     'stylus'
+    'jade'
   ])
 
   grunt.registerTask('build', [

@@ -16,6 +16,8 @@ VPS_LOG = '/var/log/maxdegterev'
 {spawn, exec} = require 'child_process'
 {print} = require 'sys'
 
+option '-tr', '--taskrunner [gulp|grunt]', 'Task runner to use, default: gulp'
+
 
 # =======================================================================================
 # Utility functions
@@ -127,7 +129,38 @@ buildGulp = (callb)->
 watchGulp = ->
   log('Spawning gulp watcher')
 
-  runner = spawn('gulp --require coffee-script/register', ['watch'])
+  runner = exec('gulp --require coffee-script/register watch')
+  runner.stdout.on('data', proxyLog)
+  runner.stderr.on('data', proxyWarn)
+
+compileGrunt = (callb)->
+  log('Executing grunt defaults')
+
+  runner = exec 'grunt', (error, stdout, stderr)->
+    unless error
+      callb?()
+    else
+      log("Grunt defaults failed with an error: #{error}")
+
+  runner.stdout.on('data', proxyLog)
+  runner.stderr.on('data', proxyWarn)
+
+buildGrunt = (callb)->
+  log('Executing grunt build')
+
+  runner = exec 'grunt build', (error, stdout, stderr)->
+    unless error
+      callb?()
+    else
+      log("Grunt build failed with an error: #{error}")
+
+  runner.stdout.on('data', proxyLog)
+  runner.stderr.on('data', proxyWarn)
+
+watchGrunt = ->
+  log('Spawning grunt watcher')
+
+  runner = spawn('grunt', ['watcher'])
   runner.stdout.on('data', proxyLog)
   runner.stderr.on('data', proxyWarn)
 
@@ -140,7 +173,10 @@ watchGulp = ->
 
 startServer = (options = {})->
   unless options.skipwatch
-    watchGulp()
+    unless options.grunt
+      watchGulp()
+    else
+      watchGrunt()
   # startDatabase()
 
   log('Starting node')
@@ -215,20 +251,27 @@ task 'versions:bower', '[DEV]: Check bower.json versions state', ->
 task 'install', '[DEV]: Install all dependencies', ->
   npmInstall -> bowerInstall()
 
+task 'grunt', '[DEV]: Watch and compile clientside assets', ->
+  watchGrunt()
+
 task 'gulp', '[DEV]: Watch and compile clientside assets', ->
   watchGulp()
 
-task 'dev', '[DEV]: Devserver with autoreload', ->
-  compileGulp -> startServer()
+task 'dev', '[DEV]: Devserver with autoreload', (options)->
+  compiler = if options.taskrunner is 'grunt' then compileGrunt else compileGulp
+  compiler -> startServer(grunt: options.taskrunner is 'grunt')
 
-task 'debug', '[DEV]: Devserver with autoreload and debugger', ->
-  compileGulp -> startServer(debug: true)
+task 'debug', '[DEV]: Devserver with autoreload and debugger', (options)->
+  compiler = if options.taskrunner is 'grunt' then compileGrunt else compileGulp
+  compiler -> startServer(debug: true, grunt: options.taskrunner is 'grunt')
 
-task 'dev:skipwatch', '[DEV]: Devserver without autoreload', ->
-  compileGulp -> startServer(skipwatch: true)
+task 'dev:skipwatch', '[DEV]: Devserver without autoreload', (options)->
+  compiler = if options.taskrunner is 'grunt' then compileGrunt else compileGulp
+  compiler -> startServer(skipwatch: true, grunt: options.taskrunner is 'grunt')
 
-task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', ->
-  buildGulp -> startProductionServer()
+task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', (options)->
+  builder = if options.taskrunner is 'grunt' then buildGrunt else buildGulp
+  builder -> startProductionServer()
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running deploy:action")
@@ -248,15 +291,16 @@ task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting 
       else
         log("Push failed with an error: #{error}")
 
-task 'deploy:action', '[PROD]: Update current app state from the repo and restart the server', ->
+task 'deploy:action', '[PROD]: Update current app state from the repo and restart the server', (options)->
   log('Pulling updates from the repo')
+  builder = if options.taskrunner is 'grunt' then buildGrunt else buildGulp
 
   exec("forever stop #{SERVER_FILE}.coffee")
   exec 'git pull', (error, stdout, stderr) ->
     unless error
       npmInstall ->
         bowerInstall ->
-          buildGulp ->
+          builder ->
             log('Restarting forever')
             exec('cake forever')
             sendMail()
