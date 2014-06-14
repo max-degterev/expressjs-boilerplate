@@ -143,7 +143,7 @@ gulp.task 'browserify', -> processJavascripts()
 gulp.task 'stylus', -> processStylesheets()
 gulp.task 'static', -> processStatic()
 
-gulp.task 'minify', ['browserify', 'stylus'], ->
+gulp.task 'minify', ['browserify', 'stylus', 'static'], ->
   gulp.src("#{ASSETS_LOCATION}/*.js")
     .pipe(uglify())
     .pipe(rename(MINIFIED_NAME))
