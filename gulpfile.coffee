@@ -104,6 +104,7 @@ compileStylesheets = (src, options)->
     .on('end', -> benchmarkReporter('Stylusified', startTime))
 
 compileTemplates = (src, options)->
+  startTime = Date.now()
   env = {}
 
   gulp.src(src)
@@ -113,6 +114,7 @@ compileTemplates = (src, options)->
       locals: { config, env, _, helpers }
     ))
     .pipe(gulp.dest(options.dest))
+    .on('end', -> benchmarkReporter('Jadeified', startTime))
 
 processJavascripts = (options = {})->
   settings = _.extend {}, options,
