@@ -59,6 +59,10 @@ errorReporter = (e)->
   stack = e.stack or e
   log("Browserify error!\n#{stack}", 'red bold')
 
+
+#=========================================================================================
+# Compilers
+#=========================================================================================
 compileJavascripts = (src, options)->
   args = [src, extensions: ['.coffee', '.jade']]
   bundler = if options.watch then watchify(args...) else browserify(args...)
