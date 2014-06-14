@@ -1,6 +1,3 @@
-env = require('env')
-config = require('config')
-
 _ = require('underscore')
 querystring = require('querystring')
 
