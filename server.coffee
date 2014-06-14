@@ -105,7 +105,7 @@ else
       env._flush()
 
       env.rendered = (new Date).toUTCString()
-      env.lang = require('./config/lang_enUS')
+      env.lang = require('./config/lang_en_us')
 
       req.app.locals.env = env
       next()

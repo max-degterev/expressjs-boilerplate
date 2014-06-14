@@ -21,6 +21,8 @@ envParams =
   NODE_CONFIG_PERSIST_ON_CHANGE: 'N'
   NODE_ENV: 'development'
 
+option('-t', '--task [NAME]', 'Task to run gulp with, ex.: cake -t browserify gulp')
+
 # If you add things here, don't forget to also update your .gitignore
 # Entire node_modules folder is ignored by default
 SYMLINKS = [
@@ -256,6 +258,9 @@ task 'relink', '[DEV]: Re-create system symlinks', ->
 
 task 'reinstall', '[DEV]: Clean all and install all dependencies anew', ->
   cleanNodeModules -> createSymlinks -> npmInstall()
+
+task 'gulp', '[DEV]: Compile assets with local gulp, options: [-t]', (options)->
+  compileGulp(options.task)
 
 task 'dev', '[DEV]: Devserver with autoreload', -> startServer()
 task 'debug', '[DEV]: Devserver with autoreload and debugger', -> startServer(debug: true)
