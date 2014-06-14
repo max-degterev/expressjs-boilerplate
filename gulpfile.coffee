@@ -197,11 +197,11 @@ gulp.task 'watch', ->
     watchReporter(event)
     processStylesheets()
 
-  static = [
+  staticContent = [
     "#{CORE_LOCATION}/stylesheets/static.styl"
     "#{CORE_LOCATION}/templates/static/**/*.jade"
   ]
-  gulp.watch(static).on 'change', (event)->
+  gulp.watch(staticContent).on 'change', (event)->
     watchReporter(event)
     processStatic()
 

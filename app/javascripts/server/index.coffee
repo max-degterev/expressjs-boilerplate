@@ -1,7 +1,7 @@
 Controller = require('./base/controller')
 
 
-module.exports = class Server extends Controller
+class Server extends Controller
   logPrefix: '[app.server]:'
 
   default: (req, res)-> res.render('layout')
@@ -10,3 +10,5 @@ module.exports = class Server extends Controller
   router: ->
     @get('/', @default)
     @get('*', @error404)
+
+module.exports = new Server

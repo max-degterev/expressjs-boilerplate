@@ -194,7 +194,7 @@ startServer = (options = {})->
   command += ' --debug' if options.debug
   command += " #{SERVER_FILE}.coffee"
 
-  log(command, 'cyan bold')
+  log(command, 'cyan')
 
   runner = exec(command)
   proxy(runner)
