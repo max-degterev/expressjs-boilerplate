@@ -1,9 +1,11 @@
+#=========================================================================================
+# Dependencies
+#=========================================================================================
 pkg = require('./package')
-_ = require('lodash')
+config = require('config')
+_ = require('underscore')
 
 gulp = require('gulp')
-util = require('gulp-util')
-
 clean = require('gulp-clean')
 
 browserify = require('browserify')
@@ -23,36 +25,70 @@ htmlmin = require('gulp-htmlmin')
 rev = require('gulp-rev')
 gzip = require('gulp-gzip')
 
+livereload = require('gulp-livereload')
+server = null
+
+helpers = require('app/javascripts/shared/helpers')
+log = _.bind(helpers.log, logPrefix: '[gulp]')
+
+
+#=========================================================================================
+# Settings
+#=========================================================================================
 ASSETS_LOCATION = './public/assets'
 PUBLIC_LOCATION = './public'
 CORE_LOCATION = './app'
 
+JS_TRANSFORMS = ['coffeeify', 'jadeify', 'browserify-shim']
+MINIFIED_NAME = suffix: '.min'
+
+
+#=========================================================================================
+# Reporters
+#=========================================================================================
+pathNormalize = (path)-> path.replace("#{__dirname}/", '').replace(/^\.\//, '')
+
+benchmarkReporter = (action, startTime)->
+  log("#{action} in #{((Date.now() - startTime) / 1000).toFixed(2)}s", 'magenta')
+
 watchReporter = (e)->
-  util.log("File #{util.colors.cyan(e.path)} #{util.colors.red(e.type)}, flexing 💪")
+  server.changed(e.path) if server
+  log("File #{pathNormalize(e.path)} #{e.type}, flexing 💪", 'cyan')
+
 errorReporter = (e)->
   stack = e.stack or e
-  util.log("#{util.colors.magenta('Browserify error!')}\n#{util.colors.red(stack)}")
+  log("Browserify error!\n#{stack}", 'red bold')
 
 compileJavascripts = (src, options)->
   args = [src, extensions: ['.coffee', '.jade']]
   bundler = if options.watch then watchify(args...) else browserify(args...)
 
+  bundler.require(key) for key of pkg['browserify-shim']
+  bundler.transform(transform) for transform in JS_TRANSFORMS
+
   compile = (files)->
-    watchReporter(path: files[0], type: 'changed') if files
-    bundler.bundle()
+    startTime = Date.now()
+    watchReporter(path: file, type: 'changed') for file in files if files
+
+    bundler.bundle(debug: config.source_maps)
       .on('error', errorReporter)
       .pipe(source(options.name))
       .pipe(gulp.dest(options.dest))
+      .on('end', -> benchmarkReporter('Browserified', startTime))
 
+  # bundler.on('file', (file)-> log("Browserifying #{pathNormalize(file)}", 'cyan'))
   bundler.on('update', compile) if options.watch
-  bundler.on('file', (file)-> util.log("Browserifying #{util.colors.cyan(file)}"))
   compile()
 
 compileStylesheets = (src, options)->
+  startTime = Date.now()
+
   gulp.src(src)
     .pipe(stylus(
       errors: true
+      # sourcemaps: config.source_maps
       use: [nib()]
+      paths: ["#{__dirname}/node_modules"]
       'include css': true
       urlfunc: 'embedurl'
       linenos: true
@@ -61,12 +97,16 @@ compileStylesheets = (src, options)->
     ))
     .pipe(rename(options.name))
     .pipe(gulp.dest(options.dest))
+    .on('end', -> benchmarkReporter('Stylusified', startTime))
 
 compileTemplates = (src, options)->
+  env = {}
+
   gulp.src(src)
     .pipe(jade(
       pretty: true
       compileDebug: false
+      locals: { config, env, _, helpers }
     ))
     .pipe(gulp.dest(options.dest))
 
@@ -93,19 +133,19 @@ processStatic = ->
     dest: PUBLIC_LOCATION
 
 gulp.task 'clean', -> gulp.src(ASSETS_LOCATION, read: false).pipe(clean())
-gulp.task 'browserify', ['clean'], -> processJavascripts()
-gulp.task 'stylus', ['clean'], -> processStylesheets()
-gulp.task 'static', ['clean'], -> processStatic()
+gulp.task 'browserify', -> processJavascripts()
+gulp.task 'stylus', -> processStylesheets()
+gulp.task 'static', -> processStatic()
 
 gulp.task 'minify', ['browserify', 'stylus'], ->
   gulp.src("#{ASSETS_LOCATION}/*.js")
     .pipe(uglify())
-    .pipe(rename(suffix: '.min'))
+    .pipe(rename(MINIFIED_NAME))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
   gulp.src("#{ASSETS_LOCATION}/*.css")
     .pipe(minifyCSS())
-    .pipe(rename(suffix: '.min'))
+    .pipe(rename(MINIFIED_NAME))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
   gulp.src("#{PUBLIC_LOCATION}/static.css")
@@ -142,7 +182,10 @@ gulp.task 'compress', ['hashify'], ->
     .pipe(gulp.dest(PUBLIC_LOCATION))
 
 gulp.task 'watch', ->
+  server = livereload() if config.livereload
+
   processJavascripts(watch: true)
+  processStylesheets()
 
   stylesheets = [
     "#{CORE_LOCATION}/stylesheets/**/*.styl"
@@ -154,11 +197,11 @@ gulp.task 'watch', ->
     watchReporter(event)
     processStylesheets()
 
-  templates = [
+  static = [
     "#{CORE_LOCATION}/stylesheets/static.styl"
     "#{CORE_LOCATION}/templates/static/**/*.jade"
   ]
-  gulp.watch(templates).on 'change', (event)->
+  gulp.watch(static).on 'change', (event)->
     watchReporter(event)
     processStatic()
 

@@ -1,15 +1,12 @@
-helpers = require('shared/helpers')
-config = require('config')
+Controller = require('./base/controller')
 
-class Server
+
+module.exports = class Server extends Controller
   logPrefix: '[app.server]:'
-  log: helpers.log
+
+  default: (req, res)-> res.render('layout')
+  error404: (req, res)-> res.status(404).render('prerender/error')
 
   router: ->
-    @app.get('*', (req, res)-> res.render('layout'))
-
-  use: (@app)->
-    @router()
-    @log('initialized')
-
-module.exports = new Server()
+    @get('/', @default)
+    @get('*', @error404)

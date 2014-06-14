@@ -1,208 +1,224 @@
+{exec, spawn} = require('child_process')
+
+
 # =======================================================================================
-# Dependencies and constants
+# Settings
 # =======================================================================================
 logPrefix = '[Cake]:'
 SERVER_FILE = 'server'
+APPLICATION_NAME = 'application'
 
-USER_NAME = 'Max Degterev'
-USER_EMAIL = 'me@maxdegterev.name'
+USER_NAME = 'Awesome Person'
+USER_EMAIL = 'me@example.com'
 
-VPS_USER = 'maxdegterev'
-VPS_HOST = 'maxdegterev.name'
-VPS_HOME = '/var/www/maxdegterev'
-VPS_LOG = '/var/log/maxdegterev'
+VPS_USER = 'application'
+VPS_HOST = 'example.com'
+VPS_HOME = '/var/www/application'
+VPS_LOG = '/var/log/application'
+
+envParams =
+  NODE_CONFIG_DISABLE_FILE_WATCH: 'Y'
+  NODE_CONFIG_PERSIST_ON_CHANGE: 'N'
+  NODE_ENV: 'development'
+
+# If you add things here, don't forget to also update your .gitignore
+# Entire node_modules folder is ignored by default
+SYMLINKS = [
+  './node_modules:../app/:app'
+  './node_modules:../app/javascripts/shared/environment.coffee:env.coffee'
+]
 
 
-{spawn, exec} = require 'child_process'
-{print} = require 'sys'
+# More styles here: https://github.com/Marak/colors.js/blob/master/colors.js
+STYLES =
+  bold: ['\x1B[1m', '\x1B[22m']
+  italic: ['\x1B[3m', '\x1B[23m']
 
-option '-g', '--grunt', 'Use Grunt, default taskrunner: gulp'
+  blue: ['\x1B[34m', '\x1B[39m']
+  cyan: ['\x1B[36m', '\x1B[39m']
+  green: ['\x1B[32m', '\x1B[39m']
+  magenta: ['\x1B[35m', '\x1B[39m']
+  red: ['\x1B[31m', '\x1B[39m']
+  yellow: ['\x1B[33m', '\x1B[39m']
 
 
-# =======================================================================================
+# ========================================================================================
 # Utility functions
-# =======================================================================================
-log = (message)-> console.log("[#{(new Date).toUTCString()}] #{logPrefix} #{message}")
-proxyLog = (data)-> print(data.toString())
-proxyWarn = (data)-> process.stderr.write(data.toString())
+# ========================================================================================
+proxy = (runner, callback)->
+  # end: false means when runner died, don't kill process stream
+  runner.stdout.pipe(process.stdout, end: false)
+  runner.stderr.pipe(process.stderr, end: false)
+  process.stdin.pipe(runner.stdin) # for nodemon etc to work
+  runner.on('exit', (status)-> if status is 0 then callback?() else process.exit(status))
 
-checkNpmVersions = (list)->
-  sty = require('sty')
+proxyLog = (runner)->
+  runner.stdout.on('data', (data)-> process.stdout.write(data.toString()))
+  runner.stderr.on('data', (data)-> process.stderr.write(data.toString()))
+
+stylize = (string, style)-> "#{STYLES[style][0]}#{string}#{STYLES[style][1]}"
+
+log = (message, styles)->
+  if styles
+    styles = styles.split(' ')
+    message = stylize(message, style) for style in styles
+
+  console.log("[#{(new Date).toUTCString()}] #{logPrefix} #{message}")
+
+getEnvString = ->
+  arr = for key, value of envParams
+    "#{key}=#{value}"
+
+  arr.join(' ')
+
+
+# ========================================================================================
+# Regular tasks logic
+# ========================================================================================
+checkNpmVersions = (name, list)->
+  log("Checking #{name} NPM versions")
 
   _checkVersion = (lib, version)->
-    exec "npm info #{lib} version", (error, stdout, stderr) ->
+    exec "npm info #{lib} version", (error, stdout, stderr)->
       unless error
         latest = stdout.replace('\n\n', '')
         current = version.replace(/[\<\>\=\~]*/, '')
 
         if current is latest
-          console.log("#{sty.bold sty.green 'NPM OK:'} #{lib} #{current}")
+          log("NPM OK: #{lib} #{current}")
         else
           if current is '*'
-            console.warn("#{sty.bold sty.cyan 'NPM NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
+            log("NPM NOTICE: #{lib} version number not specified: #{current}, latest: #{latest}", 'cyan')
           else
-            console.warn("#{sty.bold sty.red 'NPM WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
+            log("NPM WARN: #{lib} needs to be updated, current: #{current}, latest: #{latest}", 'red bold')
       else
-        log("NPM Failed to fetch latest version for #{lib}")
+        log("NPM Failed to fetch latest version for #{lib}", 'red bold')
 
   _checkVersion(lib, version) for lib, version of list
 
-checkBowerVersions = (list)->
-  sty = require('sty')
-  i = 0
+cleanNodeModules = (callb)->
+  log('Removing node_modules folder')
+  nodeModulesLocation = "#{__dirname}/node_modules"
 
-  _checkVersion = (lib, version)->
-    exec "bower info #{lib} version", (error, stdout, stderr) ->
-      unless error
-        [matches, latest] = stdout.match(/\'([\d\.]+)\'/)
-        current = version.replace(/[\<\>\=\~]*/, '')
+  commands = [
+    "rm -rf #{nodeModulesLocation}"
+    "mkdir #{nodeModulesLocation}"
+  ]
 
-        if !!~current.indexOf('git')
-          return console.warn("#{sty.bold sty.cyan 'BWR NOTICE:'} using #{lib} with git repo instead of a version number: #{current}")
+  log(command, 'red') for command in commands
 
-        if current is latest
-          console.log("#{sty.bold sty.green 'BWR OK:'} #{lib} #{current}")
-        else
-          if current is '*'
-            console.warn("#{sty.bold sty.cyan 'BWR NOTICE:'} #{lib} version number not specified: #{current}, latest: #{latest}")
-          else
-            console.warn("#{sty.bold sty.red 'BWR WARN:'} #{lib} needs to be updated, current: #{current}, latest: #{latest}")
-      else
-        log("BOWER Failed to fetch latest version for #{lib}")
+  runner = exec commands.join(';'), (error, stdout, stderr)->
+    unless error
+      callb?()
+    else
+      log("Couldn't remove node_modules folder: #{error}", 'red bold')
 
-  for lib, version of list
-    do (lib, version)->
-      setTimeout ->
-        _checkVersion(lib, version)
-      , i * 10
+  proxyLog(runner)
 
-    i++
+createSymlinks = (callb)->
+  log('Creating symlinks')
+
+  commands = for link in SYMLINKS
+    [target, location, name] = link.split(':')
+    cwd = "#{__dirname}/#{target}"
+    "cd #{cwd}; ln -s \"#{location}\" \"#{name}\""
+
+  log(command, 'cyan') for command in commands
+
+  runner = exec commands.join(';'), (error, stdout, stderr)->
+    unless error
+      callb?()
+    else
+      log("Couldn't create symlinks: #{error}", 'red bold')
+
+  proxyLog(runner)
+
+deleteSymlinks = (callb)->
+  log('Deleting symlinks')
+
+  commands = for link in SYMLINKS
+    [target, location, name] = link.split(':')
+    link = "#{__dirname}/#{target}/#{name}"
+    "rm #{link}"
+
+  log(command, 'red') for command in commands
+
+  runner = exec commands.join(';'), (error, stdout, stderr)->
+    unless error
+      callb?()
+    else
+      log("Couldn't delete symlinks: #{error}", 'red bold')
+
+  proxyLog(runner)
 
 npmInstall = (callb)->
   log('Updating npm dependencies')
 
-  runner = exec 'npm install', (error, stdout, stderr) ->
+  runner = exec 'npm install --loglevel http', (error, stdout, stderr)->
     unless error
       callb?()
     else
-      log("Npm dependencies installation failed with an error: #{error}")
+      log("Npm dependencies installation failed with an error: #{error}", 'red bold')
 
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
+  proxyLog(runner)
 
-bowerInstall = (callb)->
-  log('Updating bower dependencies')
+compileGulp = (task, callb)->
+  log('Executing gulp')
 
-  runner = exec 'bower install', (error, stdout, stderr) ->
-    unless error
-      callb?()
-    else
-      log("Bower dependencies installation failed with an error: #{error}")
+  command = getEnvString()
+  command += ' ./node_modules/.bin/gulp'
+  command += " #{task}" if task
 
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
+  log(command, 'cyan')
 
-compileGulp = (callb)->
-  log('Executing gulp defaults')
-
-  runner = exec 'gulp --require coffee-script/register', (error, stdout, stderr) ->
-    unless error
-      callb?()
-    else
-      log("Gulp defaults failed with an error: #{error}")
-
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
-
-buildGulp = (callb)->
-  log('Executing gulp build')
-
-  runner = exec 'gulp --require coffee-script/register build', (error, stdout, stderr) ->
-    unless error
-      callb?()
-    else
-      log("Gulp build failed with an error: #{error}")
-
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
+  runner = exec command, (error, stdout, stderr)-> callb?() unless error
+  proxyLog(runner)
 
 watchGulp = ->
-  log('Spawning gulp watcher')
+  log('Starting gulp watcher')
 
-  runner = exec('gulp --require coffee-script/register watch')
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
+  command = getEnvString()
+  command += ' ./node_modules/.bin/gulp watch'
 
-compileGrunt = (callb)->
-  log('Executing grunt defaults')
+  log(command, 'cyan')
 
-  runner = exec 'grunt', (error, stdout, stderr)->
-    unless error
-      callb?()
-    else
-      log("Grunt defaults failed with an error: #{error}")
-
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
-
-buildGrunt = (callb)->
-  log('Executing grunt build')
-
-  runner = exec 'grunt build', (error, stdout, stderr)->
-    unless error
-      callb?()
-    else
-      log("Grunt build failed with an error: #{error}")
-
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
-
-watchGrunt = ->
-  log('Spawning grunt watcher')
-
-  runner = exec('grunt watcher')
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
-
-# startDatabase = ->
-#   log('Spawning database')
-
-#   runner = spawn('redis-server', ['/usr/local/etc/redis.conf'])
-#   runner.stdout.on('data', proxyLog)
-#   runner.stderr.on('data', proxyWarn)
+  runner = exec(command)
+  proxy(runner)
 
 startServer = (options = {})->
-  unless options.skipwatch
-    unless options.grunt
-      watchGulp()
-    else
-      watchGrunt()
-  # startDatabase()
-
   log('Starting node')
+  watchGulp() unless (options.skipwatch or options.skipassets)
 
-  params = 'NODE_ENV=development NODE_CONFIG_DISABLE_FILE_WATCH=Y'
-  unless options.skipwatch
-    params += ' nodemon'
-  else
-    params += ' coffee'
-  params += ' --debug' if options.debug
-  params += " #{SERVER_FILE}.coffee"
+  command = getEnvString()
+  command += if options.skipwatch then ' coffee' else ' nodemon'
+  command += ' --debug' if options.debug
+  command += " #{SERVER_FILE}.coffee"
 
-  runner = exec(params)
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
+  log(command, 'cyan bold')
 
-startProductionServer = ->
-  # startDatabase()
+  runner = exec(command)
+  proxy(runner)
 
-  log('Starting node')
+startForever = ->
+  log('Starting forever')
 
-  params = "NODE_ENV=production NODE_CONFIG_DISABLE_FILE_WATCH=Y coffee #{SERVER_FILE}.coffee"
+  options = [
+    "-l #{VPS_LOG}/#{SERVER_FILE}.log --append"
+    '--minUptime 1000'
+    '--spinSleepTime 1000'
+    "--sourceDir #{VPS_HOME}"
+    "--uid \"#{APPLICATION_NAME}\""
+    '-c coffee'
+  ]
 
-  runner = exec(params)
-  runner.stdout.on('data', proxyLog)
-  runner.stderr.on('data', proxyWarn)
+  command = getEnvString()
+  command += ' forever start'
+  command += " #{options.join(' ')}"
+  command += " #{SERVER_FILE}.coffee"
+
+  log(command, 'cyan bold')
+  runner = exec(command)
+  proxyLog(runner)
 
 sendMail = (type = 'deploy')->
   mailer = require('nodemailer').createTransport('sendmail')
@@ -214,112 +230,87 @@ sendMail = (type = 'deploy')->
 
   if type is 'deploy'
     mailOptions.subject = 'Your website has been deployed to the server'
-    mailOptions.text = "Deploy of #{pkg.description} was successful, v#{pkg.version} @ #{(new Date).toString()}"
+    mailOptions.text = "Deploy of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
   else
     mailOptions.subject = 'Your website has been pushed to the server'
-    mailOptions.text = "Push of #{pkg.description} was successful, v#{pkg.version} @ #{(new Date).toString()}"
+    mailOptions.text = "Push of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
 
-  mailer.sendMail(mailOptions, (error, status)-> log("Sendmail failed with an error: #{error}") if error)
+  mailer.sendMail(mailOptions, (error, status)-> log("Sendmail failed with an error: #{error}", 'red bold') if error)
 
 
 # =======================================================================================
 # Tasks
 # =======================================================================================
-task 'versions', '[DEV]: Check package.json and bower.json versions state', ->
-  pkg = require('./package')
-  bwr = require('./bower')
-  log('Checking npm and bower module versions')
-
-  for item in ['dependencies', 'devDependencies', 'peerDependencies']
-    checkNpmVersions(pkg[item]) if pkg[item]
-
-  for item in ['dependencies', 'devDependencies', 'peerDependencies']
-    checkBowerVersions(bwr[item]) if bwr[item]
-
-task 'versions:npm', '[DEV]: Check package.json versions state', ->
-  log('Checking npm module versions')
+task 'versions', '[DEV]: Check package.json versions state', ->
   pkg = require('./package')
   for item in ['dependencies', 'devDependencies', 'peerDependencies']
-    checkNpmVersions(pkg[item]) if pkg[item]
+    checkNpmVersions(item, pkg[item]) if pkg[item]
 
-task 'versions:bower', '[DEV]: Check bower.json versions state', ->
-  log('Checking bower module versions')
-  bwr = require('./bower')
-  for item in ['dependencies', 'devDependencies', 'peerDependencies']
-    checkBowerVersions(bwr[item]) if bwr[item]
+task 'clean', '[DEV]: Remove node_modules and create system symlinks', ->
+  cleanNodeModules -> createSymlinks()
 
-task 'install', '[DEV]: Install all dependencies', ->
-  npmInstall -> bowerInstall()
+task 'link', '[DEV]: Create system symlinks', -> createSymlinks()
+task 'unlink', '[DEV]: Delete system symlinks', -> deleteSymlinks()
+task 'relink', '[DEV]: Re-create system symlinks', ->
+  deleteSymlinks -> createSymlinks()
 
-task 'grunt', '[DEV]: Watch and compile clientside assets', ->
-  watchGrunt()
+task 'reinstall', '[DEV]: Clean all and install all dependencies anew', ->
+  cleanNodeModules -> createSymlinks -> npmInstall()
 
-task 'gulp', '[DEV]: Watch and compile clientside assets', ->
-  watchGulp()
+task 'dev', '[DEV]: Devserver with autoreload', -> startServer()
+task 'debug', '[DEV]: Devserver with autoreload and debugger', -> startServer(debug: true)
 
-task 'dev', '[DEV]: Devserver with autoreload', (options)->
-  compiler = if options.grunt then compileGrunt else compileGulp
-  compiler -> startServer(grunt: options.grunt)
+task 'dev:skipwatch', '[DEV]: Devserver without autoreload', ->
+  compileGulp null, -> startServer(skipwatch: true)
+task 'dev:skipassets', '[DEV]: Devserver without assets compilation', ->
+  startServer(skipassets: true)
+task 'dev:skipall', '[DEV]: Devserver without autoreload and assets compilation', ->
+  startServer(skipwatch: true, skipassets: true)
 
-task 'debug', '[DEV]: Devserver with autoreload and debugger', (options)->
-  compiler = if options.grunt then compileGrunt else compileGulp
-  compiler -> startServer(debug: true, grunt: options.grunt)
+task 'prod', '[DEV]: Fake PRODUCTION environment for testing', ->
+  envParams['NODE_ENV'] = 'production'
+  compileGulp 'clean', -> compileGulp 'build', -> startServer(skipwatch: true)
 
-task 'dev:skipwatch', '[DEV]: Devserver without autoreload', (options)->
-  compiler = if options.grunt then compileGrunt else compileGulp
-  compiler -> startServer(skipwatch: true, grunt: options.grunt)
-
-task 'prod', '[DEV]: Fake PRODUCTION environmont for testing', (options)->
-  builder = if options.grunt then buildGrunt else buildGulp
-  builder -> startProductionServer()
+task 'forever', '[PROD]: Start all applications with forever in production environment', ->
+  envParams['NODE_ENV'] = 'production'
+  startForever()
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running deploy:action")
   exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake deploy:action'",
-    (error, stdout, stderr) ->
+    (error, stdout, stderr)->
       unless error
-        log('Triggered deploy, wait for email confirmation 👍')
+        log('Triggered deploy, wait for email confirmation 👍', 'cyan')
       else
-        log("Deploy failed with an error: #{error}")
+        log("Deploy failed with an error: #{error}", 'red bold')
 
 task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running push:action")
   exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake push:action'",
-    (error, stdout, stderr) ->
+    (error, stdout, stderr)->
       unless error
-        log('Triggered push, wait for email confirmation 👍')
+        log('Triggered push, wait for email confirmation 👍', 'cyan')
       else
-        log("Push failed with an error: #{error}")
+        log("Push failed with an error: #{error}", 'red bold')
 
-task 'deploy:action', '[PROD]: Update current app state from the repo and restart the server', (options)->
+task 'deploy:action', '[REMOTE]: Update current app state from the repo and restart the server', ->
   log('Pulling updates from the repo')
-  builder = if options.grunt then buildGrunt else buildGulp
 
-  exec("forever stop #{SERVER_FILE}.coffee")
-  exec 'git pull', (error, stdout, stderr) ->
+  exec("forever stop #{APPLICATION_NAME}", 'red')
+  exec 'git pull', (error, stdout, stderr)->
     unless error
-      npmInstall ->
-        bowerInstall ->
-          builder ->
-            log('Restarting forever')
-            exec('cake forever')
-            sendMail()
+      npmInstall -> compileGulp 'clean', -> compileGulp 'build', ->
+        log('Restarting forever', 'cyan')
+        exec('cake forever')
+        sendMail('deploy')
 
     else
-      log("Git pull failed with an error: #{error}")
+      log("Git pull failed with an error: #{error}", 'red bold')
 
-task 'push:action', '[PROD]: Update current app state from the repo', ->
+task 'push:action', '[REMOTE]: Update current app state from the repo', ->
   log('Pulling updates from the repo')
-  exec 'git pull', (error, stdout, stderr) ->
+  exec 'git pull', (error, stdout, stderr)->
     unless error
       sendMail('push')
     else
-      log("Git pull failed with an error: #{error}")
-
-task 'forever', '[PROD]: Start server in PRODUCTION environmont', ->
-  server = "NODE_ENV=production NODE_CONFIG_DISABLE_FILE_WATCH=Y" +
-    " forever start -l #{VPS_LOG}/#{SERVER_FILE}.log --append" +
-    " --minUptime 1000 --spinSleepTime 1000 --sourceDir #{VPS_HOME} -c coffee #{SERVER_FILE}.coffee"
-
-  log("Starting server: #{server}")
-  exec(server)
+      log("Git pull failed with an error: #{error}", 'red bold')

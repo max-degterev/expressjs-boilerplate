@@ -1,27 +1,20 @@
-jade = require('jade/runtime')
-$ = require('jquery')
-_ = require('lodash')
+dependencies = require('./dependencies')
+env = require('env')
+
+template = require('app/templates/blocks/sample_template')
+helpers = require('app/javascripts/shared/helpers')
+
+jquery = require('jquery')
+_ = require('underscore')
 Backbone = require('backbone')
 
-helpers = require('shared/helpers')
-template = require('templates/sample_template')
-
-
-jade.helpers = helpers
-jade.client_env = app.env
-
-Backbone.$ = $
-
-
-env =
+status =
   jquery: $.fn.jquery
   underscore: _.VERSION
   backbone: Backbone.VERSION
   'Backbone.$': !!Backbone.$
-  jade: !!jade
 
-_.extend(env, app.env)
+data = _.extend(env, status)
 
-
-$('body').append(template({ env }))
+$('body').append(template({ data }))
 helpers.log('initialized')

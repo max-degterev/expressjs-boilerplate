@@ -1,6 +1,6 @@
 {
-  "hostname": "maxdegterev.name",
-  "base_url": "http://maxdegterev.name",
+  "hostname": "example.com",
+  "base_url": "http://example.com",
 
   "debug": false,
   "workers": 4,

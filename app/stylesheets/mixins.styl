@@ -1,0 +1,77 @@
+// ===========================================================================
+// Functions
+// ===========================================================================
+urlify($path)
+  $static + $path + '?' + $version
+
+
+// ===========================================================================
+// Vendor madness mixins missing from the nib
+// ===========================================================================
+text-stroke()
+  -webkit-text-stroke: arguments
+  text-stroke: arguments
+
+columns(amount)
+  columns: amount
+  -webkit-columns: amount
+  -moz-columns: amount
+
+// MOBILE SPECIFIC: Links callout
+touch-callout($value = default)
+  -webkit-touch-callout: $value
+  touch-callout: $value
+
+// MOBILE SPECIFIC: Tap highlighting
+tap-highlight-color()
+  -webkit-tap-highlight-color: arguments
+  tap-highlight-color: arguments
+
+
+// ===========================================================================
+// Utility mixins
+// ===========================================================================
+selectable()
+  user-select: text
+  cursor: text
+
+not-selectable()
+  user-select: none
+  cursor: default
+
+absolute-center()
+  margin-left: -(@width / 2)
+  margin-top: -(@height / 2)
+
+  position: absolute
+  left: 50%
+  top: 50%
+
+circle($width)
+  width: $width
+  height: @width
+  overflow: hidden
+  border-radius: (@width / 2)
+
+elipsis()
+  text-overflow: ellipsis
+  white-space: nowrap
+  overflow: hidden
+
+icon-size($width = 14px, $height = null)
+  if !$height
+    $height = $width
+
+  width: $width
+  height: $height
+  font-size: @width
+  line-height: @height
+
+clearfix()
+  &:before,
+  &:after
+    content: " "
+    display: table
+
+  &:after
+    clear: both

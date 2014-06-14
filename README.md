@@ -1,74 +1,59 @@
-# Opinionated ExpressJS Boilerplate
+# ExpressJS Boilerplate
 
-A good way to start your NodeJS project. Additional flavours available under different branches. Read this awesome [blog post](http://maxdegterev.name/blog/express-boilerplate) that covers what's inside.
-
-P.S. every time someone doesn't star this project, a little koala bear dies somewhere in the woods. Don't be a monster. Star it. Now.
+A good starting point for your NodeJS project.
 
 ## Usage:
-### Downloading and updating
-  It's easier to keep your project up to date if you do the following:
-
-  `git remote add parent git@github.com:suprMax/express-boilerplate.git`
-
-  and then you can just:
-
-  `git pull parent master && git push`
-
 ### Development:
 
-1. Install node:
+1. Install nodejs:
 
-  `brew install node`
+  It is recommended to install NodeJS with OS native installer via [NodeJS.org website](http://nodejs.org/download/).
+
+  If you prefer using Homebrew (`brew install node`) **DON'T**. NPM [cannot be installed with Homebrew](https://github.com/npm/npm/wiki/Installing-npm-with-Homebrew-on-OS%C2%A0X), so good luck with that.
 
 2. Install dependencies:
 
-  `sudo npm install -g coffee-script bower grunt-cli forever mocha nodemon`
+  `sudo npm install -g coffee-script nodemon node-gyp`
 
   and then
 
-  `cake install`
+  `npm install`
 
-3. Edit your hosts (optional):
+3. Edit your hosts:
 
-  `vim /private/etc/hosts`
-
-  add at the bottom
-
-  `127.0.0.1 express.dev`
+  `echo "127.0.0.1 example.dev" >> /private/etc/hosts`
 
 4. Start server:
 
   `cake dev`
 
-  and navigate your browser to http://express.dev:3000/ or http://localhost:3000/
+  and navigate your browser to [http://example.dev:3000/](http://example.dev:3000/)
 
 5. ???
 
 6. PROFIT
 
-### Vendor dependencies management:
-
-`cake install`
-
 ### Assets management:
 
-You shouldn't normally care about that, as Cake takes care of it for you.
+It's easier if you install gulp globally: `sudo npm install -g gulp`.
 
-Compile assets for production:
+Cakefile already takes care of assets compilation for you. If you need to compile assets separately, use these commands.
 
-  `grunt build`
+* Compile assets for production:
 
-Just clean up previously created mess:
+  `gulp build`
 
-  `grunt clean`
+* Just clean up previously created mess:
 
-Build assets for development once
+  `gulp clean`
 
-  `grunt`
+* Build assets for development once
 
-Watch for assets changes
+  `gulp`
 
-  `grunt watch`
+* Build assets for development and watch for assets changes
+
+  `gulp watch`
 
 ### Run tests:
 

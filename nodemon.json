@@ -2,20 +2,26 @@
   "ignore": [
     ".git",
     "node_modules/*",
+    "vendor/*",
     "public/*",
+
     "app/javascripts/client/*",
     "app/stylesheets/*",
-    "app/templates/client/*",
-    "vendor/*",
-    "npm-debug.log"
+    "app/templates/*",
+
+    "*.log"
   ],
   "watch": [
-    "app/javascripts/server/",
-    "app/javascripts/shared/",
-    "app/templates/server/",
-    "config/",
+    "config/*.json",
+    "config/*.coffee",
+
+    "app/javascripts/server/*",
+    "app/javascripts/shared/*",
+
+    "*.js",
+    "*.json",
     "*.coffee"
   ],
-  "ext": "js coffee json jade",
-  "verbose": true
+  "ext": "js json coffee",
+  "verbose": false
 }

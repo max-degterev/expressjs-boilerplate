@@ -1,4 +1,4 @@
-- jade.helpers = helpers; jade.client_env = client_env;
+- jade.config = config; jade.env = env; jade._ = _; jade.helpers = helpers;
 doctype html
 html(lang="en-US")
   head
@@ -16,16 +16,19 @@ html(lang="en-US")
     //- meta(name="format-detection", content="telephone=no")
     //- meta(http-equiv="cleartype", content="on")
 
-    link(rel="stylesheet", href=getAsset('app.css'))
+    block stylesheets
+      link(rel="stylesheet", href=getAsset('app.css'))
 
   body
     block content
       h1 It works
 
-    script.
-      var app = {
-        env: !{JSON.stringify(client_env)}
-      };
+    block javascripts
+      script.
+        var app = {
+          config: !{JSON.stringify(config)},
+          env: !{helpers.sanitizeString(JSON.stringify(env))}
+        };
 
-    include blocks/analytics
-    script(src=getAsset('app.js'))
+      include layout/analytics
+      script(src=getAsset('app.js'))

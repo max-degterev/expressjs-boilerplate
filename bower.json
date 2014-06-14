@@ -1,7 +1,0 @@
-{
-  "name": "express-boilerplate-chaplin",
-  "private": true,
-  "dependencies": {
-    "normalize-css": "3.0.1"
-  }
-}

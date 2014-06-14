@@ -13,18 +13,17 @@ results
 
 npm-debug.log
 node_modules/*
-!node_modules/client
-!node_modules/server
-!node_modules/shared
-!node_modules/templates
+!node_modules/core
+!node_modules/env.coffee
 .DS_Store
 
 nvm/
 .build-auth-env
 vendor/bower
 config/development.json
+config/runtime.json
 public/assets/*.*
+
 public/static.css
 public/404.html
 public/deploy.html
-.tmp/
