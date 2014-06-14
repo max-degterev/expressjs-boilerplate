@@ -241,7 +241,7 @@ sendMail = (type = 'deploy')->
 # =======================================================================================
 # Tasks
 # =======================================================================================
-task 'versions', '[DEV]: Check package.json versions state', ->
+task 'versions', '[DEV]: Check package.json versions', ->
   pkg = require('./package')
   for item in ['dependencies', 'devDependencies', 'peerDependencies']
     checkNpmVersions(item, pkg[item]) if pkg[item]
