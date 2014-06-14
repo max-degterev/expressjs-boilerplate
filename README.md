@@ -13,7 +13,7 @@ A good starting point for your NodeJS project.
 
 2. Install dependencies:
 
-  `sudo npm install -g coffee-script nodemon node-gyp`
+  `sudo npm install -g coffee-script nodemon node-gyp mocha`
 
   and then
 
