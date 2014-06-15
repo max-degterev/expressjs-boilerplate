@@ -19,7 +19,6 @@ node_modules/*
 
 nvm/
 .build-auth-env
-vendor/bower
 config/development.json
 config/runtime.json
 public/assets/*.*
