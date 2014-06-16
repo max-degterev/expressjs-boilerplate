@@ -59,10 +59,10 @@ else
         'port'
         'ip'
 
+        'death_timeout'
+
         'source_maps'
         'livereload'
-
-        'death_timeout'
       ]
       _.omit(_.clone(config), excludedKeys...)
 
