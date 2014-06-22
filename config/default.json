@@ -1,4 +1,15 @@
 {
+  "server_only_keys": [
+    "workers",
+    "port",
+    "ip",
+
+    "death_timeout",
+
+    "source_maps",
+    "livereload"
+  ],
+
   "hostname": "example.dev",
   "base_url": "http://example.dev:3000",
 

@@ -53,22 +53,9 @@ else
     #=====================================================================================
     # Template globals
     #=====================================================================================
-    _getClientConfig = ->
-      excludedKeys = [
-        'workers'
-        'port'
-        'ip'
-
-        'death_timeout'
-
-        'source_maps'
-        'livereload'
-      ]
-      _.omit(_.clone(config), excludedKeys...)
-
     generateTemplateGlobals = ->
       app.locals.pretty = config.debug
-      app.locals.config = _getClientConfig()
+      app.locals.config = _.omit(_.clone(config), config.server_only_keys...)
       app.locals._ = _
       app.locals.helpers = helpers
 
