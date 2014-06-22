@@ -25,8 +25,7 @@ htmlmin = require('gulp-htmlmin')
 rev = require('gulp-rev')
 gzip = require('gulp-gzip')
 
-livereload = require('gulp-livereload')
-server = null
+livereload = require('gulp-livereload') if config.livereload
 
 helpers = require('app/javascripts/shared/helpers')
 log = _.bind(helpers.log, logPrefix: '[gulp]')
@@ -59,7 +58,7 @@ benchmarkReporter = (action, startTime)->
   log("#{action} in #{((Date.now() - startTime) / 1000).toFixed(2)}s", 'magenta')
 
 watchReporter = (e)->
-  server.changed(e.path) if server
+  livereload.changed() if config.livereload
   log("File #{pathNormalize(e.path)} #{e.type}, flexing 💪", 'cyan')
 
 errorReporter = (e)->
@@ -90,7 +89,7 @@ compileJavascripts = (src, options)->
       .on('error', errorReporter)
       .pipe(source(options.name))
       .pipe(gulp.dest(options.dest))
-      .on('end', -> benchmarkReporter('Browserified', startTime))
+      .on('end', -> benchmarkReporter("Browserified #{src}", startTime))
 
   # bundler.on('file', (file)-> log("Browserifying #{pathNormalize(file)}", 'cyan'))
   bundler.on('update', compile) if options.watch
@@ -113,7 +112,7 @@ compileStylesheets = (src, options)->
     ))
     .pipe(rename(options.name))
     .pipe(gulp.dest(options.dest))
-    .on('end', -> benchmarkReporter('Stylusified', startTime))
+    .on('end', -> benchmarkReporter("Stylusified #{src}", startTime))
 
 compileTemplates = (src, options)->
   startTime = Date.now()
@@ -126,7 +125,7 @@ compileTemplates = (src, options)->
       locals: { config, env, _, helpers }
     ))
     .pipe(gulp.dest(options.dest))
-    .on('end', -> benchmarkReporter('Jadeified', startTime))
+    .on('end', -> benchmarkReporter("Jadeified #{src}", startTime))
 
 processJavascripts = (options = {})->
   settings = _.extend {}, options,
@@ -200,7 +199,7 @@ gulp.task 'compress', ['hashify'], ->
     .pipe(gulp.dest(PUBLIC_LOCATION))
 
 gulp.task 'watch', ->
-  server = livereload() if config.livereload
+  livereload.listen(silent: true) if config.livereload
 
   processJavascripts(watch: true)
   processStylesheets()
@@ -208,8 +207,8 @@ gulp.task 'watch', ->
 
   # FIXME: This reload method is really slow
   templates = [
-    "#{APP_LOCATION}/templates/**/*.jade"
-    "!#{APP_LOCATION}/templates/static/**/*.jade"
+    "#{CORE_LOCATION}/templates/**/*.jade"
+    "!#{CORE_LOCATION}/templates/static/**/*.jade"
   ]
   gulp.watch(templates).on 'change', (event)->
     watchReporter(event)

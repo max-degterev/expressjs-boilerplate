@@ -70,9 +70,7 @@
   },
   "browser": {
     "config": "./config/client.coffee",
-    "backbone": "./node_modules/backbone/backbone.js",
-    "jquery": "./node_modules/jquery/dist/jquery.js",
-    "underscore": "./node_modules/underscore/underscore.js"
+    "backbone": "./node_modules/backbone/backbone.js"
   },
   "browserify-shim": {
     "backbone": {
