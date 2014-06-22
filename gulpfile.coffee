@@ -31,16 +31,23 @@ server = null
 helpers = require('app/javascripts/shared/helpers')
 log = _.bind(helpers.log, logPrefix: '[gulp]')
 
+bundler = null # for watchify to avoid memory leaks
+lastBrowserified = 0
+
 
 #=========================================================================================
 # Settings
 #=========================================================================================
+RELOAD_TRIGGERS = ['rs', 'regulp']
+
 ASSETS_LOCATION = './public/assets'
 PUBLIC_LOCATION = './public'
 CORE_LOCATION = './app'
 
 JS_TRANSFORMS = ['coffeeify', 'jadeify', 'browserify-shim']
 MINIFIED_NAME = suffix: '.min'
+
+BROWSERIFY_RATELIMIT = 1000
 
 
 #=========================================================================================
@@ -64,6 +71,7 @@ errorReporter = (e)->
 # Compilers
 #=========================================================================================
 compileJavascripts = (src, options)->
+  bundler.close?() if bundler
   args = [src, extensions: ['.coffee', '.jade']]
   bundler = if options.watch then watchify(args...) else browserify(args...)
 
@@ -72,6 +80,10 @@ compileJavascripts = (src, options)->
 
   compile = (files)->
     startTime = Date.now()
+
+    return if startTime - lastBrowserified < BROWSERIFY_RATELIMIT
+    lastBrowserified = startTime
+
     watchReporter(path: file, type: 'changed') for file in files if files
 
     bundler.bundle(debug: config.source_maps)
@@ -192,6 +204,16 @@ gulp.task 'watch', ->
 
   processJavascripts(watch: true)
   processStylesheets()
+  processStatic()
+
+  # FIXME: This reload method is really slow
+  templates = [
+    "#{APP_LOCATION}/templates/**/*.jade"
+    "!#{APP_LOCATION}/templates/static/**/*.jade"
+  ]
+  gulp.watch(templates).on 'change', (event)->
+    watchReporter(event)
+    processJavascripts(watch: true)
 
   stylesheets = [
     "#{CORE_LOCATION}/stylesheets/**/*.styl"
@@ -210,6 +232,13 @@ gulp.task 'watch', ->
   gulp.watch(staticContent).on 'change', (event)->
     watchReporter(event)
     processStatic()
+
+  process.stdin.on 'data', (chunk)->
+    if chunk.toString().replace(/[\r\n]/g, '') in RELOAD_TRIGGERS
+      log('Triggered manual reload', 'red')
+      processJavascripts(watch: true)
+      processStylesheets()
+      processStatic()
 
 gulp.task('default', ['browserify', 'stylus', 'static'])
 gulp.task('build', ['compress'])
