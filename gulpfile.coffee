@@ -117,12 +117,13 @@ compileStylesheets = (src, options)->
 compileTemplates = (src, options)->
   startTime = Date.now()
   env = {}
+  getAsset = helpers.noop
 
   gulp.src(src)
     .pipe(jade(
       pretty: true
       compileDebug: false
-      locals: { config, env, _, helpers }
+      locals: { config, env, _, helpers, getAsset }
     ))
     .pipe(gulp.dest(options.dest))
     .on('end', -> benchmarkReporter("Jadeified #{src}", startTime))
