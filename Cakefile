@@ -165,7 +165,7 @@ npmInstall = (callb)->
   proxyLog(runner)
 
 compileGulp = (task, callb)->
-  log('Executing gulp')
+  log("Executing gulp #{task or ''}")
 
   command = getEnvString()
   command += ' ./node_modules/.bin/gulp'
