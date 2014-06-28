@@ -92,7 +92,7 @@ else
       rendered = (new Date).toUTCString()
       lang = require('./config/lang_en_us')
 
-      env.restore(res).set({ rendered, lang, time })
+      env.restore(res).set({ rendered, lang })
       next()
 
     preRouteMiddleware = ->
