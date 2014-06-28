@@ -17,7 +17,7 @@ stylize = (string, style)-> "#{STYLES[style][0]}#{string}#{STYLES[style][1]}"
 helpers = {}
 helpers.noop = ->
 helpers.log = (message, styles)->
-  if styles and not process.browser
+  if styles and not process.browser and config.env is 'development'
     styles = styles.split(' ')
     message = stylize(message, style) for style in styles
 
