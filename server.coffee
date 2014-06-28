@@ -55,7 +55,7 @@ else
     #=====================================================================================
     generateTemplateGlobals = ->
       app.locals.pretty = config.debug
-      app.locals.config = _.omit(_.clone(config), config.server_only_keys...)
+      app.locals.config = _.omit(_.clone(config), 'server_only_keys', config.server_only_keys...)
       app.locals._ = _
       app.locals.helpers = helpers
 
@@ -89,12 +89,10 @@ else
       next()
 
     generateEnv = (req, res, next)->
-      env._flush()
+      rendered = (new Date).toUTCString()
+      lang = require('./config/lang_en_us')
 
-      env.rendered = (new Date).toUTCString()
-      env.lang = require('./config/lang_en_us')
-
-      req.app.locals.env = env
+      env.restore(res).set({ rendered, lang, time })
       next()
 
     preRouteMiddleware = ->
@@ -111,6 +109,7 @@ else
       app.use(require('serve-static')(__dirname + '/public', redirect: false))
 
       app.use(injectGetAsset)
+      app.use(env.create)
       app.use(generateEnv)
 
     postRouteMiddleware = ->

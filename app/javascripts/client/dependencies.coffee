@@ -11,7 +11,7 @@ helpers = require('app/javascripts/shared/helpers')
 
 # Monkey patching jade for templates
 jade.config = config
-jade.env = env
+jade.env = env.toJSON()
 jade._ = _
 jade.helpers = helpers
 

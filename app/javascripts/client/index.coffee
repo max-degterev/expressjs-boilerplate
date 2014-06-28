@@ -14,7 +14,7 @@ status =
   backbone: Backbone.VERSION
   'Backbone.$': !!Backbone.$
 
-data = _.extend(env, status)
+data = _.extend({}, env.toJSON(), status)
 
 $('body').append(template({ data }))
 helpers.log('initialized')

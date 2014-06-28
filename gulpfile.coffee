@@ -6,7 +6,7 @@ config = require('config')
 _ = require('underscore')
 
 gulp = require('gulp')
-clean = require('gulp-clean')
+rimraf = require('gulp-rimraf')
 
 browserify = require('browserify')
 watchify = require('watchify')
@@ -150,7 +150,7 @@ processStatic = ->
   compileTemplates ["#{CORE_LOCATION}/templates/static/**/*.jade", "!#{CORE_LOCATION}/templates/static/**/_*.jade"],
     dest: PUBLIC_LOCATION
 
-gulp.task 'clean', -> gulp.src(ASSETS_LOCATION, read: false).pipe(clean())
+gulp.task 'clean', -> gulp.src(ASSETS_LOCATION, read: false).pipe(rimraf())
 gulp.task 'browserify', -> processJavascripts()
 gulp.task 'stylus', -> processStylesheets()
 gulp.task 'static', -> processStatic()

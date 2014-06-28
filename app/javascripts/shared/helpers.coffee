@@ -1,6 +1,4 @@
 config = require('config')
-env = require('env')
-_ = require('underscore')
 
 
 STYLES =
