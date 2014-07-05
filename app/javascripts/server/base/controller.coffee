@@ -1,10 +1,10 @@
 config = require('config')
-utils = require('./utils')
+utils = require('../mixins/utils')
 _ = require('underscore')
 router = require('express').Router()
 
 
-module.exports = class Controller
+class Controller
   # Please set this on the instance
   logPrefix: '[app.server.base.controller]:'
 
@@ -26,6 +26,8 @@ module.exports = class Controller
   all: (route, callbacks...)-> @_handler('all', route, callbacks...)
 
   use: (@app)->
+    @socket = @app.get('socket')
+
     @middleware?()
     @modules?()
     @router?()
