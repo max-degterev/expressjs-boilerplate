@@ -55,7 +55,7 @@ else
     #=====================================================================================
     generateTemplateGlobals = ->
       app.locals.pretty = config.debug
-      app.locals.config = _.omit(_.clone(config), 'server_only_keys', config.server_only_keys...)
+      app.locals.config = _.omit(_.clone(config), config.server_only_keys...)
       app.locals._ = _
       app.locals.helpers = helpers
 
@@ -138,10 +138,7 @@ else
 
     app_root = "http://#{config.hostname}:#{config.port}"
 
-    if config.debug
-      app.listen(app.get('port'), -> log("Server listening on #{app_root} (unbound)", 'cyan'))
+    if config.ip
+      app.listen(app.get('port'), config.ip, -> log("Server listening on #{app_root} (bound to ip: #{config.ip})", 'cyan'))
     else
-      if config.ip
-        app.listen(app.get('port'), config.ip, -> log("Server listening on #{app_root} (bound to ip: #{config.ip})", 'cyan'))
-      else
-        app.listen(app.get('port'), -> log("Server listening on #{app_root} (unbound)", 'cyan'))
+      app.listen(app.get('port'), -> log("Server listening on #{app_root} (unbound)", 'cyan'))

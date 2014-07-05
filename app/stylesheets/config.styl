@@ -1,9 +1,13 @@
-$width = 920px
+$min_width = 760px
+$max_width = 920px
+
+$min_height = 650px
+$layout_padding = 20px
 
 $red = #ff481f
 $green = #1fd44c
 $blue = #00aced
 
 $mobile = 'screen and (max-width: 480px)'
-$tablet = 'screen and (min-width: 760px)'
-$desktop = 'screen and (min-width: 1024px)'
+$tablet = 'screen and (max-width: ' + $min_width + ')'
+$desktop = 'screen and (min-width: ' + $max_width + ')'

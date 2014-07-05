@@ -1,0 +1,11 @@
+/var/log/application/*.log {
+  daily         # how often to rotate
+  rotate 10     # max num of log files to keep
+  missingok     # don't panic if the log file doesn't exist
+  notifempty    # ignore empty files
+  compress      # compress rotated log file with gzip
+  sharedscripts # no idea what it does, but it's in all examples
+  copytruncate  # needed for forever to work properly
+  dateext       # adds date to filename
+  dateformat %Y-%m-%d.
+}

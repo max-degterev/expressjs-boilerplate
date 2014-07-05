@@ -26,8 +26,6 @@ class Controller
   all: (route, callbacks...)-> @_handler('all', route, callbacks...)
 
   use: (@app)->
-    @socket = @app.get('socket')
-
     @middleware?()
     @modules?()
     @router?()

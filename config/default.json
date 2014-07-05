@@ -1,5 +1,7 @@
 {
   "server_only_keys": [
+    "server_only_keys",
+
     "workers",
     "port",
     "ip",

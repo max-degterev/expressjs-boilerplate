@@ -34,6 +34,18 @@ not-selectable()
   user-select: none
   cursor: default
 
+fluid-layout($padding = $layout_padding, $min = $min_width, $max = $max_width)
+  min-width: $min - ($padding * 2)
+  max-width: $max - ($padding * 2)
+  margin: 0 auto
+  padding: 0 $padding
+
+  @media $mobile
+    min-width: 0
+    max-width: none
+    margin: 0
+    padding: 0 $mobile_padding
+
 absolute-center()
   margin-left: -(@width / 2)
   margin-top: -(@height / 2)

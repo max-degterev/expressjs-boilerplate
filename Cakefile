@@ -282,40 +282,51 @@ task 'forever', '[PROD]: Start all applications with forever in production envir
 
 task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running deploy:action")
-  exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake deploy:action'",
+  runner = exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake deploy:action'",
     (error, stdout, stderr)->
       unless error
-        log('Triggered deploy, wait for email confirmation 👍', 'cyan')
+        log('Deploy complete, wait for email confirmation 👍', 'cyan')
       else
         log("Deploy failed with an error: #{error}", 'red bold')
 
+  proxyLog(runner)
+
 task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting the server', ->
   log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running push:action")
-  exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake push:action'",
+  runner = exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake push:action'",
     (error, stdout, stderr)->
       unless error
-        log('Triggered push, wait for email confirmation 👍', 'cyan')
+        log('Push complete, wait for email confirmation 👍', 'cyan')
       else
         log("Push failed with an error: #{error}", 'red bold')
+
+  proxyLog(runner)
 
 task 'deploy:action', '[REMOTE]: Update current app state from the repo and restart the server', ->
   log('Pulling updates from the repo')
 
-  exec("forever stop #{APPLICATION_NAME}", 'red')
-  exec 'git pull', (error, stdout, stderr)->
+  runner1 = exec("forever stop #{APPLICATION_NAME}", 'red')
+  runner2 = exec 'git pull', (error, stdout, stderr)->
     unless error
       npmInstall -> compileGulp 'clean', -> compileGulp 'build', ->
         log('Restarting forever', 'cyan')
-        exec('cake forever')
+        runner3 = exec('cake forever')
+
         sendMail('deploy')
+        proxyLog(runner3)
 
     else
       log("Git pull failed with an error: #{error}", 'red bold')
 
+  proxyLog(runner1)
+  proxyLog(runner2)
+
 task 'push:action', '[REMOTE]: Update current app state from the repo', ->
   log('Pulling updates from the repo')
-  exec 'git pull', (error, stdout, stderr)->
+  runner = exec 'git pull', (error, stdout, stderr)->
     unless error
       sendMail('push')
     else
       log("Git pull failed with an error: #{error}", 'red bold')
+
+  proxyLog(runner)

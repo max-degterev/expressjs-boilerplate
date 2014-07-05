@@ -1,4 +1,5 @@
 extend ../layout
 
-block body
-  include ../pages/error
+block content
+  .p-error(data-prerendered='error')
+    include ../pages/error

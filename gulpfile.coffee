@@ -116,7 +116,11 @@ compileStylesheets = (src, options)->
 
 compileTemplates = (src, options)->
   startTime = Date.now()
-  env = {}
+  env =
+    rendered: (new Date).toUTCString()
+    lang: require('./config/lang_en_us')
+    version: pkg.version
+
   getAsset = helpers.noop
 
   gulp.src(src)
