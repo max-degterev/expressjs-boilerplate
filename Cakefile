@@ -305,7 +305,7 @@ task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting 
 task 'deploy:action', '[REMOTE]: Update current app state from the repo and restart the server', ->
   log('Pulling updates from the repo')
 
-  runner1 = exec("forever stop #{APPLICATION_NAME}", 'red')
+  runner1 = exec("forever stop #{APPLICATION_NAME}")
   runner2 = exec 'git pull', (error, stdout, stderr)->
     unless error
       npmInstall -> compileGulp 'clean', -> compileGulp 'build', ->
