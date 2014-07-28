@@ -16,11 +16,7 @@ VPS_HOST = 'example.com'
 VPS_HOME = '/var/www/application'
 VPS_LOG = '/var/log/application'
 
-envParams =
-  NODE_CONFIG_DISABLE_FILE_WATCH: 'Y'
-  NODE_CONFIG_PERSIST_ON_CHANGE: 'N'
-  NODE_ENV: 'development'
-
+envParams = NODE_ENV: 'development'
 option('-t', '--task [NAME]', 'Task to run gulp with, ex.: cake -t browserify gulp')
 
 # If you add things here, don't forget to also update your .gitignore
@@ -305,6 +301,8 @@ task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting 
 task 'deploy:action', '[REMOTE]: Update current app state from the repo and restart the server', ->
   log('Pulling updates from the repo')
 
+  envParams['NODE_ENV'] = 'production'
+
   runner1 = exec("forever stop #{APPLICATION_NAME}")
   runner2 = exec 'git pull', (error, stdout, stderr)->
     unless error
@@ -323,6 +321,9 @@ task 'deploy:action', '[REMOTE]: Update current app state from the repo and rest
 
 task 'push:action', '[REMOTE]: Update current app state from the repo', ->
   log('Pulling updates from the repo')
+
+  envParams['NODE_ENV'] = 'production'
+
   runner = exec 'git pull', (error, stdout, stderr)->
     unless error
       sendMail('push')

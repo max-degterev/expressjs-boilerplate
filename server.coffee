@@ -16,11 +16,11 @@ log = helpers.log
 #=========================================================================================
 if cluster.isMaster
   for i in [1..config.workers]
-    log("Starting worker #{i}")
+    log("Starting worker #{i}", 'cyan')
     cluster.fork()
 
   cluster.on 'exit', (worker, code, signal)->
-    log("Worker #{worker.process.pid} died")
+    log("Worker #{worker.process.pid} died", 'red bold')
 
     if config.debug
       process.exit()
@@ -53,11 +53,16 @@ else
     #=====================================================================================
     # Template globals
     #=====================================================================================
+    getAsset = (name)->
+      name = assetsHashMap[name] unless config.debug
+      "/assets/#{name}"
+
     generateTemplateGlobals = ->
       app.locals.pretty = config.debug
       app.locals.config = _.omit(_.clone(config), config.server_only_keys...)
       app.locals._ = _
       app.locals.helpers = helpers
+      app.locals.getAsset = 
 
 
     #=====================================================================================
@@ -80,14 +85,6 @@ else
 
       next()
 
-    getAsset = (name)->
-      name = assetsHashMap[name] unless config.debug
-      "/assets/#{name}"
-
-    injectGetAsset = (req, res, next)->
-      req.app.locals.getAsset = getAsset
-      next()
-
     generateEnv = (req, res, next)->
       rendered = (new Date).toUTCString()
       lang = require('./config/lang_en_us')
@@ -101,14 +98,13 @@ else
       if config.debug
         app.use(morgan('dev'))
       else
-        app.use(morgan('default'))
+        app.use(morgan('combined'))
 
       app.use(normalizeUrl)
 
       app.use(require('serve-favicon')(__dirname + '/public/favicon.ico'))
       app.use(require('serve-static')(__dirname + '/public', redirect: false))
 
-      app.use(injectGetAsset)
       app.use(env.create)
       app.use(generateEnv)
 
