@@ -1,13 +1,11 @@
+_ = require('underscore')
+
 class Environment
   attributes: global.app?.env or {}
 
   create: (req, res, next)=>
     @attributes = res.locals.env = {}
     next()
-
-  restore: (res)->
-    @attributes = res.locals.env or {}
-    @
 
   set: (key, value)->
     if typeof key is 'string'
@@ -25,10 +23,9 @@ class Environment
   has: (key)-> !!@attributes[key]
 
   clear: ->
-    for k, v of @attributes
-      delete @attributes[k]
+    @unset(key) for key of @attributes
     @
 
-  toJSON: -> @attributes
+  toJSON: -> _.clone(@attributes)
 
 module.exports = new Environment

@@ -7,6 +7,7 @@ _ = require('underscore')
 app = require('express')()
 
 env = require('env')
+pkg = require('./package')
 helpers = require('app/javascripts/shared/helpers')
 log = helpers.log
 
@@ -86,10 +87,10 @@ else
       next()
 
     generateEnv = (req, res, next)->
-      rendered = (new Date).toUTCString()
-      lang = require('./config/lang_en_us')
+      res.locals.env.rendered = (new Date).toUTCString()
+      res.locals.env.lang = require('./config/lang_en_us')
+      res.locals.env.version = pkg.version
 
-      env.restore(res).set({ rendered, lang })
       next()
 
     preRouteMiddleware = ->
