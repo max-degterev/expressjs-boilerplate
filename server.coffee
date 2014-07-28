@@ -63,7 +63,7 @@ else
       app.locals.config = _.omit(_.clone(config), config.server_only_keys...)
       app.locals._ = _
       app.locals.helpers = helpers
-      app.locals.getAsset = 
+      app.locals.getAsset = getAsset
 
 
     #=====================================================================================

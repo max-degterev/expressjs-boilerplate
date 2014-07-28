@@ -1,12 +1,6 @@
-dependencies = require('./dependencies')
-env = require('env')
-
+{jade, $, _, Backbone, config, env, helpers} = require('./dependencies')
 template = require('app/templates/blocks/sample_template')
-helpers = require('app/javascripts/shared/helpers')
 
-jquery = require('jquery')
-_ = require('underscore')
-Backbone = require('backbone')
 
 status =
   jquery: $.fn.jquery
