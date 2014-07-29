@@ -218,20 +218,26 @@ startForever = ->
   runner = exec(command)
   proxyLog(runner)
 
-sendMail = (type = 'deploy')->
-  mailer = require('nodemailer').createTransport('sendmail')
+sendMail = (type = 'deploy', subject, text)->
+  nodemailer = require('nodemailer')
+  directTransport = require('nodemailer-direct-transport')
+  mailer = nodemailer.createTransport(directTransport(name: VPS_HOST))
   pkg = require('./package')
 
   mailOptions =
     from: "\"#{USER_NAME}\" <#{USER_EMAIL}>"
     to: "\"#{USER_NAME}\" <#{USER_EMAIL}>"
 
-  if type is 'deploy'
-    mailOptions.subject = 'Your website has been deployed to the server'
-    mailOptions.text = "Deploy of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
+  unless subject and text
+    if type is 'deploy'
+      mailOptions.subject = 'Your website has been deployed to the server'
+      mailOptions.text = "Deploy of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
+    else
+      mailOptions.subject = 'Your website has been pushed to the server'
+      mailOptions.text = "Push of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
   else
-    mailOptions.subject = 'Your website has been pushed to the server'
-    mailOptions.text = "Push of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
+    mailOptions.subject = subject
+    mailOptions.text = text
 
   mailer.sendMail(mailOptions, (error, status)-> log("Sendmail failed with an error: #{error}", 'red bold') if error)
 
@@ -239,6 +245,7 @@ sendMail = (type = 'deploy')->
 # =======================================================================================
 # Tasks
 # =======================================================================================
+task 'mailtest', '[DEV]: Check if sendmail works', -> sendMail(null, 'test', "This is a test message, sent at #{(new Date).toString()}")
 task 'versions', '[DEV]: Check package.json versions', ->
   pkg = require('./package')
   for item in ['dependencies', 'devDependencies', 'peerDependencies']
