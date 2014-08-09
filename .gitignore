@@ -20,7 +20,6 @@ node_modules/*
 nvm/
 .build-auth-env
 config/development.json
-config/runtime.json
 public/assets/*.*
 
 public/static.css
