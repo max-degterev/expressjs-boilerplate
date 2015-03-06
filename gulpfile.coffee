@@ -70,12 +70,20 @@ errorReporter = (e)->
 # Compilers
 #=========================================================================================
 compileJavascripts = (src, options)->
+  opts =
+    entries: src
+    extensions: ['.coffee', '.jade']
+    debug: config.source_maps
+    cache: {}
+    packageCache: {}
+    fullPaths: true
+
   bundler.close?() if bundler
-  args = [src, extensions: ['.coffee', '.jade']]
-  bundler = if options.watch then watchify(args...) else browserify(args...)
+  bundler = browserify(opts)
+  bundler = watchify(bundler) if options.watch
 
   bundler.require(key) for key of pkg['browserify-shim']
-  bundler.transform(transform) for transform in JS_TRANSFORMS
+  bundler.transform(require(transform), global: true) for transform in JS_TRANSFORMS
 
   compile = (files)->
     startTime = Date.now()
@@ -85,7 +93,7 @@ compileJavascripts = (src, options)->
 
     watchReporter(path: file, type: 'changed') for file in files if files
 
-    bundler.bundle(debug: config.source_maps)
+    bundler.bundle()
       .on('error', errorReporter)
       .pipe(source(options.name))
       .pipe(gulp.dest(options.dest))

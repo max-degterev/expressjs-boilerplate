@@ -42,8 +42,8 @@
     "stylus": "0.50.0",
     "jade": "1.9.2",
 
-    "browserify": "4.2.3",
-    "watchify": "0.10.2",
+    "browserify": "9.0.3",
+    "watchify": "2.4.0",
     "coffeeify": "1.0.0",
     "jadeify": "4.1.0",
     "browserify-shim": "3.8.3",
