@@ -1,6 +1,6 @@
 _ = require('underscore')
 querystring = require('querystring')
-helpers = require('app/javascripts/shared/helpers')
+helpers = require('app/common/helpers')
 
 
 utils =

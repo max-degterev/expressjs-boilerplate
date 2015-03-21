@@ -23,7 +23,8 @@ option('-t', '--task [NAME]', 'Task to run gulp with, ex.: cake -t browserify gu
 # Entire node_modules folder is ignored by default
 SYMLINKS = [
   'node_modules:../app/:app'
-  'node_modules:../app/javascripts/shared/environment.coffee:env.coffee'
+  'node_modules:../app/common/environment.coffee:env.coffee'
+  'node_modules:../templates/:templates'
 ]
 
 

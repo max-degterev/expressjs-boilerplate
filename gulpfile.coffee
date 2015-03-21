@@ -27,7 +27,7 @@ gzip = require('gulp-gzip')
 
 livereload = require('gulp-livereload') if config.livereload
 
-helpers = require('app/javascripts/shared/helpers')
+helpers = require('app/common/helpers')
 log = _.bind(helpers.log, logPrefix: '[gulp]')
 
 bundler = null # for watchify to avoid memory leaks
@@ -41,7 +41,6 @@ RELOAD_TRIGGERS = ['rs', 'regulp']
 
 ASSETS_LOCATION = './public/assets'
 PUBLIC_LOCATION = './public'
-CORE_LOCATION = './app'
 
 JS_TRANSFORMS = ['coffeeify', 'jadeify', 'browserify-shim']
 MINIFIED_NAME = suffix: '.min'
@@ -145,21 +144,21 @@ processJavascripts = (options = {})->
     name: 'app.js'
     dest: ASSETS_LOCATION
 
-  compileJavascripts("#{CORE_LOCATION}/javascripts/client/index.coffee", settings)
+  compileJavascripts("./app/client/index.coffee", settings)
 
 processStylesheets = (options = {})->
   settings = _.extend {}, options,
     name: 'app.css'
     dest: ASSETS_LOCATION
 
-  compileStylesheets("#{CORE_LOCATION}/stylesheets/index.styl", settings)
+  compileStylesheets("./stylesheets/index.styl", settings)
 
 processStatic = ->
-  compileStylesheets "#{CORE_LOCATION}/stylesheets/static.styl",
+  compileStylesheets "./stylesheets/static.styl",
     name: 'static.css'
     dest: PUBLIC_LOCATION
 
-  compileTemplates ["#{CORE_LOCATION}/templates/static/**/*.jade", "!#{CORE_LOCATION}/templates/static/**/_*.jade"],
+  compileTemplates ["./templates/static/**/*.jade", "!./templates/static/**/_*.jade"],
     dest: PUBLIC_LOCATION
 
 gulp.task 'clean', -> gulp.src(ASSETS_LOCATION, read: false).pipe(rimraf())
@@ -220,26 +219,26 @@ gulp.task 'watch', ->
 
   # FIXME: This reload method is really slow
   templates = [
-    "#{CORE_LOCATION}/templates/**/*.jade"
-    "!#{CORE_LOCATION}/templates/static/**/*.jade"
+    "./templates/**/*.jade"
+    "!./templates/static/**/*.jade"
   ]
   gulp.watch(templates).on 'change', (event)->
     watchReporter(event)
     processJavascripts(watch: true)
 
   stylesheets = [
-    "#{CORE_LOCATION}/stylesheets/**/*.styl"
+    "./stylesheets/**/*.styl"
     './vendor/**/*.css'
     './vendor/**/*.styl'
-    "!#{CORE_LOCATION}/stylesheets/static.styl"
+    "!./stylesheets/static.styl"
   ]
   gulp.watch(stylesheets).on 'change', (event)->
     watchReporter(event)
     processStylesheets()
 
   staticContent = [
-    "#{CORE_LOCATION}/stylesheets/static.styl"
-    "#{CORE_LOCATION}/templates/static/**/*.jade"
+    "./stylesheets/static.styl"
+    "./templates/static/**/*.jade"
   ]
   gulp.watch(staticContent).on 'change', (event)->
     watchReporter(event)

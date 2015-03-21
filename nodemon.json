@@ -5,9 +5,9 @@
     "vendor/*",
     "public/*",
 
-    "app/javascripts/client/*",
-    "app/stylesheets/*",
-    "app/templates/*",
+    "app/client/*",
+    "stylesheets/*",
+    "templates/*",
 
     "*.log"
   ],
@@ -15,8 +15,8 @@
     "config/*.json",
     "config/*.coffee",
 
-    "app/javascripts/server/*",
-    "app/javascripts/shared/*",
+    "app/server/*",
+    "app/common/*",
 
     "*.js",
     "*.json",

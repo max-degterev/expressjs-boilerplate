@@ -1,8 +1,7 @@
-Controller = require('./base/controller')
+Controller = require('../base/controller')
 
-
-class Server extends Controller
-  logPrefix: '[app.server]:'
+class Home extends Controller
+  logPrefix: '[app.server/controllers.home]:'
 
   default: (req, res)-> res.render('layout')
   error404: (req, res)-> res.status(404).render('server/error')
@@ -11,4 +10,4 @@ class Server extends Controller
     @get('/', @default)
     @get('*', @error404)
 
-module.exports = new Server
+module.exports = new Home

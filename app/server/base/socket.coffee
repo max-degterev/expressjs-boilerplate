@@ -1,4 +1,4 @@
-helpers = require('app/javascripts/shared/helpers')
+helpers = require('app/common/helpers')
 _ = require('underscore')
 
 
