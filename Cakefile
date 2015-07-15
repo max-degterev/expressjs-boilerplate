@@ -1,15 +1,11 @@
 {exec, spawn} = require('child_process')
+log = require('./app/common/logger').bind(logPrefix: '[Cake]:')
 
 
 # ========================================================================================
 # Settings
 # ========================================================================================
-logPrefix = '[Cake]:'
 SERVER_FILE = 'server'
-APPLICATION_NAME = 'application'
-
-USER_NAME = 'Awesome Person'
-USER_EMAIL = 'me@example.com'
 
 VPS_USER = 'application'
 VPS_HOST = 'example.com'
@@ -19,26 +15,17 @@ VPS_LOG = '/var/log/application'
 envParams = NODE_ENV: 'development'
 option('-t', '--task [NAME]', 'Task to run gulp with, ex.: cake -t browserify gulp')
 
+
 # If you add things here, don't forget to also update your .gitignore
 # Entire node_modules folder is ignored by default
 SYMLINKS = [
   'node_modules:../app/:app'
+  'node_modules:../config/:config'
   'node_modules:../app/common/environment.coffee:env.coffee'
   'node_modules:../templates/:templates'
+  'node_modules:../stylesheets/:stylesheets'
+  'node_modules:../vendor/:vendor'
 ]
-
-
-# More styles here: https://github.com/Marak/colors.js/blob/master/colors.js
-STYLES =
-  bold: ['\x1B[1m', '\x1B[22m']
-  italic: ['\x1B[3m', '\x1B[23m']
-
-  blue: ['\x1B[34m', '\x1B[39m']
-  cyan: ['\x1B[36m', '\x1B[39m']
-  green: ['\x1B[32m', '\x1B[39m']
-  magenta: ['\x1B[35m', '\x1B[39m']
-  red: ['\x1B[31m', '\x1B[39m']
-  yellow: ['\x1B[33m', '\x1B[39m']
 
 
 # ========================================================================================
@@ -55,15 +42,6 @@ proxyLog = (runner)->
   runner.stdout.on('data', (data)-> process.stdout.write(data.toString()))
   runner.stderr.on('data', (data)-> process.stderr.write(data.toString()))
 
-stylize = (string, style)-> "#{STYLES[style][0]}#{string}#{STYLES[style][1]}"
-
-log = (message, styles)->
-  if styles
-    styles = styles.split(' ')
-    message = stylize(message, style) for style in styles
-
-  console.log("[#{(new Date).toUTCString()}] #{logPrefix} #{message}")
-
 getEnvString = ->
   arr = for key, value of envParams
     "#{key}=#{value}"
@@ -74,13 +52,16 @@ getEnvString = ->
 # ========================================================================================
 # Regular tasks logic
 # ========================================================================================
-checkNpmVersions = (name, list)->
-  log("Checking #{name} NPM versions")
-
+checkNpmVersions = (list)->
   _checkVersion = (lib, version)->
+    if !!~version.indexOf('#')
+      notice = "NPM NOTICE: #{lib} using github repo http://github.com/#{version.split('#')[0]}, "
+      notice += "loaded: #{version.split('#')[1]}, latest: check manually"
+      return log(notice, 'cyan')
+
     exec "npm info #{lib} version", (error, stdout, stderr)->
       unless error
-        latest = stdout.replace('\n\n', '')
+        latest = stdout.replace(/[\r\n]+/, '')
         current = version.replace(/[\<\>\=\~]*/, '')
 
         if current is latest
@@ -114,13 +95,15 @@ cleanNodeModules = (callb)->
 
   proxyLog(runner)
 
-createSymlinks = (callb)->
+createSymlinks = (callb) ->
   log('Creating symlinks')
 
   commands = for link in SYMLINKS
     [target, location, name] = link.split(':')
     cwd = "#{__dirname}/#{target}"
-    "cd #{cwd}; ln -s \"#{location}\" \"#{name}\""
+    "cd #{cwd}; test -s \"#{name}\" || ln -s \"#{location}\" \"#{name}\""
+
+  commands.unshift('mkdir -p node_modules')
 
   log(command, 'cyan') for command in commands
 
@@ -184,7 +167,7 @@ watchGulp = ->
   runner = exec(command)
   proxy(runner)
 
-startServer = (options = {})->
+startServer = (options = {}) ->
   log('Starting node')
   watchGulp() unless (options.skipwatch or options.skipassets)
 
@@ -219,38 +202,31 @@ startForever = ->
   runner = exec(command)
   proxyLog(runner)
 
-sendMail = (type = 'deploy', subject, text)->
-  nodemailer = require('nodemailer')
-  directTransport = require('nodemailer-direct-transport')
-  mailer = nodemailer.createTransport(directTransport(name: VPS_HOST))
-  pkg = require('./package')
-
-  mailOptions =
-    from: "\"#{USER_NAME}\" <#{USER_EMAIL}>"
-    to: "\"#{USER_NAME}\" <#{USER_EMAIL}>"
-
-  unless subject and text
-    if type is 'deploy'
-      mailOptions.subject = 'Your website has been deployed to the server'
-      mailOptions.text = "Deploy of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
-    else
-      mailOptions.subject = 'Your website has been pushed to the server'
-      mailOptions.text = "Push of #{pkg.name} (#{pkg.description}) was successful, v#{pkg.version} @ #{(new Date).toString()}"
-  else
-    mailOptions.subject = subject
-    mailOptions.text = text
-
-  mailer.sendMail(mailOptions, (error, status)-> log("Sendmail failed with an error: #{error}", 'red bold') if error)
-
 
 # =======================================================================================
 # Tasks
 # =======================================================================================
-task 'mailtest', '[DEV]: Check if sendmail works', -> sendMail(null, 'test', "This is a test message, sent at #{(new Date).toString()}")
+task 'logtest', '[DEV]: Check styled log output', ->
+  log('This is normal text')
+  log('This is bold text', 'bold')
+  log('This is italic text', 'italic')
+
+  log('This is bold italic text', 'bold italic')
+
+  log('Red', 'red')
+  log('Green', 'green')
+  log('Blue', 'blue')
+
+  log('Cyan', 'cyan')
+  log('Magenta', 'magenta')
+  log('Yellow', 'yellow')
+
+  log('COLORFUL AWESOMENESS', 'magenta bold italic')
+
 task 'versions', '[DEV]: Check package.json versions', ->
   pkg = require('./package')
   for item in ['dependencies', 'devDependencies', 'peerDependencies']
-    checkNpmVersions(item, pkg[item]) if pkg[item]
+    checkNpmVersions(pkg[item]) if pkg[item]
 
 task 'clean', '[DEV]: Remove node_modules and create system symlinks', ->
   cleanNodeModules -> createSymlinks()
@@ -280,7 +256,7 @@ task 'prod', '[DEV]: Fake PRODUCTION environment for testing', ->
   envParams['NODE_ENV'] = 'production'
   compileGulp 'clean', -> compileGulp 'build', -> startServer(skipwatch: true)
 
-task 'forever', '[PROD]: Start all applications with forever in production environment', ->
+task 'forever', '[DEV]: Fake PRODUCTION environment for testing', ->
   envParams['NODE_ENV'] = 'production'
   startForever()
 
@@ -292,17 +268,6 @@ task 'deploy', '[LOCAL]: Update PRODUCTION state from the repo and restart the s
         log('Deploy complete, wait for email confirmation 👍', 'cyan')
       else
         log("Deploy failed with an error: #{error}", 'red bold')
-
-  proxyLog(runner)
-
-task 'push', '[LOCAL]: Update PRODUCTION state from the repo without restarting the server', ->
-  log("Connecting to VPS #{VPS_USER}@#{VPS_HOST} && running push:action")
-  runner = exec "ssh #{VPS_USER}@#{VPS_HOST} 'cd #{VPS_HOME} && cake push:action'",
-    (error, stdout, stderr)->
-      unless error
-        log('Push complete, wait for email confirmation 👍', 'cyan')
-      else
-        log("Push failed with an error: #{error}", 'red bold')
 
   proxyLog(runner)
 
@@ -326,16 +291,3 @@ task 'deploy:action', '[REMOTE]: Update current app state from the repo and rest
 
   proxyLog(runner1)
   proxyLog(runner2)
-
-task 'push:action', '[REMOTE]: Update current app state from the repo', ->
-  log('Pulling updates from the repo')
-
-  envParams['NODE_ENV'] = 'production'
-
-  runner = exec 'git pull', (error, stdout, stderr)->
-    unless error
-      sendMail('push')
-    else
-      log("Git pull failed with an error: #{error}", 'red bold')
-
-  proxyLog(runner)

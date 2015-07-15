@@ -3,12 +3,12 @@
   "description": "ExpressJS Boilerplate",
   "version": "0.0.1",
   "private": true,
-  "homepage": "http://maxdegterev.name/",
+  "homepage": "http://max.degterev.me/",
   "main": "server.coffee",
   "author": {
     "name": "Max Degterev",
-    "email": "me@maxdegterev.name",
-    "url": "http://maxdegterev.name/"
+    "email": "max@degterev.me",
+    "url": "http://max.degterev.me/"
   },
   "repository": {
     "type": "git",
@@ -22,59 +22,50 @@
     "node": "0.12.x"
   },
   "devDependencies": {
-    "mocha": "~2.2.1",
-    "chai": "~2.1.2"
+    "mocha": "~2.2.5",
+    "chai": "~3.0.0",
+
+    "errorhandler": "1.4.1"
   },
   "dependencies": {
-    "nodemailer": "1.3.2",
-    "nodemailer-direct-transport": "1.0.2",
+    "express": "4.13.1",
+    "morgan": "1.6.1",
+    "serve-favicon": "2.3.0",
+    "serve-static": "1.10.0",
 
-    "express": "4.12.3",
-    "morgan": "1.5.2",
-    "serve-favicon": "2.2.0",
-    "serve-static": "1.9.2",
-    "errorhandler": "1.3.5",
+    "config": "1.14.0",
 
-    "config": "1.12.0",
+    "coffee-script": "1.9.3",
+    "stylus": "0.51.1",
+    "jade": "1.11.0",
 
-    "coffee-script": "1.9.1",
-    "stylus": "0.50.0",
-    "jade": "1.9.2",
+    "browserify": "10.2.6",
+    "watchify": "3.2.3",
+    "coffeeify": "1.1.0",
+    "jadeify": "4.3.0",
+    "browserify-shim": "3.8.9",
 
-    "browserify": "9.0.3",
-    "watchify": "2.4.0",
-    "coffeeify": "1.0.0",
-    "jadeify": "4.1.0",
-    "browserify-shim": "3.8.3",
-
-    "gulp": "3.8.11",
-    "gulp-rimraf": "0.1.1",
+    "gulp": "3.9.0",
+    "del": "1.2.0",
     "vinyl-source-stream": "1.1.0",
-    "gulp-stylus": "2.0.1",
-    "gulp-rename": "1.2.0",
+    "gulp-stylus": "2.0.5",
+    "gulp-rename": "1.2.2",
     "nib": "1.1.0",
-    "gulp-jade": "1.0.0",
-    "gulp-uglify": "1.1.0",
-    "gulp-minify-css": "1.0.0",
-    "gulp-htmlmin": "1.1.1",
-    "gulp-rev": "3.0.1",
-    "gulp-gzip": "1.0.0",
+    "gulp-jade": "1.0.1",
+    "gulp-uglify": "1.2.0",
+    "gulp-minify-css": "1.2.0",
+    "gulp-htmlmin": "1.1.3",
+    "gulp-rev": "5.1.0",
+    "gulp-gzip": "1.1.0",
     "gulp-livereload": "3.8.0",
 
-    "jquery": "2.1.3",
-    "underscore": "1.8.2",
-    "backbone": "1.1.2",
-    "normalize.css": "3.0.2"
+    "jquery": "2.1.4",
+    "underscore": "1.8.3",
+    "backbone": "1.2.1",
+    "normalize.css": "3.0.3"
 
   },
   "browser": {
-    "config": "./config/client.coffee",
-    "backbone": "./node_modules/backbone/backbone.js"
-  },
-  "browserify-shim": {
-    "backbone": {
-      "exports": "Backbone",
-      "depends": ["jquery:$", "underscore:_"]
-    }
+    "config": "./config/client.coffee"
   }
 }

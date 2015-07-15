@@ -7,7 +7,9 @@ log = require('app/common/helpers').log
 server = require('app/server')
 
 if cluster.isMaster
-  for i in [1..config.workers]
+  num = parseInt(process.env.WORKERS, 10) or config.workers
+
+  for i in [1..num]
     log("Starting worker #{i}", 'cyan')
     cluster.fork()
 
