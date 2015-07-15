@@ -1,6 +1,10 @@
 # DO NOT TOUCH. Has to be this way
+global.$ = global.jQuery = require('jquery') # for plugins to work w/o shimming
+global._ = require('underscore') # for backbone plugins to work
 jade = require('jade/runtime') # for monkey-patching jadeifyed templates
-_ = require('underscore') # for backbone plugins to work
+
+global.Backbone = require('backbone') # for backbone plugins to work
+global.Backbone.$ = global.$
 
 config = require('config')
 env = require('env')
@@ -12,5 +16,7 @@ jade.config = config
 jade.env = env.toJSON()
 jade._ = _
 jade.helpers = helpers
+
+if config.debug then global._testify = (obj)-> console.warn global.TEST = obj
 
 module.exports = {jade, _, config, env, helpers}

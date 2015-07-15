@@ -1,62 +1,58 @@
-config = require('config')
+_ = require('underscore')
 
+utils = {}
 
-STYLES =
-  bold: ['\x1B[1m', '\x1B[22m']
-  italic: ['\x1B[3m', '\x1B[23m']
-
-  blue: ['\x1B[34m', '\x1B[39m']
-  cyan: ['\x1B[36m', '\x1B[39m']
-  green: ['\x1B[32m', '\x1B[39m']
-  magenta: ['\x1B[35m', '\x1B[39m']
-  red: ['\x1B[31m', '\x1B[39m']
-  yellow: ['\x1B[33m', '\x1B[39m']
-
-stylize = (string, style)-> "#{STYLES[style][0]}#{string}#{STYLES[style][1]}"
-
-helpers = {}
-helpers.noop = ->
-helpers.log = (message, styles)->
-  if styles and not process.browser and process.env.NODE_ENV is 'development'
-    styles = styles.split(' ')
-    message = stylize(message, style) for style in styles
-
-  console.log("[#{(new Date).toUTCString()}] #{@logPrefix or '[app]:'} #{message}")
-
-helpers.numberOrdinalSuffix = (i)->
+utils.numberOrdinalSuffix = (i) ->
   j = i % 10
   return i + 'st' if j is 1 and i isnt 11
   return i + 'nd' if j is 2 and i isnt 12
   return i + 'rd' if j is 3 and i isnt 13
   i + 'th'
 
-helpers.numberFormat = (number)->
+# utils.valid =
+  # int: (value)-> /^\d+$/.test(value)
+  # alphameric: (value)-> /^\w{2,30}$/g.test(value)
+  # float: (value)-> !isNaN(parseFloat(value))
+  # date: (value)-> !!+helpers.dateFromYMD(value)
+  # uuid: (value)-> /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value)
+  # email: (value)-> /^[a-zA-Z0-9_.+\-]+@[a-zA-Z0-9\-]+\.[a-zA-Z0-9\-.]+$/.test(value)
+
+# Format numbers by adding commas on each 3 digits of integer part.
+# number - The number to be formatted as {number}.
+# Returns the formatted number as `string`.
+utils.numberFormat = (number) ->
   parts = number.toString().split('.')
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   parts.join('.')
 
-helpers.choosePlural = (number, endings)->
-  return endings[1] unless number? # Better to display "Following movies" than "Following undefined movies"
+# `dd/mm/YYYY hh:mm`
+utils.appendLeadingZero = (num)->
+  ('0' + num).slice(-2)
+
+utils.dateFormat = (date, skipTime) ->
+  return null unless date
+  date = new Date(date) unless date instanceof Date
+  fn = utils.appendLeadingZero
+
+  dateString = "#{fn(date.getDate())}/#{fn(date.getMonth() + 1)}/#{date.getFullYear()}"
+  return dateString if skipTime
+
+  timeString = "#{fn(date.getHours())}:#{fn(date.getMinutes())}"
+  "#{dateString} #{timeString}"
+
+utils.dateToYMD = (date, separator = '-')->
+  return null unless date
+  date = new Date(date) unless date instanceof Date
+  fn = utils.appendLeadingZero
+
+  date.getFullYear() + separator + fn(date.getMonth() + 1) + separator + fn(date.getDate())
+
+utils.choosePlural = (number, endings) ->
+  # Better to display "Following movies" than "Following undefined movies"
+  return endings[1] unless number?
   number + ' ' + if number is 1 then endings[0] else endings[1]
 
-helpers.api = (name, params)-> helpers.makeUrl(config.endpoints[name], params)
-helpers.makeUrl = (url, params)->
-  matches = url.match(/[:|*][^\d]\w+/g)
-
-  if matches and (typeof params is 'string' or typeof params is 'number')
-    url = url.replace(matches[0], params)
-
-  else if params and matches
-    i = 0
-    l = matches.length
-
-    while i < l
-      url = url.replace(matches[i], params[matches[i].slice(1)] or '')
-      i++
-
-  url
-
-helpers.shorten = (str, len, pos)->
+utils.shorten = (str, len, pos) ->
   str = str or ''
   lim = ((len - 3) / 2) | 0
   res = str
@@ -72,16 +68,25 @@ helpers.shorten = (str, len, pos)->
 
   res
 
-helpers.capFirst = (string)-> string.charAt(0).toUpperCase() + string.slice(1)
+utils.capFirst = (string) -> string.charAt(0).toUpperCase() + string.slice(1)
 
-helpers.stripTags = (str)-> if typeof str is 'string' then str.replace(/(<([^>]+)>)/g, '') else ''
+utils.keyToName = (string) ->
+  utils.capFirst(string).replace(/_+/g, ' ')
+
+utils.slugify = (string) -> string.toLowerCase().replace(/[^\w ]+/g,'').replace(/ +/g,'-')
+
+utils.stripTags = (str) ->
+  if _.isString(str) then str.replace(/(<([^>]+)>)/g, '') else ''
 
 # Use when outputting string from untrusted source directly to the DOM, especially as JSON
-helpers.sanitizeString = (string)->
+utils.sanitize = (string) ->
+  return unless string
+  string = JSON.stringify(string) if _.isObject(string)
+
   string
     .replace(/\r\n/g, '\n')
     .replace(/<\/script>/g, '<\\/script>')
     .replace(/\u2028/g, '\\u2028')
     .replace(/\u2029/g, '\\u2029')
 
-module.exports = helpers
+module.exports = utils
