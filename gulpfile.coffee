@@ -4,9 +4,10 @@
 pkg = require('./package')
 config = require('config')
 _ = require('underscore')
+fs = require('fs')
 
 gulp = require('gulp')
-rimraf = require('gulp-rimraf')
+del = require('del')
 
 browserify = require('browserify')
 watchify = require('watchify')
@@ -27,11 +28,13 @@ gzip = require('gulp-gzip')
 
 livereload = require('gulp-livereload') if config.livereload
 
-helpers = require('app/common/helpers')
-log = _.bind(helpers.log, logPrefix: '[gulp]')
+log = require('app/common/logger').bind(logPrefix: '[gulp]')
 
 bundler = null # for watchify to avoid memory leaks
 lastBrowserified = 0
+
+isBuild = process.argv[2] is 'build'
+config.debug = false if isBuild
 
 
 #=========================================================================================
@@ -39,10 +42,10 @@ lastBrowserified = 0
 #=========================================================================================
 RELOAD_TRIGGERS = ['rs', 'regulp']
 
-ASSETS_LOCATION = './public/assets'
 PUBLIC_LOCATION = './public'
+ASSETS_LOCATION = "#{PUBLIC_LOCATION}/assets"
 
-JS_TRANSFORMS = ['coffeeify', 'jadeify', 'browserify-shim']
+JS_TRANSFORMS = ['coffeeify', 'jadeify']
 MINIFIED_NAME = suffix: '.min'
 
 BROWSERIFY_RATELIMIT = 1000
@@ -64,6 +67,24 @@ errorReporter = (e)->
   stack = e.stack or e
   log("Browserify error!\n#{stack}", 'red bold')
 
+getTemplateVars = ->
+  helpers = require('app/common/helpers')
+  getAsset = require('app/server/lib/assets')
+
+  env =
+    rendered: (new Date).toUTCString()
+    lang: require('./config/lang/en_us')
+    version: pkg.version
+
+  {
+    pretty: config.debug
+    config: _.omit(_.clone(config), config.server_only_keys...)
+    _
+    helpers
+    getAsset
+    env
+  }
+
 
 #=========================================================================================
 # Compilers
@@ -81,7 +102,6 @@ compileJavascripts = (src, options)->
   bundler = browserify(opts)
   bundler = watchify(bundler) if options.watch
 
-  bundler.require(key) for key of pkg['browserify-shim']
   bundler.transform(require(transform), global: true) for transform in JS_TRANSFORMS
 
   compile = (files)->
@@ -123,21 +143,30 @@ compileStylesheets = (src, options)->
 
 compileTemplates = (src, options)->
   startTime = Date.now()
-  env =
-    rendered: (new Date).toUTCString()
-    lang: require('./config/lang_en_us')
-    version: pkg.version
-
-  getAsset = helpers.noop
 
   gulp.src(src)
     .pipe(jade(
       pretty: true
       compileDebug: false
-      locals: { config, env, _, helpers, getAsset }
+      locals: getTemplateVars()
     ))
     .pipe(gulp.dest(options.dest))
     .on('end', -> benchmarkReporter("Jadeified #{src}", startTime))
+
+processOldAssets = (cb)->
+  paths = ["#{ASSETS_LOCATION}/*.min-*"]
+  lastBuildAssets = []
+
+  try
+    hashmap = fs.readFileSync("#{ASSETS_LOCATION}/hashmap.json", encoding: 'utf8')
+    hashmap = JSON.parse(hashmap)
+    lastBuildAssets = _.values(hashmap)
+
+  for file in lastBuildAssets
+    paths.push("!#{ASSETS_LOCATION}/#{file}")
+    paths.push("!#{ASSETS_LOCATION}/#{file}.gz")
+
+  del(paths, cb)
 
 processJavascripts = (options = {})->
   settings = _.extend {}, options,
@@ -153,35 +182,53 @@ processStylesheets = (options = {})->
 
   compileStylesheets("./stylesheets/index.styl", settings)
 
-processStatic = ->
-  compileStylesheets "./stylesheets/static.styl",
+processStaticStylesheets = ->
+  compileStylesheets "#{__dirname}/stylesheets/static.styl",
     name: 'static.css'
-    dest: PUBLIC_LOCATION
+    dest: ASSETS_LOCATION
 
-  compileTemplates ["./templates/static/**/*.jade", "!./templates/static/**/_*.jade"],
-    dest: PUBLIC_LOCATION
+processStaticTemplates = ->
+  compileTemplates ["#{__dirname}/templates/static/**/*.jade"],
+    dest: ASSETS_LOCATION
 
-gulp.task 'clean', -> gulp.src(ASSETS_LOCATION, read: false).pipe(rimraf())
+gulp.task 'clean', (cb)-> processOldAssets(cb)
 gulp.task 'browserify', -> processJavascripts()
 gulp.task 'stylus', -> processStylesheets()
-gulp.task 'static', -> processStatic()
+gulp.task 'static:stylus', -> processStaticStylesheets()
+gulp.task 'static:jade', -> processStaticTemplates()
 
-gulp.task 'minify', ['browserify', 'stylus', 'static'], ->
-  gulp.src("#{ASSETS_LOCATION}/*.js")
+gulp.task 'minify', ['browserify', 'stylus', 'static:stylus'], ->
+  gulp.src(["#{ASSETS_LOCATION}/*.js", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
     .pipe(uglify())
     .pipe(rename(MINIFIED_NAME))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
-  gulp.src("#{ASSETS_LOCATION}/*.css")
-    .pipe(minifyCSS())
+  gulp.src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
+    .pipe(minifyCSS(
+      processImport: false
+      keepSpecialComments: 0
+      aggressiveMerging: false
+    ))
     .pipe(rename(MINIFIED_NAME))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
-  gulp.src("#{PUBLIC_LOCATION}/static.css")
-    .pipe(minifyCSS())
-    .pipe(gulp.dest(PUBLIC_LOCATION))
+gulp.task 'hashify', ['minify'], ->
+  gulp.src(["#{ASSETS_LOCATION}/*.min.*", "#{ASSETS_LOCATION}/static.min.css"]) # can't find more than 2 files for some reason
+    .pipe(rev())
+    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
+    .pipe(rev.manifest())
+    .pipe(rename('hashmap.json'))
+    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
 
-  gulp.src("#{PUBLIC_LOCATION}/*.html")
+gulp.task 'static', ['hashify'], ->
+  processStaticTemplates()
+
+gulp.task 'compress', ['static'], ->
+  gulp.src(["#{ASSETS_LOCATION}/*.min-*.*", "!#{ASSETS_LOCATION}/*.gz"])
+    .pipe(gzip())
+    .pipe(gulp.dest(ASSETS_LOCATION))
+
+  gulp.src("#{ASSETS_LOCATION}/*.html")
     .pipe(htmlmin(
       removeComments: true
       collapseWhitespace: true
@@ -191,65 +238,51 @@ gulp.task 'minify', ['browserify', 'stylus', 'static'], ->
       useShortDoctype: true
       removeEmptyAttributes: true
     ))
-    .pipe(gulp.dest(PUBLIC_LOCATION))
-
-gulp.task 'hashify', ['minify'], ->
-  gulp.src("#{ASSETS_LOCATION}/*.min.*")
-    .pipe(rev())
-    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
-    .pipe(rev.manifest())
-    .pipe(rename('hashmap.json'))
-    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
-
-gulp.task 'compress', ['hashify'], ->
-  gulp.src("#{ASSETS_LOCATION}/*.min-*.*")
-    .pipe(gzip())
     .pipe(gulp.dest(ASSETS_LOCATION))
-
-  gulp.src("#{PUBLIC_LOCATION}/*.css")
-    .pipe(gzip())
-    .pipe(gulp.dest(PUBLIC_LOCATION))
 
 gulp.task 'watch', ->
   livereload.listen(silent: true) if config.livereload
 
   processJavascripts(watch: true)
   processStylesheets()
-  processStatic()
+  processStaticStylesheets()
+  processStaticTemplates()
 
   # FIXME: This reload method is really slow
   templates = [
-    "./templates/**/*.jade"
-    "!./templates/static/**/*.jade"
+    "#{__dirname}/templates/**/*.jade"
+    "!#{__dirname}/templates/static/**/*.jade"
   ]
   gulp.watch(templates).on 'change', (event)->
     watchReporter(event)
     processJavascripts(watch: true)
 
   stylesheets = [
-    "./stylesheets/**/*.styl"
+    "#{__dirname}/stylesheets/**/*.styl"
     './vendor/**/*.css'
     './vendor/**/*.styl'
-    "!./stylesheets/static.styl"
+    "!#{__dirname}/stylesheets/static.styl"
   ]
   gulp.watch(stylesheets).on 'change', (event)->
     watchReporter(event)
     processStylesheets()
 
   staticContent = [
-    "./stylesheets/static.styl"
-    "./templates/static/**/*.jade"
+    "#{__dirname}/stylesheets/static.styl"
+    "#{__dirname}/templates/static/**/*.jade"
   ]
   gulp.watch(staticContent).on 'change', (event)->
     watchReporter(event)
-    processStatic()
+    processStaticStylesheets()
+    processStaticTemplates()
 
   process.stdin.on 'data', (chunk)->
     if chunk.toString().replace(/[\r\n]/g, '') in RELOAD_TRIGGERS
       log('Triggered manual reload', 'red')
       processJavascripts(watch: true)
       processStylesheets()
-      processStatic()
+      processStaticStylesheets()
+      processStaticTemplates()
 
-gulp.task('default', ['browserify', 'stylus', 'static'])
+gulp.task('default', ['browserify', 'stylus', 'static:stylus', 'static:jade'])
 gulp.task('build', ['compress'])

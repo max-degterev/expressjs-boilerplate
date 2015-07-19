@@ -7,32 +7,24 @@ app = require('express')()
 env = require('env')
 pkg = require('../../package')
 
-helpers = require('../common/helpers')
-log = helpers.log
+getAsset = require('./lib/assets')
+helpers = require('app/common/helpers')
+log = require('app/common/logger')
 
-
-generateAssetsMap = ->
-  hash = {}
-  for key, value of require('../../public/assets/hashmap.json')
-    hash[key.replace('.min', '')] = value
-
-  hash
-
-assetsHashMap = generateAssetsMap() unless config.debug
 
 #=====================================================================================
 # Template globals
 #=====================================================================================
-getAsset = (name)->
-  name = assetsHashMap[name] unless config.debug
-  "/assets/#{name}"
-
 generateTemplateGlobals = ->
-  app.locals.pretty = config.debug
-  app.locals.config = _.omit(_.clone(config), config.server_only_keys...)
-  app.locals._ = _
-  app.locals.helpers = helpers
-  app.locals.getAsset = getAsset
+  globals = {
+    pretty: config.debug
+    config: _.omit(_.clone(config), config.server_only_keys...)
+    _
+    helpers
+    getAsset
+  }
+
+  _.extend(app.locals, globals)
 
 
 #=====================================================================================
@@ -56,9 +48,12 @@ normalizeUrl = (req, res, next)->
   next()
 
 generateEnv = (req, res, next)->
-  res.locals.env.rendered = (new Date).toUTCString()
-  res.locals.env.lang = require('../../config/lang_en_us')
-  res.locals.env.version = pkg.version
+  requestEnv =
+    rendered: (new Date).toUTCString()
+    lang: require('../../config/lang/en_us')
+    version: pkg.version
+
+  _.extend(res.locals.env, requestEnv)
 
   next()
 
@@ -88,28 +83,27 @@ postRouteMiddleware = ->
 #=====================================================================================
 # Start listening
 #=====================================================================================
-app.enable('trust proxy') # usually sitting behind nginx
-app.disable('x-powered-by')
-
-app.set('port', config.port)
-app.set('views', "#{__dirname}/../../templates")
-app.set('view engine', 'jade')
-app.set('json spaces', 2) if config.debug
-
-generateTemplateGlobals()
-
-preRouteMiddleware()
-require('./controllers').use(app)
-postRouteMiddleware()
-
-app_root = "http://#{config.hostname}:#{config.port}"
-
 module.exports.start = ->
-  if config.ip
-    app.listen app.get('port'), config.ip, ->
-      log("Server listening on #{app_root} (bound to ip: #{config.ip})", 'cyan')
+  app.enable('trust proxy') # usually sitting behind nginx
+  app.disable('x-powered-by')
 
+  app.set('port', config.server.port)
+  app.set('views', "#{__dirname}/../../templates")
+  app.set('view engine', 'jade')
+  app.set('json spaces', 2) if config.debug
+
+  generateTemplateGlobals()
+
+  preRouteMiddleware()
+  require('./controllers').use(app)
+  postRouteMiddleware()
+
+  appRoot = "http://#{config.host or config.server.ip}:#{config.server.port}"
+  serverMessage = "Server listening on #{appRoot}"
+
+  if config.server.ip
+    app.listen(config.server.port, config.server.ip, ->
+      log("#{serverMessage} (bound to ip: #{config.server.ip})", 'cyan')
+    )
   else
-    app.listen app.get('port'), ->
-      log("Server listening on #{app_root} (unbound)", 'cyan')
-
+    app.listen(config.server.port, -> log("#{serverMessage} (unbound)", 'cyan'))

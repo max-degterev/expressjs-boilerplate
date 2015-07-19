@@ -16,7 +16,7 @@ class Controller
 
   _handler: (type, route, callbacks...)->
     boundCallbacks = @bind(callbacks)
-    @_router[type](config.endpoints[route] or route, boundCallbacks...)
+    @_router[type](route, boundCallbacks...)
 
   get: (route, callbacks...)-> @_handler('get', route, callbacks...)
   post: (route, callbacks...)-> @_handler('post', route, callbacks...)

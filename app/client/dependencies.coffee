@@ -12,11 +12,8 @@ env = require('env')
 helpers = require('app/common/helpers')
 
 # Monkey patching jade for templates
-jade.config = config
-jade.env = env.toJSON()
-jade._ = _
-jade.helpers = helpers
+_.extend(jade, {config, env: env.toJSON(), _, helpers})
 
 if config.debug then global._testify = (obj)-> console.warn global.TEST = obj
 
-module.exports = {jade, _, config, env, helpers}
+module.exports = {$, _, jade, Backbone, config, env, helpers}

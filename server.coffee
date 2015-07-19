@@ -3,11 +3,11 @@
 #=========================================================================================
 config = require('config')
 cluster = require('cluster')
-log = require('app/common/helpers').log
+log = require('app/common/logger')
 server = require('app/server')
 
 if cluster.isMaster
-  num = parseInt(process.env.WORKERS, 10) or config.workers
+  num = parseInt(process.env.WORKERS, 10) or config.server.workers
 
   for i in [1..num]
     log("Starting worker #{i}", 'cyan')

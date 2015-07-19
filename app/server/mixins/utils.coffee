@@ -1,11 +1,10 @@
 _ = require('underscore')
 querystring = require('querystring')
-helpers = require('app/common/helpers')
+log = require('app/common/logger')
 
 
 utils =
-  log: helpers.log
-  api: helpers.api
+  log: log
 
   bind: (callbacks)->
     if _.isArray(callbacks)

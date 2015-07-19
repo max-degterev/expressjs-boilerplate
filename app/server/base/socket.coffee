@@ -1,4 +1,4 @@
-helpers = require('app/common/helpers')
+log = require('app/common/logger')
 _ = require('underscore')
 
 
@@ -7,7 +7,7 @@ class Socket
   logPrefix: '[app.server.base.socket]:'
 
   # Class logic below
-  log: helpers.log
+  log: log
   constructor: (@options)->
     _.defaults(@, @options) if @options
 

@@ -5,12 +5,13 @@ log = require('./app/common/logger').bind(logPrefix: '[Cake]:')
 # ========================================================================================
 # Settings
 # ========================================================================================
+APPLICATION_NAME = 'application'
 SERVER_FILE = 'server'
 
-VPS_USER = 'application'
+VPS_USER = APPLICATION_NAME
 VPS_HOST = 'example.com'
-VPS_HOME = '/var/www/application'
-VPS_LOG = '/var/log/application'
+VPS_HOME = "/var/www/#{APPLICATION_NAME}"
+VPS_LOG = "/var/log/#{APPLICATION_NAME}"
 
 envParams = NODE_ENV: 'development'
 option('-t', '--task [NAME]', 'Task to run gulp with, ex.: cake -t browserify gulp')
