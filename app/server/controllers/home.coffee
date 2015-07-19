@@ -1,5 +1,8 @@
 Controller = require('../base/controller')
 
+config = require('config')
+console.warn config.debug
+
 class Home extends Controller
   logPrefix: '[app.server/controllers.home]:'
 
