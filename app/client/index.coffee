@@ -6,9 +6,8 @@ status =
   jquery: jQuery.fn.jquery
   underscore: _.VERSION
   backbone: Backbone.VERSION
-  backbone.$: !!Backbone.$
+  'backbone.$': !!Backbone.$
+  env: env.toJSON()
 
-data = _.extend({}, env.toJSON(), status)
-
-global.document.body.insertAdjacentHTML('beforeend',template({ data }))
+global.document.body.insertAdjacentHTML('beforeend',template({ status }))
 helpers.log('initialized')

@@ -34,7 +34,7 @@ bundler = null # for watchify to avoid memory leaks
 lastBrowserified = 0
 
 isBuild = process.argv[2] is 'build'
-config.debug = false if isBuild
+config.debug = true unless isBuild
 
 
 #=========================================================================================
@@ -69,7 +69,7 @@ errorReporter = (e)->
 
 getTemplateVars = ->
   helpers = require('app/common/helpers')
-  getAsset = require('app/server/lib/assets')
+  {getAsset} = require('app/server/lib/assets')
 
   env =
     rendered: (new Date).toUTCString()
@@ -188,7 +188,7 @@ processStaticStylesheets = ->
     dest: ASSETS_LOCATION
 
 processStaticTemplates = ->
-  compileTemplates ["#{__dirname}/templates/static/**/*.jade"],
+  compileTemplates ["#{__dirname}/templates/static/**/*.jade", "!#{__dirname}/templates/static/**/_*.jade"],
     dest: ASSETS_LOCATION
 
 gulp.task 'clean', (cb)-> processOldAssets(cb)

@@ -282,9 +282,9 @@ task 'deploy:action', '[REMOTE]: Update current app state from the repo and rest
     unless error
       npmInstall -> compileGulp 'clean', -> compileGulp 'build', ->
         log('Restarting forever', 'cyan')
-        runner3 = exec('cake forever')
+        runner3 = exec 'cake forever', (error, stdout, stderr)->
+          proxyLog(exec('gulp clean'))
 
-        sendMail('deploy')
         proxyLog(runner3)
 
     else
