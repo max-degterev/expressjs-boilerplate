@@ -34,7 +34,7 @@ bundler = null # for watchify to avoid memory leaks
 lastBrowserified = 0
 
 isBuild = process.argv[2] is 'build'
-config.debug = true unless isBuild
+config.debug = false if isBuild
 
 
 #=========================================================================================

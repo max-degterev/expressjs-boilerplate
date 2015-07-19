@@ -31,7 +31,7 @@ html(lang="en-US")
       script.
         var app = {
           config: !{JSON.stringify(config)},
-          env: !{helpers.sanitizeString(JSON.stringify(env))}
+          env: !{helpers.sanitize(JSON.stringify(env))}
         };
 
       include layout/analytics

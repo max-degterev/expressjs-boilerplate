@@ -1,4 +1,5 @@
-list = require("./#{key}") for key in ['home']
+list = for key in ['home']
+  require("./#{key}")
 
 use = (app) ->
   controller.use(app) for controller in list

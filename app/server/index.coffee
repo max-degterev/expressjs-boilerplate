@@ -7,7 +7,7 @@ app = require('express')()
 env = require('env')
 pkg = require('../../package')
 
-getAsset = require('./lib/assets')
+{getAsset} = require('./lib/assets')
 helpers = require('app/common/helpers')
 log = require('app/common/logger')
 
