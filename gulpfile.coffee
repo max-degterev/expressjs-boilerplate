@@ -1,39 +1,53 @@
 #=========================================================================================
 # Dependencies
 #=========================================================================================
-pkg = require('./package')
-config = require('config')
-_ = require('underscore')
-fs = require('fs')
+
+_ = require('lodash')
 
 gulp = require('gulp')
-del = require('del')
+chalk = require('chalk')
+
+gulpSequence = require('gulp-sequence')
 
 browserify = require('browserify')
 watchify = require('watchify')
+
+coffeeReactify = require('coffee-reactify')
+
 source = require('vinyl-source-stream')
+watchifyCompilers = [] # to have control over watchify instances
 
 stylus = require('gulp-stylus')
 rename = require('gulp-rename')
 nib = require('nib')
 
-jade = require('gulp-jade')
+template = require('gulp-template')
+
+connect = require('gulp-connect')
+open = require('open')
+
+fs = require('fs-extra')
+glob = require('glob')
+unzip = require('unzip')
+
+needle = require('needle')
+fontello = require('./lib/fontello')
 
 uglify = require('gulp-uglify')
+
+decache = require('gulp-css-decache')
 minifyCSS = require('gulp-minify-css')
 htmlmin = require('gulp-htmlmin')
 
 rev = require('gulp-rev')
 gzip = require('gulp-gzip')
+del = require('del')
 
-livereload = require('gulp-livereload') if config.livereload
-
-log = require('app/common/logger').bind(logPrefix: '[gulp]')
-
-bundler = null # for watchify to avoid memory leaks
-lastBrowserified = 0
+sanitize = require('./lib/sanitize')
 
 isBuild = process.argv[2] is 'build'
+
+config = require('./config')
 config.debug = false if isBuild
 
 
@@ -42,168 +56,300 @@ config.debug = false if isBuild
 #=========================================================================================
 RELOAD_TRIGGERS = ['rs', 'regulp']
 
-PUBLIC_LOCATION = './public'
-ASSETS_LOCATION = "#{PUBLIC_LOCATION}/assets"
+ASSETS_NAME = 'fe_assets'
 
-JS_TRANSFORMS = ['coffeeify', 'jadeify']
+PUBLIC_LOCATION = './public'
+ASSETS_LOCATION = "#{PUBLIC_LOCATION}/#{ASSETS_NAME}"
+
 MINIFIED_NAME = suffix: '.min'
 
-BROWSERIFY_RATELIMIT = 1000
+TMP_FOLER = './.tmp'
+SOURCE_FOLDER = './.source'
 
+FONTS_LOCATION = "#{PUBLIC_LOCATION}/fonts"
+STYLES_LOCATION = "./app/styles"
 
 #=========================================================================================
 # Reporters
 #=========================================================================================
-pathNormalize = (path)-> path.replace("#{__dirname}/", '').replace(/^\.\//, '')
+pathNormalize = (path)->
+  "./#{path.replace("#{__dirname}/", '')}"
+
+sourcesNormalize = (paths)->
+  paths = [paths] if !_.isArray(paths)
+  paths.map(pathNormalize)
 
 benchmarkReporter = (action, startTime)->
-  log("#{action} in #{((Date.now() - startTime) / 1000).toFixed(2)}s", 'magenta')
+  console.log(chalk.magenta("#{action} in #{((Date.now() - startTime) / 1000).toFixed(2)}s"))
 
 watchReporter = (e)->
-  livereload.changed() if config.livereload
-  log("File #{pathNormalize(e.path)} #{e.type}, flexing 💪", 'cyan')
+  console.log(chalk.cyan("File #{pathNormalize(e.path)} #{e.type}, flexing 💪"))
 
 errorReporter = (e)->
   stack = e.stack or e
-  log("Browserify error!\n#{stack}", 'red bold')
+  console.log(chalk.bold.red("Build error!\n#{stack}"))
+  # process.exit(1) if isBuild
 
-getTemplateVars = ->
-  helpers = require('app/common/helpers')
-  {getAsset} = require('app/server/lib/assets')
 
-  env =
-    rendered: (new Date).toUTCString()
-    lang: require('./config/lang/en_us')
-    version: pkg.version
+#=========================================================================================
+# Helpers
+#=========================================================================================
+dropTmpFolder = ->
+  fs.removeSync(TMP_FOLER)
 
-  {
-    pretty: config.debug
-    config: _.omit(_.clone(config), config.server_only_keys...)
-    _
-    helpers
-    getAsset
-    env
-  }
+replaceFontello = (zipFile, done) ->
+  [folderName] = _.last(zipFile.split('/')).split('.')
 
+  SOURCE = "#{TMP_FOLER}/#{folderName}"
+  FONT_LOCATION = "#{FONTS_LOCATION}/fontello"
+
+  unless fs.ensureDirSync(FONT_LOCATION)
+    fs.mkdirsSync(FONT_LOCATION)
+
+  console.log(chalk.cyan('Extract new zip file...'))
+
+  fs.createReadStream(zipFile).pipe(unzip.Extract(path: TMP_FOLER)).on 'close', ->
+    console.log(chalk.cyan('Replacing files...'))
+
+    fs.copySync("#{SOURCE}/font", "#{FONT_LOCATION}", clobber: true)
+    fs.copySync("#{SOURCE}/css/nebenan-codes.css", "#{STYLES_LOCATION}/fonts/fontello_codes.css")
+    dropTmpFolder()
+    done?()
+
+installFontello = ->
+  console.log(chalk.cyan('Extract old zip file...'))
+
+  glob "#{SOURCE_FOLDER}/fontello-*.zip", (err, [oldZip]) ->
+    [folderName] = _.last(oldZip.split('/')).split('.')
+
+    fs.createReadStream(oldZip).pipe(unzip.Extract(path: TMP_FOLER)).on 'close', ->
+      config = "#{TMP_FOLER}/#{folderName}/config.json"
+
+      console.log(chalk.cyan('Getting session url...'))
+
+      fontello.apiRequest { config }, (sessionUrl) ->
+        open(sessionUrl)
+        dropTmpFolder()
+
+        console.log(chalk.green('Press "ENTER" to start download (save session in browser before downloading)'))
+
+        process.stdin.setRawMode(true)
+        process.stdin.resume()
+        process.stdin.on 'data', ([keyCode]) ->
+          return unless keyCode is 13
+
+          console.log(chalk.cyan('Download new zip file...'))
+
+          stream = needle.get "#{sessionUrl}/get", (err, res, body) ->
+            # Getting file name
+            regexp = /filename=(.*)/gi
+            [full, filename] = regexp.exec(res.headers['content-disposition'])
+
+            newZip = "#{SOURCE_FOLDER}/#{filename}"
+
+            fs.writeFile(newZip, body, ->
+              fs.removeSync(oldZip)
+              replaceFontello(newZip, -> process.exit())
+            )
 
 #=========================================================================================
 # Compilers
 #=========================================================================================
 compileJavascripts = (src, options)->
-  opts =
-    entries: src
-    extensions: ['.coffee', '.jade']
-    debug: config.source_maps
-    cache: {}
-    packageCache: {}
-    fullPaths: true
+  executor = (resolve, reject)->
+    opts =
+      entries: src
+      extensions: ['.coffee', '.cjsx']
+      debug: config.debug
+      cache: {}
+      packageCache: {}
+      fullPaths: config.debug
 
-  bundler.close?() if bundler
-  bundler = browserify(opts)
-  bundler = watchify(bundler) if options.watch
+    bundler = browserify(opts)
+    bundler = watchify(bundler) if options.watch
 
-  bundler.transform(require(transform), global: true) for transform in JS_TRANSFORMS
+    bundler.transform(coffeeReactify)
 
-  compile = (files)->
-    startTime = Date.now()
+    compile = (files)->
+      startTime = Date.now()
 
-    return if startTime - lastBrowserified < BROWSERIFY_RATELIMIT
-    lastBrowserified = startTime
+      watchReporter(path: file, type: 'changed') for file in files if files
 
-    watchReporter(path: file, type: 'changed') for file in files if files
+      bundler
+        .bundle()
+        .on('error', errorReporter)
+        .pipe(source(options.name))
+        .pipe(gulp.dest(options.dest))
+        .pipe(connect.reload())
+        .on('end', ->
+          benchmarkReporter("Browserified #{sourcesNormalize(src)}", startTime)
+          resolve()
+        )
 
-    bundler.bundle()
-      .on('error', errorReporter)
-      .pipe(source(options.name))
-      .pipe(gulp.dest(options.dest))
-      .on('end', -> benchmarkReporter("Browserified #{src}", startTime))
+    watchifyCompilers.push(compile)
 
-  # bundler.on('file', (file)-> log("Browserifying #{pathNormalize(file)}", 'cyan'))
-  bundler.on('update', compile) if options.watch
-  compile()
+    # bundler.on('file', (file)-> console.log(chalk.cyan("Browserifying #{pathNormalize(file)}")))
+    bundler.on('update', compile) if options.watch
+    compile()
+
+  new Promise(executor)
 
 compileStylesheets = (src, options)->
-  startTime = Date.now()
+  executor = (resolve, reject)->
+    startTime = Date.now()
 
-  gulp.src(src)
-    .pipe(stylus(
-      errors: true
-      # sourcemaps: config.source_maps
-      use: [nib()]
-      paths: ["#{__dirname}/node_modules"]
-      'include css': true
-      urlfunc: 'embedurl'
-      linenos: true
-      define:
-        '$version': pkg.version
-    ))
-    .pipe(rename(options.name))
-    .pipe(gulp.dest(options.dest))
-    .on('end', -> benchmarkReporter("Stylusified #{src}", startTime))
+    gulp
+      .src(src)
+      .pipe(stylus(
+        errors: config.debug
+        sourcemaps: config.debug
+        use: [ nib() ]
+        paths: [
+          "#{__dirname}/app/scripts"
+          "#{__dirname}/node_modules"
+        ]
+        'include css': true
+        urlfunc: 'embedurl'
+        linenos: config.debug
+      ))
+      .on('error', errorReporter)
+      .pipe(rename(options.name))
+      .pipe(gulp.dest(options.dest))
+      .pipe(connect.reload())
+      .on('end', ->
+        benchmarkReporter("Stylusified #{sourcesNormalize(src)}", startTime)
+        resolve()
+      )
+
+  new Promise(executor)
 
 compileTemplates = (src, options)->
-  startTime = Date.now()
+  generateAssetsMap = ->
+    hash = {}
+    for key, value of require("#{ASSETS_LOCATION}/hashmap.json")
+      hash[key.replace('.min', '')] = value
 
-  gulp.src(src)
-    .pipe(jade(
-      pretty: true
-      compileDebug: false
-      locals: getTemplateVars()
-    ))
-    .pipe(gulp.dest(options.dest))
-    .on('end', -> benchmarkReporter("Jadeified #{src}", startTime))
+    hash
 
-processOldAssets = (cb)->
-  paths = ["#{ASSETS_LOCATION}/*.min-*"]
-  lastBuildAssets = []
+  executor = (resolve, reject)->
+    startTime = Date.now()
 
-  try
-    hashmap = fs.readFileSync("#{ASSETS_LOCATION}/hashmap.json", encoding: 'utf8')
-    hashmap = JSON.parse(hashmap)
-    lastBuildAssets = _.values(hashmap)
+    assetsHashMap = generateAssetsMap() if isBuild
 
-  for file in lastBuildAssets
-    paths.push("!#{ASSETS_LOCATION}/#{file}")
-    paths.push("!#{ASSETS_LOCATION}/#{file}.gz")
+    injectAsset = (name)->
+      _orig = name
 
-  del(paths, cb)
+      name = assetsHashMap[name] if isBuild
+      errorReporter("Templates compiler: \"#{_orig}\" asset not found!") unless name
 
+      "/#{ASSETS_NAME}/#{name}"
+
+    injectConfig = (key)->
+      if key
+        clientConfig = _.merge(_.cloneDeep(config[key]), _.pick(config, 'debug', 'environment'))
+      else
+        clientConfig = _.cloneDeep(config)
+
+      "<script>__$$config__ = #{sanitize(JSON.stringify(clientConfig))};</script>"
+
+    gulp
+      .src(src)
+      .pipe(template(
+        asset: injectAsset,
+        config: injectConfig
+      ))
+      .pipe(gulp.dest(options.dest))
+      .pipe(connect.reload())
+      .on('end', ->
+        benchmarkReporter("Templatified #{sourcesNormalize(src)}", startTime)
+        resolve()
+      )
+
+  new Promise(executor)
+
+
+#=========================================================================================
+# Processing shortcuts
+#=========================================================================================
 processJavascripts = (options = {})->
-  settings = _.extend {}, options,
-    name: 'app.js'
-    dest: ASSETS_LOCATION
+  executor = (src, name, cssName)->
+    (resolve)->
+      settings = _.extend {}, options,
+        name: name
+        dest: ASSETS_LOCATION
 
-  compileJavascripts("./app/client/index.coffee", settings)
+      resolve(compileJavascripts(src, settings))
+
+  new Promise(executor("#{__dirname}/app/scripts/index.coffee", 'app.js'))
 
 processStylesheets = (options = {})->
-  settings = _.extend {}, options,
-    name: 'app.css'
-    dest: ASSETS_LOCATION
+  executor = (src, name)->
+    (resolve)->
+      settings = _.extend {}, options,
+        name: name
+        dest: ASSETS_LOCATION
 
-  compileStylesheets("./stylesheets/index.styl", settings)
+      resolve(compileStylesheets(src, settings))
 
-processStaticStylesheets = ->
-  compileStylesheets "#{__dirname}/stylesheets/static.styl",
-    name: 'static.css'
-    dest: ASSETS_LOCATION
+  new Promise(executor("#{__dirname}/app/styles/index.styl", 'app.css'))
 
-processStaticTemplates = ->
-  compileTemplates ["#{__dirname}/templates/static/**/*.jade", "!#{__dirname}/templates/static/**/_*.jade"],
-    dest: ASSETS_LOCATION
+processTemplates = (options = {})->
+  executor = (src, dest)->
+    (resolve)->
+      settings = _.extend {}, options,
+        dest: dest
 
-gulp.task 'clean', (cb)-> processOldAssets(cb)
-gulp.task 'browserify', -> processJavascripts()
-gulp.task 'stylus', -> processStylesheets()
-gulp.task 'static:stylus', -> processStaticStylesheets()
-gulp.task 'static:jade', -> processStaticTemplates()
+      resolve(compileTemplates(src, settings))
 
-gulp.task 'minify', ['browserify', 'stylus', 'static:stylus'], ->
-  gulp.src(["#{ASSETS_LOCATION}/*.js", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
-    .pipe(uglify())
+  new Promise(executor([
+    "#{__dirname}/app/templates/*.html",
+    "!#{__dirname}/app/templates/_*.html"
+  ], PUBLIC_LOCATION))
+
+startDevserver = ->
+  connect.server(
+    root: PUBLIC_LOCATION
+    port: config.server.port
+    host: config.server.host
+    livereload: config.debug
+    fallback: "#{PUBLIC_LOCATION}/index.html"
+  )
+
+reprocessJavascripts = -> compile() for compile in watchifyCompilers
+
+#=========================================================================================
+# Tasks definitions
+#=========================================================================================
+
+gulp.task 'fontello', -> installFontello()
+
+gulp.task 'scripts', -> processJavascripts()
+gulp.task 'styles', -> processStylesheets()
+gulp.task 'templates', -> processTemplates()
+
+gulp.task 'serve', -> startDevserver()
+
+gulp.task 'decache:styles', ->
+  gulp
+    .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
+    .pipe(decache(
+      base: PUBLIC_LOCATION
+      logMissing: true
+    ))
+    .pipe(gulp.dest(ASSETS_LOCATION))
+
+gulp.task 'minify:scripts', ->
+  gulp
+    .src(["#{ASSETS_LOCATION}/*.js", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
+    .pipe(uglify(
+      compress: { drop_console: true }
+    ))
     .pipe(rename(MINIFIED_NAME))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
-  gulp.src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
+gulp.task 'minify:styles', ->
+  gulp
+    .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
     .pipe(minifyCSS(
       processImport: false
       keepSpecialComments: 0
@@ -212,77 +358,89 @@ gulp.task 'minify', ['browserify', 'stylus', 'static:stylus'], ->
     .pipe(rename(MINIFIED_NAME))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
-gulp.task 'hashify', ['minify'], ->
-  gulp.src(["#{ASSETS_LOCATION}/*.min.*", "#{ASSETS_LOCATION}/static.min.css"]) # can't find more than 2 files for some reason
+gulp.task 'hashify', ->
+  gulp
+    .src("#{ASSETS_LOCATION}/*.min.*")
     .pipe(rev())
-    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
-    .pipe(rev.manifest())
-    .pipe(rename('hashmap.json'))
-    .pipe(gulp.dest("#{ASSETS_LOCATION}/"))
+    .pipe(gulp.dest(ASSETS_LOCATION))
+    .pipe(rev.manifest('hashmap.json'))
+    .pipe(gulp.dest(ASSETS_LOCATION))
 
-gulp.task 'static', ['hashify'], ->
-  processStaticTemplates()
-
-gulp.task 'compress', ['static'], ->
-  gulp.src(["#{ASSETS_LOCATION}/*.min-*.*", "!#{ASSETS_LOCATION}/*.gz"])
+gulp.task 'compress', ->
+  gulp
+    .src(["#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.gz"])
     .pipe(gzip())
     .pipe(gulp.dest(ASSETS_LOCATION))
 
-  gulp.src("#{ASSETS_LOCATION}/*.html")
+gulp.task 'minify:templates', ->
+  gulp
+    .src("#{PUBLIC_LOCATION}/**/*.html")
     .pipe(htmlmin(
       removeComments: true
       collapseWhitespace: true
-      collapseBooleanAttributes: true
-      removeAttributeQuotes: true
-      removeRedundantAttributes: true
       useShortDoctype: true
-      removeEmptyAttributes: true
     ))
-    .pipe(gulp.dest(ASSETS_LOCATION))
+    .pipe(gulp.dest(PUBLIC_LOCATION))
 
-gulp.task 'watch', ->
-  livereload.listen(silent: true) if config.livereload
+gulp.task 'clean', (done) ->
+  del([
+    ASSETS_LOCATION,
+    "#{PUBLIC_LOCATION}/*.html"
+  ], done)
 
-  processJavascripts(watch: true)
-  processStylesheets()
-  processStaticStylesheets()
-  processStaticTemplates()
-
-  # FIXME: This reload method is really slow
-  templates = [
-    "#{__dirname}/templates/**/*.jade"
-    "!#{__dirname}/templates/static/**/*.jade"
+gulp.task('build', gulpSequence(
+  'clean',
+  [
+    'scripts'
+    'styles'
+  ],
+  'decache:styles',
+  [
+    'minify:scripts'
+    'minify:styles'
   ]
-  gulp.watch(templates).on 'change', (event)->
-    watchReporter(event)
-    processJavascripts(watch: true)
-
-  stylesheets = [
-    "#{__dirname}/stylesheets/**/*.styl"
-    './vendor/**/*.css'
-    './vendor/**/*.styl'
-    "!#{__dirname}/stylesheets/static.styl"
+  'hashify',
+  'templates',
+  [
+    'minify:templates'
+    'compress'
   ]
-  gulp.watch(stylesheets).on 'change', (event)->
-    watchReporter(event)
+))
+
+gulp.task('compile',
+  [
+    'scripts'
+    'styles'
+    'templates'
+  ]
+)
+
+gulp.task 'default', ->
+  Promise.all([
+    processJavascripts(watch: true),
     processStylesheets()
+    processTemplates()
+  ]).then ->
+    startDevserver()
 
-  staticContent = [
-    "#{__dirname}/stylesheets/static.styl"
-    "#{__dirname}/templates/static/**/*.jade"
-  ]
-  gulp.watch(staticContent).on 'change', (event)->
-    watchReporter(event)
-    processStaticStylesheets()
-    processStaticTemplates()
-
-  process.stdin.on 'data', (chunk)->
-    if chunk.toString().replace(/[\r\n]/g, '') in RELOAD_TRIGGERS
-      log('Triggered manual reload', 'red')
-      processJavascripts(watch: true)
+    stylesheets = [
+      "#{__dirname}/app/**/*.styl"
+      "#{__dirname}/app/vendor/**/*.css"
+    ]
+    gulp.watch(stylesheets).on 'change', (event)->
+      watchReporter(event)
       processStylesheets()
-      processStaticStylesheets()
-      processStaticTemplates()
 
-gulp.task('default', ['browserify', 'stylus', 'static:stylus', 'static:jade'])
-gulp.task('build', ['compress'])
+    templates = [
+      "#{__dirname}/app/templates/**/*.html"
+    ]
+    gulp.watch(templates).on 'change', (event)->
+      watchReporter(event)
+      processTemplates(watch: true)
+
+    process.stdin.on 'data', (chunk)->
+      if chunk.toString().replace(/[\r\n]/g, '') in RELOAD_TRIGGERS
+        console.log(chalk.red('Triggered manual reload'))
+        reprocessJavascripts()
+        processStylesheets()
+        processTemplates()

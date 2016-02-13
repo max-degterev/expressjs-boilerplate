@@ -1,4 +1,4 @@
-_ = require('underscore')
+_ = require('lodash')
 
 class Environment
   attributes: global.app?.env or {}
@@ -8,7 +8,7 @@ class Environment
     next()
 
   set: (key, value)->
-    if typeof key is 'string'
+    if _.isString(key)
       @attributes[key] = value
     else
       for k, v of key

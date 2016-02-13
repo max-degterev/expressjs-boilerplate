@@ -26,16 +26,11 @@ test/screenshots/*.png
 # Commenting this out is preferred by some people, see
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
 node_modules/*
-!node_modules/app
-!node_modules/config
-!node_modules/env.coffee
-!node_modules/templates
-!node_modules/stylesheets
-!node_modules/vendor
 
 # Users Environment Variables
 .lock-wscript
 .idea
+.scripts
 
 # MacOS bullshit
 .DS_Store
@@ -46,3 +41,4 @@ config/development.*
 # Generated static stuf
 public/assets/*.*
 public/*.gz
+public/*.html
