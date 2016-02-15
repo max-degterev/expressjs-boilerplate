@@ -1,7 +1,7 @@
 fs = require('fs')
 _ = require('lodash')
 
-package = require('../package')
+pkg = require('../package')
 
 nodeEnv = process.env.NODE_ENV or 'development'
 
@@ -16,8 +16,8 @@ readConfigs = (path) ->
 
 defaults =
   environment: nodeEnv
-  debug: nodeEnv is 'development' and not (build in process.argv)
-  client: version: package.version
+  debug: nodeEnv is 'development' and not ('build' in process.argv)
+  client: version: pkg.version
 
 config = _.merge(defaults, readConfigs('./')...)
 

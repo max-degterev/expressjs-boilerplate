@@ -30,7 +30,6 @@ preRouteMiddleware = ->
   app.use(require('serve-static')(__dirname + '/../public', redirect: false))
 
   # app.use(environment.middleware)
-  app.use(generateEnv)
 
 postRouteMiddleware = ->
   app.use(require('errorhandler')(dumpExceptions: true, showStack: true)) if config.debug

@@ -2,7 +2,7 @@ cluster = require('cluster')
 winston = require('winston')
 
 config = require('./config')
-server = require('./server')
+startServer = require('./server')
 
 
 if cluster.isMaster
@@ -22,4 +22,4 @@ if cluster.isMaster
   )
 
 else
-  server.start()
+  startServer()

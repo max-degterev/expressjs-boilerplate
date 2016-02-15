@@ -1,5 +1,5 @@
 _ = require('lodash')
-Router = require('express')
+Router = require('express').Router
 
 HTTP_TYPES = ['get', 'post', 'head', 'put', 'delete', 'all']
 
