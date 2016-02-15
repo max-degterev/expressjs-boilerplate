@@ -1,7 +1,10 @@
-list = for key in ['home']
-  require("./#{key}")
+CONTROLLERS = [
+  'home'
+]
 
-use = (app) ->
-  controller.use(app) for controller in list
 
-module.exports = {use, list}
+module.exports =
+  use: (app) ->
+    for name in CONTROLLERS
+      controller = require("./#{name}")
+      controller.use(app)

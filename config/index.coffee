@@ -1,26 +1,24 @@
 fs = require('fs')
+_ = require('lodash')
 
-_ = require('underscore')
-_.mixin(deepExtend: require('underscore-deep-extend')(_))
+package = require('../package')
 
 nodeEnv = process.env.NODE_ENV or 'development'
 
-readConfigs = (path) ->
-  envConfPath = "#{__dirname}/#{path}/#{nodeEnv}.coffee"
 
-  confs = [require("#{__dirname}/#{path}/default.coffee")]
+readConfigs = (path) ->
+  envConfPath = "#{__dirname}/#{nodeEnv}.coffee"
+
+  confs = [require("#{__dirname}/default.coffee")]
   confs.push(require(envConfPath)) if fs.existsSync(envConfPath)
 
   confs
 
 defaults =
-  env: nodeEnv
-  debug: nodeEnv is 'development'
+  environment: nodeEnv
+  debug: nodeEnv is 'development' and not (build in process.argv)
+  client: version: package.version
 
-config = _.deepExtend(defaults, readConfigs('./')...)
-
-unless config.base_url
-  config.base_url = "http://#{ config.host or config.server.ip }"
-  config.base_url += ":#{ config.server.port }" if config.debug
+config = _.merge(defaults, readConfigs('./')...)
 
 module.exports = config

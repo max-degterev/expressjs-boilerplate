@@ -1,38 +1,20 @@
-config = require('config')
-utils = require('../mixins/utils')
-_ = require('underscore')
-router = require('express').Router()
+_ = require('lodash')
+Router = require('express')
+
+HTTP_TYPES = ['get', 'post', 'head', 'put', 'delete', 'all']
 
 
-class Controller
-  # Please set this on the instance
-  logPrefix: '[app.server.base.controller]:'
+module.exports = class Controller
+  constructor: ->
+    @router = Router()
 
+    for type in HTTP_TYPES
+      @[type] = (route, callbacks...) ->
+        bound = for callback in callbacks
+          callback.bind(@)
 
-  # Class logic below
-  constructor: (@options)->
-    _.defaults(@, @options) if @options
-    @_router = router
+        @router[type](route, bound...)
 
-  _handler: (type, route, callbacks...)->
-    boundCallbacks = @bind(callbacks)
-    @_router[type](route, boundCallbacks...)
-
-  get: (route, callbacks...)-> @_handler('get', route, callbacks...)
-  post: (route, callbacks...)-> @_handler('post', route, callbacks...)
-  head: (route, callbacks...)-> @_handler('head', route, callbacks...)
-  put: (route, callbacks...)-> @_handler('put', route, callbacks...)
-  delete: (route, callbacks...)-> @_handler('delete', route, callbacks...)
-  all: (route, callbacks...)-> @_handler('all', route, callbacks...)
-
-  use: (@app)->
-    @middleware?()
-    @modules?()
-    @router?()
-
-    @app.use(@_router)
-
-    @log('initialized', 'yellow')
-
-_.defaults(Controller::, utils)
-module.exports = Controller
+  use: (app)->
+    @attachRoutes?()
+    app.use(@router)

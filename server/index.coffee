@@ -1,63 +1,21 @@
-config = require('config')
 createDomain = require('domain').create
+winston = require('winston')
 
-_ = require('underscore')
+_ = require('lodash')
 app = require('express')()
 
-env = require('env')
-pkg = require('../../package')
-
-{getAsset} = require('./lib/assets')
-helpers = require('app/common/helpers')
-log = require('app/common/logger')
+# environment = require('../lib/environment')
+config = require('../config')
 
 
-#=====================================================================================
-# Template globals
-#=====================================================================================
 generateTemplateGlobals = ->
-  globals = {
-    pretty: config.debug
-    config: _.omit(_.clone(config), config.server_only_keys...)
-    _
-    helpers
-    getAsset
-  }
+  globals =
+    __appConfig__: config.client
+    __getAsset__: require('./lib/assets')
 
-  _.extend(app.locals, globals)
+  _.merge(app.locals, globals)
 
-
-#=====================================================================================
-# Global middleware
-#=====================================================================================
-normalizeUrl = (req, res, next)->
-  try
-    decodeURIComponent(req.originalUrl)
-  catch
-    url = '/'
-    log("malformed URL, redirecting to #{url}")
-    return res.redirect(301, url)
-
-  [href, qs...] = req.originalUrl.split('?')
-
-  if qs.length > 1 # should be 1?2, [2].length = 1
-    url = href + '?' + qs.join('&')
-    log("malformed URL, redirecting to #{url}")
-    return res.redirect(301, url)
-
-  next()
-
-generateEnv = (req, res, next)->
-  requestEnv =
-    rendered: (new Date).toUTCString()
-    lang: require('../../config/lang/en_us')
-    version: pkg.version
-
-  _.extend(res.locals.env, requestEnv)
-
-  next()
-
-domainify = (req, res, next)->
+domainify = (req, res, next) ->
   domain = createDomain()
   domain.add(req)
   domain.add(res)
@@ -68,28 +26,22 @@ preRouteMiddleware = ->
   app.use(domainify)
   app.use(require('morgan')(if config.debug then 'dev' else 'combined'))
 
-  app.use(normalizeUrl)
+  app.use(require('serve-favicon')(__dirname + '/../public/favicon.ico'))
+  app.use(require('serve-static')(__dirname + '/../public', redirect: false))
 
-  app.use(require('serve-favicon')(__dirname + '/../../public/favicon.ico'))
-  app.use(require('serve-static')(__dirname + '/../../public', redirect: false))
-
-  app.use(env.create)
+  # app.use(environment.middleware)
   app.use(generateEnv)
 
 postRouteMiddleware = ->
   app.use(require('errorhandler')(dumpExceptions: true, showStack: true)) if config.debug
 
-
-#=====================================================================================
-# Start listening
-#=====================================================================================
-module.exports.start = ->
+module.exports = ->
   app.enable('trust proxy') # usually sitting behind nginx
   app.disable('x-powered-by')
 
   app.set('port', config.server.port)
-  app.set('views', "#{__dirname}/../../templates")
-  app.set('view engine', 'jade')
+  # app.set('views', "#{__dirname}/../templates")
+  # app.set('view engine', 'jade')
   app.set('json spaces', 2) if config.debug
 
   generateTemplateGlobals()
@@ -98,12 +50,11 @@ module.exports.start = ->
   require('./controllers').use(app)
   postRouteMiddleware()
 
-  appRoot = "http://#{config.host or config.server.ip}:#{config.server.port}"
-  serverMessage = "Server listening on #{appRoot}"
+  serverMessage = "Server listening on http://#{config.server.host}:#{config.server.port}"
 
-  if config.server.ip
-    app.listen(config.server.port, config.server.ip, ->
-      log("#{serverMessage} (bound to ip: #{config.server.ip})", 'cyan')
+  if config.server.host
+    app.listen(config.server.port, config.server.host, ->
+      winston.info("#{serverMessage} (bound to host: #{config.server.host})")
     )
   else
-    app.listen(config.server.port, -> log("#{serverMessage} (unbound)", 'cyan'))
+    app.listen(config.server.port, -> winston.info(serverMessage))

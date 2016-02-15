@@ -1,13 +1,14 @@
 _ = require('lodash')
 
-class Environment
-  attributes: global.app?.env or {}
 
-  create: (req, res, next)=>
-    @attributes = res.locals.env = {}
+class Environment
+  attributes: global.__appEnvironment__ or {}
+
+  middleware: (req, res, next) =>
+    @attributes = res.locals.__appEnvironment__ = {}
     next()
 
-  set: (key, value)->
+  set: (key, value) ->
     if _.isString(key)
       @attributes[key] = value
     else
@@ -15,7 +16,7 @@ class Environment
         @attributes[k] = v
     @
 
-  unset: (key)->
+  remove: (key) ->
     delete @attributes[key]
     @
 
@@ -23,9 +24,13 @@ class Environment
   has: (key)-> !!@attributes[key]
 
   clear: ->
-    @unset(key) for key of @attributes
+    @remove(key) for key of @attributes
     @
 
-  toJSON: -> _.clone(@attributes)
+  clone: -> _.cloneDeep(@attributes)
 
-module.exports = new Environment
+  # Function to allow JSON.stringify calls
+  toJSON: -> @clone()
+
+
+module.exports = new Environment()

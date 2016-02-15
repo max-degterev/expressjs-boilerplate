@@ -19,9 +19,6 @@ build/Release
 # NVM builds
 nvm/
 
-# Tests artifacts
-test/screenshots/*.png
-
 # Dependency directory
 # Commenting this out is preferred by some people, see
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
@@ -37,8 +34,9 @@ node_modules/*
 
 # Local config
 config/development.*
+config/local.*
 
-# Generated static stuf
+# Generated static stuff
 public/assets/*.*
 public/*.gz
 public/*.html

@@ -2,13 +2,11 @@ Controller = require('../base/controller')
 
 
 class Home extends Controller
-  logPrefix: '[app.server/controllers.home]:'
+  default: (req, res) -> res.send('Default')
+  error404: (req, res) -> res.status(404).send('Error 404')
 
-  default: (req, res)-> res.render('layout')
-  error404: (req, res)-> res.status(404).render('server/error')
-
-  router: ->
+  attachRoutes: ->
     @get('/', @default)
     @get('*', @error404)
 
-module.exports = new Home
+module.exports = new Home()

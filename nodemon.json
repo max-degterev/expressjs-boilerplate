@@ -1,22 +1,18 @@
 {
   "ignore": [
     ".git",
+
     "node_modules/*",
-    "vendor/*",
     "public/*",
 
-    "app/client/*",
-    "stylesheets/*",
+    "styles/*",
     "templates/*",
+    "vendor/*",
 
     "*.log"
   ],
   "watch": [
-    "config/*.json",
     "config/*.coffee",
-
-    "app/server/*",
-    "app/common/*",
 
     "*.js",
     "*.json",

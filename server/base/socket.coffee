@@ -1,40 +1,35 @@
-log = require('app/common/logger')
-_ = require('underscore')
+_ = require('lodash')
 
 
-class Socket
-  # Please set this on the instance
-  logPrefix: '[app.server.base.socket]:'
+module.exports = class Socket
+  getEventName: (event, options) ->
+    [options.namespace, event, options.signature].join(':')
 
-  # Class logic below
-  log: log
-  constructor: (@options)->
-    _.defaults(@, @options) if @options
-
-  getEventName: (event, options)-> [options.namespace, event, options.signature].join(':')
-  getStreamData: (socket, options)->
+  getStreamData: (socket, options) ->
     socket.streaming[options.namespace] ?= {}
     socket.streaming[options.namespace][options.signature] ?= {}
     socket.streaming[options.namespace][options.signature]
 
-  eventProxy: (event, socket)-> (args...)=>
-    handler = @events[event]
-    callback = @[handler] or handler
-    callback.call(@, socket, args...)
+  eventProxy: (event, socket) ->
+    (args...) =>
+      handler = @events[event]
+      callback = if _.isString(handler) then @[handler] else handler
+      callback.call(@, socket, args...)
 
   buildEvents: (socket)=>
     socket.streaming = {}
 
     if @events
-      socket.on(event, @eventProxy(event, socket)) for event of @events
+      for event of @events
+        socket.on(event, @eventProxy(event, socket))
 
     socket.on('disconnect', => @abortRequests(socket))
 
-  createRequest: (socket, options, data)->
+  createRequest: (socket, options, data) ->
     streamData = @getStreamData(socket, options)
-    _.extend(streamData, data)
+    _.merge(streamData, data)
 
-  deleteRequest: (socket, options)->
+  deleteRequest: (socket, options) ->
     streamData = @getStreamData(socket, options)
     for key of streamData
       delete streamData[key]
@@ -50,10 +45,6 @@ class Socket
       for signature, transfer of transfers
         @abortRequest(socket, { namespace, signature })
 
-  use: (@app)->
-    @socket = @app.get('socket')
+  use: (app)->
+    @socket = app.get('socket')
     @socket.on('connection', @buildEvents)
-
-    @log('initialized', 'yellow')
-
-module.exports = Socket

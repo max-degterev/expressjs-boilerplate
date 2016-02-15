@@ -1,6 +1,6 @@
 # ExpressJS Boilerplate
 
-A good starting point for your NodeJS project.
+SPA React boilerplate with Express backend
 
 ## Usage:
 ### Development:

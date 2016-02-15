@@ -1,28 +1,25 @@
-#=========================================================================================
-# Application setup
-#=========================================================================================
-# cluster = require('cluster')
-# config = require('config')
-# log = require('./lib/logger')
-# server = require('./app/server')
+cluster = require('cluster')
+winston = require('winston')
 
-# if cluster.isMaster
-#   num = parseInt(process.env.WORKERS or config.server.workers, 10) + 1
+config = require('./config')
+server = require('./server')
 
-#   while num -= 1
-#     log("Starting worker #{config.server.workers - num + 1}", 'cyan')
-#     cluster.fork()
 
-#   cluster.on('exit', (worker, code, signal) ->
-#     log("Worker #{worker.process.pid} died", 'red bold')
+if cluster.isMaster
+  num = parseInt(process.env.WORKERS or config.server.workers, 10) + 1
 
-#     if config.debug
-#       process.exit()
-#     else
-#       cluster.fork()
-#   )
+  while num -= 1
+    winston.info("Starting worker #{config.server.workers - num + 1}")
+    cluster.fork()
 
-# else
-#   server.start()
+  cluster.on('exit', (worker, code, signal) ->
+    winston.error("Worker #{worker.process.pid} died")
 
-console.warn 'WOW!'
+    if config.debug
+      process.exit()
+    else
+      cluster.fork()
+  )
+
+else
+  server.start()
