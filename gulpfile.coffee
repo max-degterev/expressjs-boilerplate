@@ -1,54 +1,16 @@
-#=========================================================================================
-# Dependencies
-#=========================================================================================
-
 _ = require('lodash')
 
 gulp = require('gulp')
-chalk = require('chalk')
-
 gulpSequence = require('gulp-sequence')
 
-browserify = require('browserify')
-watchify = require('watchify')
-
-coffeeReactify = require('coffee-reactify')
-
-source = require('vinyl-source-stream')
-watchifyCompilers = [] # to have control over watchify instances
-
-stylus = require('gulp-stylus')
+chalk = require('chalk')
 rename = require('gulp-rename')
-nib = require('nib')
-
-template = require('gulp-template')
-
 connect = require('gulp-connect')
-open = require('open')
-
-fs = require('fs-extra')
-glob = require('glob')
-unzip = require('unzip')
-
-needle = require('needle')
-fontello = require('./lib/fontello')
-
-uglify = require('gulp-uglify')
-
-decache = require('gulp-css-decache')
-minifyCSS = require('gulp-minify-css')
-htmlmin = require('gulp-htmlmin')
-
-rev = require('gulp-rev')
-gzip = require('gulp-gzip')
-del = require('del')
-
-sanitize = require('./lib/sanitize')
-
-isBuild = process.argv[2] is 'build'
 
 config = require('./config')
-config.debug = false if isBuild
+
+# to have control over watchify instances
+watchifyCompilers = []
 
 
 #=========================================================================================
@@ -56,107 +18,40 @@ config.debug = false if isBuild
 #=========================================================================================
 RELOAD_TRIGGERS = ['rs', 'regulp']
 
-ASSETS_NAME = 'fe_assets'
+ASSETS_NAME = 'assets'
 
 PUBLIC_LOCATION = './public'
 ASSETS_LOCATION = "#{PUBLIC_LOCATION}/#{ASSETS_NAME}"
 
 MINIFIED_NAME = suffix: '.min'
 
-TMP_FOLER = './.tmp'
-SOURCE_FOLDER = './.source'
-
-FONTS_LOCATION = "#{PUBLIC_LOCATION}/fonts"
-STYLES_LOCATION = "./app/styles"
 
 #=========================================================================================
 # Reporters
 #=========================================================================================
-pathNormalize = (path)->
+pathNormalize = (path) ->
   "./#{path.replace("#{__dirname}/", '')}"
 
-sourcesNormalize = (paths)->
+sourcesNormalize = (paths) ->
   paths = [paths] if !_.isArray(paths)
   paths.map(pathNormalize)
 
-benchmarkReporter = (action, startTime)->
+benchmarkReporter = (action, startTime) ->
   console.log(chalk.magenta("#{action} in #{((Date.now() - startTime) / 1000).toFixed(2)}s"))
 
-watchReporter = (e)->
+watchReporter = (e) ->
   console.log(chalk.cyan("File #{pathNormalize(e.path)} #{e.type}, flexing 💪"))
 
-errorReporter = (e)->
+errorReporter = (e) ->
   stack = e.stack or e
   console.log(chalk.bold.red("Build error!\n#{stack}"))
-  # process.exit(1) if isBuild
 
-
-#=========================================================================================
-# Helpers
-#=========================================================================================
-dropTmpFolder = ->
-  fs.removeSync(TMP_FOLER)
-
-replaceFontello = (zipFile, done) ->
-  [folderName] = _.last(zipFile.split('/')).split('.')
-
-  SOURCE = "#{TMP_FOLER}/#{folderName}"
-  FONT_LOCATION = "#{FONTS_LOCATION}/fontello"
-
-  unless fs.ensureDirSync(FONT_LOCATION)
-    fs.mkdirsSync(FONT_LOCATION)
-
-  console.log(chalk.cyan('Extract new zip file...'))
-
-  fs.createReadStream(zipFile).pipe(unzip.Extract(path: TMP_FOLER)).on 'close', ->
-    console.log(chalk.cyan('Replacing files...'))
-
-    fs.copySync("#{SOURCE}/font", "#{FONT_LOCATION}", clobber: true)
-    fs.copySync("#{SOURCE}/css/nebenan-codes.css", "#{STYLES_LOCATION}/fonts/fontello_codes.css")
-    dropTmpFolder()
-    done?()
-
-installFontello = ->
-  console.log(chalk.cyan('Extract old zip file...'))
-
-  glob "#{SOURCE_FOLDER}/fontello-*.zip", (err, [oldZip]) ->
-    [folderName] = _.last(oldZip.split('/')).split('.')
-
-    fs.createReadStream(oldZip).pipe(unzip.Extract(path: TMP_FOLER)).on 'close', ->
-      config = "#{TMP_FOLER}/#{folderName}/config.json"
-
-      console.log(chalk.cyan('Getting session url...'))
-
-      fontello.apiRequest { config }, (sessionUrl) ->
-        open(sessionUrl)
-        dropTmpFolder()
-
-        console.log(chalk.green('Press "ENTER" to start download (save session in browser before downloading)'))
-
-        process.stdin.setRawMode(true)
-        process.stdin.resume()
-        process.stdin.on 'data', ([keyCode]) ->
-          return unless keyCode is 13
-
-          console.log(chalk.cyan('Download new zip file...'))
-
-          stream = needle.get "#{sessionUrl}/get", (err, res, body) ->
-            # Getting file name
-            regexp = /filename=(.*)/gi
-            [full, filename] = regexp.exec(res.headers['content-disposition'])
-
-            newZip = "#{SOURCE_FOLDER}/#{filename}"
-
-            fs.writeFile(newZip, body, ->
-              fs.removeSync(oldZip)
-              replaceFontello(newZip, -> process.exit())
-            )
 
 #=========================================================================================
 # Compilers
 #=========================================================================================
-compileJavascripts = (src, options)->
-  executor = (resolve, reject)->
+compileJavascripts = (src, options) ->
+  executor = (resolve, reject) ->
     opts =
       entries: src
       extensions: ['.coffee', '.cjsx']
@@ -165,12 +60,12 @@ compileJavascripts = (src, options)->
       packageCache: {}
       fullPaths: config.debug
 
-    bundler = browserify(opts)
-    bundler = watchify(bundler) if options.watch
+    bundler = require('browserify')(opts)
+    bundler = require('watchify')(bundler) if options.watch
 
-    bundler.transform(coffeeReactify)
+    bundler.transform(require('coffee-reactify'))
 
-    compile = (files)->
+    compile = (files) ->
       startTime = Date.now()
 
       watchReporter(path: file, type: 'changed') for file in files if files
@@ -178,7 +73,7 @@ compileJavascripts = (src, options)->
       bundler
         .bundle()
         .on('error', errorReporter)
-        .pipe(source(options.name))
+        .pipe(require('vinyl-source-stream')(options.name))
         .pipe(gulp.dest(options.dest))
         .pipe(connect.reload())
         .on('end', ->
@@ -188,24 +83,24 @@ compileJavascripts = (src, options)->
 
     watchifyCompilers.push(compile)
 
-    # bundler.on('file', (file)-> console.log(chalk.cyan("Browserifying #{pathNormalize(file)}")))
+    # bundler.on('file', (file) -> console.log(chalk.cyan("Browserifying #{pathNormalize(file)}")))
     bundler.on('update', compile) if options.watch
     compile()
 
   new Promise(executor)
 
-compileStylesheets = (src, options)->
-  executor = (resolve, reject)->
+compileStylesheets = (src, options) ->
+  executor = (resolve, reject) ->
     startTime = Date.now()
 
     gulp
       .src(src)
-      .pipe(stylus(
+      .pipe(require('gulp-stylus')(
         errors: config.debug
         sourcemaps: config.debug
-        use: [ nib() ]
+        use: [ require('nib')() ]
         paths: [
-          "#{__dirname}/app/scripts"
+          "#{__dirname}/client"
           "#{__dirname}/node_modules"
         ]
         'include css': true
@@ -223,7 +118,7 @@ compileStylesheets = (src, options)->
 
   new Promise(executor)
 
-compileTemplates = (src, options)->
+compileTemplates = (src, options) ->
   generateAssetsMap = ->
     hash = {}
     for key, value of require("#{ASSETS_LOCATION}/hashmap.json")
@@ -231,20 +126,20 @@ compileTemplates = (src, options)->
 
     hash
 
-  executor = (resolve, reject)->
+  executor = (resolve, reject) ->
     startTime = Date.now()
 
-    assetsHashMap = generateAssetsMap() if isBuild
+    assetsHashMap = generateAssetsMap() if config.debug
 
-    injectAsset = (name)->
+    injectAsset = (name) ->
       _orig = name
 
-      name = assetsHashMap[name] if isBuild
+      name = assetsHashMap[name] if config.debug
       errorReporter("Templates compiler: \"#{_orig}\" asset not found!") unless name
 
       "/#{ASSETS_NAME}/#{name}"
 
-    injectConfig = (key)->
+    injectConfig = (key) ->
       if key
         clientConfig = _.merge(_.cloneDeep(config[key]), _.pick(config, 'debug', 'environment'))
       else
@@ -254,7 +149,7 @@ compileTemplates = (src, options)->
 
     gulp
       .src(src)
-      .pipe(template(
+      .pipe(require('gulp-template')(
         asset: injectAsset,
         config: injectConfig
       ))
@@ -271,39 +166,39 @@ compileTemplates = (src, options)->
 #=========================================================================================
 # Processing shortcuts
 #=========================================================================================
-processJavascripts = (options = {})->
-  executor = (src, name, cssName)->
-    (resolve)->
-      settings = _.extend {}, options,
+processJavascripts = (options = {}) ->
+  executor = (src, name, cssName) ->
+    (resolve) ->
+      settings = _.assignIn {}, options,
         name: name
         dest: ASSETS_LOCATION
 
       resolve(compileJavascripts(src, settings))
 
-  new Promise(executor("#{__dirname}/app/scripts/index.coffee", 'app.js'))
+  new Promise(executor("#{__dirname}/client/index.coffee", 'app.js'))
 
-processStylesheets = (options = {})->
-  executor = (src, name)->
-    (resolve)->
-      settings = _.extend {}, options,
+processStylesheets = (options = {}) ->
+  executor = (src, name) ->
+    (resolve) ->
+      settings = _.assignIn {}, options,
         name: name
         dest: ASSETS_LOCATION
 
       resolve(compileStylesheets(src, settings))
 
-  new Promise(executor("#{__dirname}/app/styles/index.styl", 'app.css'))
+  new Promise(executor("#{__dirname}/styles/index.styl", 'app.css'))
 
-processTemplates = (options = {})->
-  executor = (src, dest)->
-    (resolve)->
-      settings = _.extend {}, options,
+processTemplates = (options = {}) ->
+  executor = (src, dest) ->
+    (resolve) ->
+      settings = _.assignIn {}, options,
         dest: dest
 
       resolve(compileTemplates(src, settings))
 
   new Promise(executor([
-    "#{__dirname}/app/templates/*.html",
-    "!#{__dirname}/app/templates/_*.html"
+    "#{__dirname}/templates/*.html",
+    "!#{__dirname}/templates/_*.html"
   ], PUBLIC_LOCATION))
 
 startDevserver = ->
@@ -320,9 +215,6 @@ reprocessJavascripts = -> compile() for compile in watchifyCompilers
 #=========================================================================================
 # Tasks definitions
 #=========================================================================================
-
-gulp.task 'fontello', -> installFontello()
-
 gulp.task 'scripts', -> processJavascripts()
 gulp.task 'styles', -> processStylesheets()
 gulp.task 'templates', -> processTemplates()
@@ -332,7 +224,7 @@ gulp.task 'serve', -> startDevserver()
 gulp.task 'decache:styles', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
-    .pipe(decache(
+    .pipe(require('gulp-css-decache')(
       base: PUBLIC_LOCATION
       logMissing: true
     ))
@@ -341,7 +233,7 @@ gulp.task 'decache:styles', ->
 gulp.task 'minify:scripts', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.js", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
-    .pipe(uglify(
+    .pipe(require('gulp-uglify')(
       compress: { drop_console: true }
     ))
     .pipe(rename(MINIFIED_NAME))
@@ -350,7 +242,7 @@ gulp.task 'minify:scripts', ->
 gulp.task 'minify:styles', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
-    .pipe(minifyCSS(
+    .pipe(require('gulp-minify-css')(
       processImport: false
       keepSpecialComments: 0
       aggressiveMerging: false
@@ -359,6 +251,8 @@ gulp.task 'minify:styles', ->
     .pipe(gulp.dest(ASSETS_LOCATION))
 
 gulp.task 'hashify', ->
+  rev = require('gulp-rev')
+
   gulp
     .src("#{ASSETS_LOCATION}/*.min.*")
     .pipe(rev())
@@ -369,13 +263,13 @@ gulp.task 'hashify', ->
 gulp.task 'compress', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.gz"])
-    .pipe(gzip())
+    .pipe(require('gulp-gzip')())
     .pipe(gulp.dest(ASSETS_LOCATION))
 
 gulp.task 'minify:templates', ->
   gulp
     .src("#{PUBLIC_LOCATION}/**/*.html")
-    .pipe(htmlmin(
+    .pipe(require('gulp-htmlmin')(
       removeComments: true
       collapseWhitespace: true
       useShortDoctype: true
@@ -383,7 +277,7 @@ gulp.task 'minify:templates', ->
     .pipe(gulp.dest(PUBLIC_LOCATION))
 
 gulp.task 'clean', (done) ->
-  del([
+  require('del')([
     ASSETS_LOCATION,
     "#{PUBLIC_LOCATION}/*.html"
   ], done)
@@ -424,21 +318,21 @@ gulp.task 'default', ->
     startDevserver()
 
     stylesheets = [
-      "#{__dirname}/app/**/*.styl"
-      "#{__dirname}/app/vendor/**/*.css"
+      "#{__dirname}/**/*.styl"
+      "#{__dirname}/vendor/**/*.css"
     ]
-    gulp.watch(stylesheets).on 'change', (event)->
+    gulp.watch(stylesheets).on 'change', (event) ->
       watchReporter(event)
       processStylesheets()
 
     templates = [
-      "#{__dirname}/app/templates/**/*.html"
+      "#{__dirname}/templates/**/*.html"
     ]
-    gulp.watch(templates).on 'change', (event)->
+    gulp.watch(templates).on 'change', (event) ->
       watchReporter(event)
       processTemplates(watch: true)
 
-    process.stdin.on 'data', (chunk)->
+    process.stdin.on 'data', (chunk) ->
       if chunk.toString().replace(/[\r\n]/g, '') in RELOAD_TRIGGERS
         console.log(chalk.red('Triggered manual reload'))
         reprocessJavascripts()

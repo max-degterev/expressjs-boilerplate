@@ -20,8 +20,8 @@ class Environment
     delete @attributes[key]
     @
 
-  get: (key)-> @attributes[key]
-  has: (key)-> !!@attributes[key]
+  get: (key) -> @attributes[key]
+  has: (key) -> !!@attributes[key]
 
   clear: ->
     @remove(key) for key of @attributes

@@ -3,6 +3,7 @@ winston = require('winston')
 
 _ = require('lodash')
 app = require('express')()
+serialize = require('serialize-javascript')
 
 # environment = require('../lib/environment')
 config = require('../config')
@@ -10,10 +11,10 @@ config = require('../config')
 
 generateTemplateGlobals = ->
   globals =
-    __appConfig__: config.client
+    __appConfig__: serialize(config.client)
     __getAsset__: require('./lib/assets')
 
-  _.merge(app.locals, globals)
+  _.assignIn(app.locals, globals)
 
 domainify = (req, res, next) ->
   domain = createDomain()

@@ -16,7 +16,7 @@ module.exports = class Socket
       callback = if _.isString(handler) then @[handler] else handler
       callback.call(@, socket, args...)
 
-  buildEvents: (socket)=>
+  buildEvents: (socket) =>
     socket.streaming = {}
 
     if @events
@@ -34,17 +34,17 @@ module.exports = class Socket
     for key of streamData
       delete streamData[key]
 
-  abortRequest: (socket, options)->
+  abortRequest: (socket, options) ->
     streamData = @getStreamData(socket, options)
     if streamData.request
       streamData.request.abort()
       streamData.aborted = true
 
-  abortRequests: (socket)->
+  abortRequests: (socket) ->
     for namespace, transfers of socket.streaming
       for signature, transfer of transfers
         @abortRequest(socket, { namespace, signature })
 
-  use: (app)->
+  use: (app) ->
     @socket = app.get('socket')
     @socket.on('connection', @buildEvents)

@@ -10,7 +10,7 @@
   "scripts": {
     "start": "coffee app.coffee",
     "dev": "nodemon app.coffee",
-    "compile": "gulp"
+    "gulp": "gulp"
   },
 
   "homepage": "http://max.degterev.me/",
@@ -39,7 +39,9 @@
 
     "errorhandler": "1.4.3",
     "serve-favicon": "2.3.0",
-    "serve-static": "1.10.2"
+    "serve-static": "1.10.2",
+
+    "nodemon": "1.8.1"
   },
 
   "dependencies": {
@@ -80,12 +82,11 @@
     "winston": "2.1.1",
     "express": "4.13.4",
     "morgan": "1.6.1",
+    "serialize-javascript": "1.1.2",
 
     "react": "0.14.7",
     "react-dom": "0.14.7",
     "lodash": "4.3.0",
-
-    "fastclick": "1.0.6",
 
     "normalize.css": "3.0.3"
   },

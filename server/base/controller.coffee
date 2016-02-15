@@ -15,6 +15,6 @@ module.exports = class Controller
 
         @router[type](route, bound...)
 
-  use: (app)->
+  use: (app) ->
     @attachRoutes?()
     app.use(@router)
