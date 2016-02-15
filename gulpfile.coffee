@@ -294,7 +294,7 @@ gulp.task('build', gulpSequence(
     'minify:styles'
   ]
   'hashify',
-  'templates',
+  #'templates',
   [
     'minify:templates'
     'compress'
@@ -305,7 +305,7 @@ gulp.task('compile',
   [
     'scripts'
     'styles'
-    'templates'
+    #'templates'
   ]
 )
 
@@ -313,7 +313,7 @@ gulp.task 'default', ->
   Promise.all([
     processJavascripts(watch: true),
     processStylesheets()
-    processTemplates()
+    #processTemplates()
   ]).then ->
     startDevserver()
 

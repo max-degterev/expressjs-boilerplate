@@ -9,7 +9,7 @@
 
   "scripts": {
     "start": "coffee app.coffee",
-    "dev": "nodemon app.coffee",
+    "dev": "gulp & nodemon app.coffee",
     "gulp": "gulp"
   },
 
