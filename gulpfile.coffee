@@ -12,7 +12,7 @@ compileStyles = require('./build/styles')
 
 
 MINIFICATION_RULES = suffix: '.min'
-ASSETS_LOCATION = "./#{config.build.assets_location}"
+ASSETS_LOCATION = "#{__dirname}/#{config.build.assets_location}"
 
 
 gulp.task 'clean', (done) -> require('del')([ASSETS_LOCATION], done)
@@ -24,7 +24,7 @@ gulp.task 'decache:styles', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
     .pipe(require('gulp-css-decache')(
-      base: './public'
+      base: '#{__dirname}/public'
       logMissing: true
     ))
     .pipe(gulp.dest(ASSETS_LOCATION))

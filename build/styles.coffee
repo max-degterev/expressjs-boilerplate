@@ -40,7 +40,7 @@ module.exports = (options = {}) ->
     (resolve) ->
       settings = _.assignIn {}, options,
         name: name
-        dest: "../#{config.build.assets_location}"
+        dest: "#{__dirname}/../#{config.build.assets_location}"
 
       resolve(process(src, settings))
 
