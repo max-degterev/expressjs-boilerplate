@@ -1,6 +1,6 @@
 # ExpressJS Boilerplate
 
-SPA React boilerplate with Express backend
+Simple ExpressJS boilerplate with React SPA frontend
 
 ## Usage:
 ### Development:

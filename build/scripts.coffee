@@ -1,5 +1,6 @@
 _ = require('lodash')
 gulp = require('gulp')
+livereload = require('gulp-livereload')
 
 config = require('../config')
 utils = require('./utils')
@@ -29,7 +30,7 @@ process = (src, options) ->
         .on('error', utils.errorReporter)
         .pipe(require('vinyl-source-stream')(options.name))
         .pipe(gulp.dest(options.dest))
-        # .pipe(connect.reload())
+        .pipe(livereload())
         .on('end', ->
           utils.benchmarkReporter("Browserified #{utils.sourcesNormalize(src)}", startTime)
           resolve()
@@ -46,7 +47,7 @@ module.exports = (options = {}) ->
     (resolve) ->
       settings = _.assignIn {}, options,
         name: name
-        dest: "../#{config.assets_location}"
+        dest: "../#{config.build.assets_location}"
 
       resolve(process(src, settings))
 

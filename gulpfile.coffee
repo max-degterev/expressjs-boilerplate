@@ -2,29 +2,29 @@ _ = require('lodash')
 
 gulp = require('gulp')
 gulpSequence = require('gulp-sequence')
+
 rename = require('gulp-rename')
 
 config = require('./config')
-utils = require('./build/utils')
 
 compileScripts = require('./build/scripts')
 compileStyles = require('./build/styles')
-#compileTemplates = require('./build/templates')
+
 
 MINIFICATION_RULES = suffix: '.min'
-ASSETS_LOCATION = "./#{config.assets_location}"
-PUBLIC_LOCATION = "./public"
+ASSETS_LOCATION = "./#{config.build.assets_location}"
 
+
+gulp.task 'clean', (done) -> require('del')([ASSETS_LOCATION], done)
 
 gulp.task 'scripts', -> compileScripts()
 gulp.task 'styles', -> compileStyles()
-# gulp.task 'templates', -> compileTemplates()
 
 gulp.task 'decache:styles', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
     .pipe(require('gulp-css-decache')(
-      base: PUBLIC_LOCATION
+      base: './public'
       logMissing: true
     ))
     .pipe(gulp.dest(ASSETS_LOCATION))
@@ -65,47 +65,28 @@ gulp.task 'compress', ->
     .pipe(require('gulp-gzip')())
     .pipe(gulp.dest(ASSETS_LOCATION))
 
-gulp.task 'minify:templates', ->
-  gulp
-    .src("#{PUBLIC_LOCATION}/**/*.html")
-    .pipe(require('gulp-htmlmin')(
-      removeComments: true
-      collapseWhitespace: true
-      useShortDoctype: true
-    ))
-    .pipe(gulp.dest(PUBLIC_LOCATION))
-
-gulp.task 'clean', (done) -> require('del')([ASSETS_LOCATION], done)
-
 gulp.task('build', gulpSequence(
   'clean',
+
   ['scripts','styles'],
   'decache:styles',
 
   ['minify:scripts', 'minify:styles']
   'hashify',
-  #'templates',
 
-  ['minify:templates', 'compress']
+  'compress'
 ))
 
-gulp.task('compile',
-  #'templates'
-  ['scripts','styles']
-)
+gulp.task('compile', ['scripts','styles'])
 
 gulp.task 'default', ->
   Promise.all([
     compileScripts(watch: true),
     compileStyles()
-    #compileTemplates()
   ]).then ->
-    stylesheets = [ "#{__dirname}/**/*.styl", "#{__dirname}/vendor/**/*.css" ]
-    gulp.watch(stylesheets).on 'change', (event) ->
-      utils.watchReporter(event)
-      compileStyles()
+    require('gulp-livereload').listen()
 
-    # templates = [ "#{__dirname}/templates/**/*.html" ]
-    # gulp.watch(templates).on 'change', (event) ->
-    #   utils.watchReporter(event)
-    #   compileTemplates(watch: true)
+    stylesheets = [ "#{__dirname}/styles/**/*.styl", "#{__dirname}/vendor/**/*.css" ]
+    gulp.watch(stylesheets).on 'change', (event) ->
+      require('./build/utils').watchReporter(event)
+      compileStyles()

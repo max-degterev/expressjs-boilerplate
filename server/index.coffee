@@ -5,14 +5,13 @@ _ = require('lodash')
 app = require('express')()
 serialize = require('serialize-javascript')
 
-# environment = require('../lib/environment')
 config = require('../config')
 
 
 generateTemplateGlobals = ->
   globals =
-    __appConfig__: serialize(config.client)
-    __getAsset__: require('./lib/assets')
+    __appConfig__: "var __appConfig__=#{serialize(config.client)};"
+    __getAsset__: require('../build/assetmanager')
 
   _.assignIn(app.locals, globals)
 
@@ -30,7 +29,7 @@ preRouteMiddleware = ->
   app.use(require('serve-favicon')(__dirname + '/../public/favicon.ico'))
   app.use(require('serve-static')(__dirname + '/../public', redirect: false))
 
-  # app.use(environment.middleware)
+  app.use(require('connect-livereload')()) if config.debug
 
 postRouteMiddleware = ->
   app.use(require('errorhandler')(dumpExceptions: true, showStack: true)) if config.debug
@@ -40,8 +39,8 @@ module.exports = ->
   app.disable('x-powered-by')
 
   app.set('port', config.server.port)
-  # app.set('views', "#{__dirname}/../templates")
-  # app.set('view engine', 'jade')
+  app.set('views', "#{__dirname}/../templates")
+  app.set('view engine', 'jade')
   app.set('json spaces', 2) if config.debug
 
   generateTemplateGlobals()

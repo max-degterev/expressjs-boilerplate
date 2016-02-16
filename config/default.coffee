@@ -1,6 +1,5 @@
 module.exports =
   build:
-    assets_name: 'assets'
     assets_location: 'public/assets'
 
   server:
