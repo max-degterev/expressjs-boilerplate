@@ -16,6 +16,6 @@ html(lang="en-US")
     link(rel="stylesheet", href=__getAsset__('app.css'))
 
   body
-    != __html__
+    #main!= __html__
     script!= __appConfig__
     script(src=__getAsset__('app.js') async)
