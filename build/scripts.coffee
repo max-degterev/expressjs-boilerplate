@@ -2,7 +2,7 @@ _ = require('lodash')
 gulp = require('gulp')
 livereload = require('gulp-livereload')
 
-config = require('../config')
+config = require('config')
 utils = require('./utils')
 
 process = (src, options) ->

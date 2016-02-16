@@ -5,7 +5,7 @@ _ = require('lodash')
 app = require('express')()
 serialize = require('serialize-javascript')
 
-config = require('../config')
+config = require('config')
 
 
 generateTemplateGlobals = ->

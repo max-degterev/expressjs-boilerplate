@@ -2,41 +2,32 @@
   "name": "expressjs-boilerplate",
   "description": "Simple ExpressJS boilerplate with React SPA frontend",
 
-  "version": "0.0.1",
-  "private": true,
-
-  "main": "app.coffee",
-
-  "scripts": {
-    "start": "gulp & nodemon app.coffee",
-    "server": "coffee app.coffee",
-
-    "development": "npm start",
-    "production": "NODE_ENV=production gulp build & coffee app.coffee",
-
-    "coffee": "coffee",
-    "gulp": "gulp"
-  },
-
-  "homepage": "http://max.degterev.me/",
   "license": "MIT",
-  "author": {
-    "name": "Max Degterev",
-    "email": "max@degterev.me",
-    "url": "http://max.degterev.me/"
-  },
-
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:suprMax/expressjs-boilerplate.git"
-  },
-  "bugs": {
-    "url": "https://github.com/suprMax/expressjs-boilerplate/issues"
-  },
-
   "readmeFilename": "README.md",
+  "homepage": "http://max.degterev.me/",
+  "author": "Max Degterev <max@degterev.me> (http://max.degterev.me/)",
+  "repository": "suprMax/expressjs-boilerplate",
+  "bugs": "https://github.com/suprMax/expressjs-boilerplate/issues",
+
+  "private": true,
+  "version": "0.0.1",
+
+  "main": "server.coffee",
   "engines": {
     "node": "4.x.x"
+  },
+
+  "scripts": {
+    "coffee": "coffee",
+    "gulp": "gulp",
+
+    "postinstall": "cd ./node_modules; ln -s \"../config/index.coffee\" \"config.coffee\"",
+
+    "start": "gulp & nodemon cluster.coffee",
+    "server": "coffee cluster.coffee",
+
+    "development": "npm start",
+    "production": "NODE_ENV=production gulp build && coffee cluster.coffee"
   },
 
   "devDependencies": {

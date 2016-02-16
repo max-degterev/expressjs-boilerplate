@@ -5,7 +5,7 @@ gulpSequence = require('gulp-sequence')
 
 rename = require('gulp-rename')
 
-config = require('./config')
+config = require('config')
 
 compileScripts = require('./build/scripts')
 compileStyles = require('./build/styles')

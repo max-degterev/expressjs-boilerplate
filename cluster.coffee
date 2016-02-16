@@ -1,7 +1,7 @@
 cluster = require('cluster')
 winston = require('winston')
 
-config = require('./config')
+config = require('config')
 startServer = require('./server')
 
 
