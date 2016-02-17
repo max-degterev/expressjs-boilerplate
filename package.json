@@ -43,7 +43,7 @@
   },
 
   "dependencies": {
-    "lodash": "4.3.0",
+    "lodash": "4.5.0",
     "coffee-script": "1.10.0",
 
     "chalk": "1.1.1",
@@ -74,6 +74,7 @@
 
 
     "coffee-react": "4.1.0",
+    "html-minifier": "1.1.1",
     "react": "0.14.7",
     "react-dom": "0.14.7",
 

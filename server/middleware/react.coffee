@@ -4,9 +4,11 @@ config = require('config')
 { minify } = require('html-minifier')
 
 React = require('react')
+{ Provider } = require('react-redux')
 { renderToString } = require('react-dom/server')
-{ match, RouterContext } = require('react-router')
+{ match, RouterContext, createMemoryHistory } = require('react-router')
 
+createStore = require('../../client/modules/store')
 routes = require('../../client/routes')
 Error404 = require('../../client/containers/error')
 
@@ -20,6 +22,14 @@ MINIFY_OPTIONS =
   removeEmptyAttributes: true
 
 isError = (props) -> Error404 in props.components
+
+renderHTML = (store, props)->
+  component =
+    <Provider store={store}>
+      <RouterContext {...props} />
+    </Provider>
+
+  minify(renderToString(component), MINIFY_OPTIONS)
 
 
 module.exports = ->
@@ -36,8 +46,7 @@ module.exports = ->
         return next()
 
       status = if isError(props) then 404 else 200
-      html = renderToString(<RouterContext {...props} />)
-      content = minify(html, MINIFY_OPTIONS)
+      content = renderHTML(createStore(createMemoryHistory()), props)
 
       res.status(status)
       res.render('index', { content })
