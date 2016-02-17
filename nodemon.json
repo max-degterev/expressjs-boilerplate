@@ -22,5 +22,8 @@
     "*.coffee"
   ],
   "ext": "js json coffee",
+  "execMap": {
+     "coffee": "cjsx"
+  },
   "verbose": false
 }

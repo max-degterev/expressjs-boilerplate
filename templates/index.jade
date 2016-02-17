@@ -13,11 +13,11 @@ html(lang="en-US")
     meta(name="format-detection", content="telephone=no")
     meta(http-equiv="cleartype", content="on")
 
-    link(rel="stylesheet", href=__getAsset__('app.css'))
+    link(rel="stylesheet", href=asset('app.css'))
 
   body
-    #main!= __html__
+    #main!= content
 
-    script!= __appConfig__
-    script!= __appState__
-    script(src=__getAsset__('app.js') async)
+    script var __appConfig__=!{serialize({ client: config.client })};
+    script var __appState__=!{serialize(state || null)};
+    script(src=asset('app.js') async)

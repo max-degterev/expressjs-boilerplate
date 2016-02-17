@@ -9,11 +9,13 @@ module.exports = class Controller
     @router = Router()
 
     for type in HTTP_TYPES
-      @[type] = (route, callbacks...) ->
-        bound = for callback in callbacks
-          callback.bind(@)
+      do (type) =>
+        @[type] = (route, callbacks...) ->
+          bound = for callback in callbacks
+            throw new Error("Handler for '#{type.toUpperCase()} #{route}' of #{@constructor.name} Controller is not defined") unless callback
+            callback.bind(@)
 
-        @router[type](route, bound...)
+          @router[type](route, bound...)
 
   use: (app) ->
     @attachRoutes?()
