@@ -1,8 +1,10 @@
-# ExpressJS Boilerplate
+ExpressJS Boilerplate
+=====================
 
 ExpressJS boilerplate with React SPA frontend. Includes CoffeeScript, CJSX, Redux and React Router. Built-in server side React rendering.
 
 ## Usage:
+
 1. Install NodeJS:
 
   It is recommended to install NodeJS with a native installer via [NodeJS.org website](http://nodejs.org/download/).
@@ -24,3 +26,7 @@ ExpressJS boilerplate with React SPA frontend. Includes CoffeeScript, CJSX, Redu
 5. PROFIT
 
 Read through package.json for more info on supported scripts.
+
+## License
+
+[MIT](http://opensource.org/licenses/MIT) © [Max Degterev](http://max.degterev.me/)
