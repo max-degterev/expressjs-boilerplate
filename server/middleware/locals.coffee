@@ -11,6 +11,5 @@ module.exports = ->
       serialize: require('serialize-javascript')
     }
 
-
     _.assignIn(res.locals, locals)
     next()
