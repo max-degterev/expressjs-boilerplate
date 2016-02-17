@@ -5,7 +5,6 @@ livereload = require('gulp-livereload')
 config = require('config')
 utils = require('./utils')
 
-
 process = (src, options) ->
   executor = (resolve, reject) ->
     startTime = Date.now()
@@ -35,10 +34,11 @@ process = (src, options) ->
 
   new Promise(executor)
 
+
 module.exports = (options = {}) ->
   executor = (src, name) ->
     (resolve) ->
-      settings = _.assignIn {}, options,
+      settings = _.merge {}, options,
         name: name
         dest: "#{__dirname}/../#{config.build.assets_location}"
 

@@ -36,16 +36,17 @@ process = (src, options) ->
           resolve()
         )
 
-    # bundler.on('file', (file) -> console.log(chalk.cyan("Browserifying #{pathNormalize(file)}")))
+    # bundler.on('file', (file) -> console.log(chalk.cyan("Browserifying #{utils.pathNormalize(file)}")))
     bundler.on('update', compile) if options.watch
     compile()
 
   new Promise(executor)
 
+
 module.exports = (options = {}) ->
-  executor = (src, name, cssName) ->
+  executor = (src, name) ->
     (resolve) ->
-      settings = _.assignIn {}, options,
+      settings = _.merge {}, options,
         name: name
         dest: "#{__dirname}/../#{config.build.assets_location}"
 

@@ -28,7 +28,7 @@
     "server": "cjsx cluster.coffee",
 
     "development": "npm start",
-    "production": "NODE_ENV=production gulp build && cjsx cluster.coffee"
+    "production": "NODE_ENV=production gulp build && NODE_ENV=production cjsx cluster.coffee"
   },
 
   "devDependencies": {

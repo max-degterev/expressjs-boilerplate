@@ -1,7 +1,6 @@
 _ = require('lodash')
 chalk = require('chalk')
 
-
 utils =
   pathNormalize: (path) ->
     "#{path.replace("#{__dirname}/../", '')}"
@@ -17,7 +16,7 @@ utils =
     console.log(chalk.cyan("File #{utils.pathNormalize(e.path)} #{e.type}, flexing 💪"))
 
   errorReporter: (e) ->
-    stack = e.stack or e
-    console.log(chalk.bold.red("Build error!\n#{stack}"))
+    console.log(chalk.bold.red("Build error!\n#{e.stack or e}"))
+
 
 module.exports = utils
