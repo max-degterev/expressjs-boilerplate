@@ -1,9 +1,8 @@
 React = require('react')
 ReactDOM = require('react-dom')
 
-Router = require('./router')
 createStore = require('./modules/store')
+Router = require('./modules/router')
 
-store = createStore()
 
-ReactDOM.render(<Router store={store} />, document.getElementById('main'))
+ReactDOM.render(<Router store={createStore()} />, document.getElementById('main'))

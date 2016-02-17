@@ -12,6 +12,8 @@ preRouteMiddleware = ->
   app.use(require('serve-favicon')(__dirname + '/../public/favicon.ico'))
   app.use(require('serve-static')(__dirname + '/../public', redirect: false))
 
+  app.use(require('./middleware/react')())
+
   app.use(require('connect-livereload')()) if config.debug
 
 postRouteMiddleware = ->
