@@ -1,18 +1,13 @@
-_ = require('lodash')
-
 gulp = require('gulp')
 gulpSequence = require('gulp-sequence')
-
 rename = require('gulp-rename')
-
-config = require('config')
 
 compileScripts = require('./build/scripts')
 compileStyles = require('./build/styles')
 
 
 MINIFICATION_RULES = suffix: '.min'
-ASSETS_LOCATION = "#{__dirname}/#{config.build.assets_location}"
+ASSETS_LOCATION = "#{__dirname}/#{require('config').build.assets_location}"
 
 
 gulp.task 'clean', (done) -> require('del')([ASSETS_LOCATION], done)

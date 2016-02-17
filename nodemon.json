@@ -23,7 +23,7 @@
   ],
   "ext": "js json coffee",
   "execMap": {
-     "coffee": "cjsx"
+    "coffee": "cjsx"
   },
   "verbose": false
 }

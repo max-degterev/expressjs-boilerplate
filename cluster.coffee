@@ -6,10 +6,10 @@ startServer = require('./server')
 
 
 if cluster.isMaster
-  num = parseInt(process.env.WORKERS or config.server.workers, 10) + 1
+  number = parseInt(process.env.WORKERS or config.server.workers, 10)
 
-  while num -= 1
-    winston.info("Starting worker #{config.server.workers - num + 1}")
+  while number--
+    winston.info("Starting worker: #{config.server.workers - number}")
     cluster.fork()
 
   cluster.on('exit', (worker, code, signal) ->

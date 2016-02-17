@@ -1,6 +1,6 @@
 {
   "name": "expressjs-boilerplate",
-  "description": "Simple ExpressJS boilerplate with React SPA frontend",
+  "description": "ExpressJS boilerplate with React SPA frontend",
 
   "license": "MIT",
   "readmeFilename": "README.md",
@@ -12,7 +12,7 @@
   "private": true,
   "version": "0.0.1",
 
-  "main": "server.coffee",
+  "main": "cluster.coffee",
   "engines": {
     "node": "4.x.x"
   },
@@ -43,23 +43,20 @@
   },
 
   "dependencies": {
-    "chalk": "1.1.1",
-
+    "lodash": "4.3.0",
     "coffee-script": "1.10.0",
-    "coffee-react": "4.1.0",
-    "jade": "1.11.0",
 
+    "chalk": "1.1.1",
     "gulp": "3.9.1",
     "gulp-sequence": "0.4.5",
+    "gulp-rename": "1.2.2",
     "gulp-livereload": "3.8.1",
 
     "browserify": "13.0.0",
     "vinyl-source-stream": "1.1.0",
-
     "coffee-reactify": "4.0.0",
 
     "gulp-stylus": "2.3.0",
-    "gulp-rename": "1.2.2",
     "nib": "1.1.0",
     "gulp-css-decache": "0.0.7",
 
@@ -71,11 +68,12 @@
 
     "winston": "2.1.1",
     "express": "4.13.4",
+    "jade": "1.11.0",
     "morgan": "1.6.1",
     "serialize-javascript": "1.1.2",
 
-    "lodash": "4.3.0",
 
+    "coffee-react": "4.1.0",
     "react": "0.14.7",
     "react-dom": "0.14.7",
 
