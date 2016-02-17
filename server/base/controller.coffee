@@ -1,21 +1,23 @@
 _ = require('lodash')
-Router = require('express').Router
+{ Router } = require('express')
 
 HTTP_TYPES = ['get', 'post', 'head', 'put', 'delete', 'all']
+
+injectHelpers = (controller) ->
+  for type in HTTP_TYPES
+    do (type) =>
+      controller[type] = (route, callbacks...) ->
+        bound = for callback in callbacks
+          throw new Error("'#{type} #{route}' handler is undefined") unless callback
+          callback.bind(controller)
+
+        @router[type](route, bound...)
 
 
 module.exports = class Controller
   constructor: ->
     @router = Router()
-
-    for type in HTTP_TYPES
-      do (type) =>
-        @[type] = (route, callbacks...) ->
-          bound = for callback in callbacks
-            throw new Error("Handler for '#{type.toUpperCase()} #{route}' of #{@constructor.name} Controller is not defined") unless callback
-            callback.bind(@)
-
-          @router[type](route, bound...)
+    injectHelpers(@)
 
   use: (app) ->
     @attachRoutes?()

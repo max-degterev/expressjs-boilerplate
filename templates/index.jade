@@ -18,6 +18,6 @@ html(lang="en-US")
   body
     #main!= content
 
-    script var __appConfig__=!{serialize({ client: config.client, debug: config.debug })};
+    script var __appConfig__=!{serialize(_.pick(config, 'client', 'debug'))};
     script var __appState__=!{serialize(state || null)};
     script(src=asset('app.js') async)

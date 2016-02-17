@@ -1,5 +1,5 @@
 CONTROLLERS = [
-  'home'
+  'default'
 ]
 
 

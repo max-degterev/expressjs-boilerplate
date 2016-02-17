@@ -5,7 +5,6 @@ React = require('react')
 routes = require('../routes')
 
 
-
 module.exports = class Root extends React.Component
   render: ->
     <Provider store={@props.store}>

@@ -14,11 +14,9 @@ readConfigs = (path) ->
 
   confs
 
-defaults =
+base =
   environment: nodeEnv
   debug: nodeEnv is 'development' and not ('build' in process.argv)
   client: version: pkg.version
 
-config = _.merge(defaults, readConfigs('./')...)
-
-module.exports = config
+module.exports = _.merge(base, readConfigs('./')...)

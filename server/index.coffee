@@ -12,12 +12,14 @@ preRouteMiddleware = ->
   app.use(require('serve-favicon')(__dirname + '/../public/favicon.ico'))
   app.use(require('serve-static')(__dirname + '/../public', redirect: false))
 
-  app.use(require('./middleware/react')())
-
   app.use(require('connect-livereload')()) if config.debug
+
+  # This middleware has to go last because it ends requests
+  app.use(require('./middleware/react')()) unless config.debug
 
 postRouteMiddleware = ->
   app.use(require('errorhandler')(dumpExceptions: true, showStack: true)) if config.debug
+
 
 module.exports = ->
   app.enable('trust proxy') # usually sitting behind nginx
