@@ -1,2 +1,2 @@
 # This is a clientside only "proxy" module.
-module.exports = global.app.config
+module.exports = global.__appConfig__

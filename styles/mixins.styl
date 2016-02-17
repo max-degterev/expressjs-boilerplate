@@ -1,0 +1,34 @@
+makeSelectable()
+  user-select: text
+  cursor: text
+
+preventSelect()
+  user-select: none
+  cursor: default
+
+makeRound($width)
+  width: $width
+  height: @width
+  border-radius: 50%
+
+makeResponsive()
+  padding-top: 100%
+  display: block
+
+ellipsizeText()
+  text-overflow: ellipsis
+  white-space: nowrap
+  overflow: hidden
+
+iconSize($width, $height = null)
+  if !$height
+    $height = $width
+
+  width: $width
+  height: $height
+  font-size: @width
+  line-height: @height
+
+absoluteCenter()
+  absolute: top 50% left 50%
+  transform: translate(-50%, -50%)

@@ -19,30 +19,24 @@ build/Release
 # NVM builds
 nvm/
 
-# Tests artifacts
-test/screenshots/*.png
-
 # Dependency directory
 # Commenting this out is preferred by some people, see
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
 node_modules/*
-!node_modules/app
-!node_modules/config
-!node_modules/env.coffee
-!node_modules/templates
-!node_modules/stylesheets
-!node_modules/vendor
 
 # Users Environment Variables
 .lock-wscript
 .idea
+.scripts
 
 # MacOS bullshit
 .DS_Store
 
 # Local config
 config/development.*
+config/local.*
 
-# Generated static stuf
+# Generated static stuff
 public/assets/*.*
 public/*.gz
+public/*.html
