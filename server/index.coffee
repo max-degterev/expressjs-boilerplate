@@ -8,9 +8,8 @@ serialize = require('serialize-javascript')
 config = require('config')
 
 
-generateTemplateGlobals = ->
+injectGlobals = ->
   globals =
-    __appConfig__: "var __appConfig__=#{serialize(config.client)};"
     __getAsset__: require('../build/assetmanager')
 
   _.assignIn(app.locals, globals)
@@ -22,6 +21,14 @@ domainify = (req, res, next) ->
   domain.run(next)
   domain.on('error', next)
 
+serializeLocals = (req, res, next) ->
+  locals =
+    __appConfig__: "var __appConfig__=#{serialize({ client: config.client })};"
+    __appState__: "var __appState__=#{serialize(res.locals.state or null)};"
+
+  _.assignIn(res.locals, locals)
+  next()
+
 preRouteMiddleware = ->
   app.use(domainify)
   app.use(require('morgan')(if config.debug then 'dev' else 'combined'))
@@ -30,6 +37,7 @@ preRouteMiddleware = ->
   app.use(require('serve-static')(__dirname + '/../public', redirect: false))
 
   app.use(require('connect-livereload')()) if config.debug
+  app.use(serializeLocals)
 
 postRouteMiddleware = ->
   app.use(require('errorhandler')(dumpExceptions: true, showStack: true)) if config.debug
@@ -43,13 +51,13 @@ module.exports = ->
   app.set('view engine', 'jade')
   app.set('json spaces', 2) if config.debug
 
-  generateTemplateGlobals()
+  injectGlobals()
 
   preRouteMiddleware()
-  require('./controllers').use(app)
+  require('./controllers')(app)
   postRouteMiddleware()
 
-  serverMessage = "Server listening on http://#{config.server.host}:#{config.server.port}"
+  serverMessage = "Server listening on http://#{config.server.host or 'localhost'}:#{config.server.port}"
 
   if config.server.host
     app.listen(config.server.port, config.server.host, ->

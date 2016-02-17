@@ -17,5 +17,7 @@ html(lang="en-US")
 
   body
     #main!= __html__
+
     script!= __appConfig__
+    script!= __appState__
     script(src=__getAsset__('app.js') async)

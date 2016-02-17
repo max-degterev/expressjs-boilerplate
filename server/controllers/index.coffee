@@ -3,8 +3,7 @@ CONTROLLERS = [
 ]
 
 
-module.exports =
-  use: (app) ->
-    for name in CONTROLLERS
-      controller = require("./#{name}")
-      controller.use(app)
+module.exports = (app) ->
+  for name in CONTROLLERS
+    controller = require("./#{name}")
+    controller.use(app)

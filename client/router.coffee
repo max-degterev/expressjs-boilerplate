@@ -8,16 +8,9 @@ Home = require('./containers/home')
 
 module.exports = class Root extends React.Component
   render: ->
-    <Router history={browserHistory}>
-      <Route path="/" component={Home} />
-      <Route path="*" component={Error} />
-    </Router>
-
-
-  # render: ->
-  #   <Provider store={@props.store}>
-  #     <Router history={browserHistory}>
-  #       <Route path="/" component={Home} />
-  #       <Route path="*" component={Error} />
-  #     </Router>
-  #   </Provider>
+    <Provider store={@props.store}>
+      <Router history={browserHistory}>
+        <Route path="/" component={Home} />
+        <Route path="*" component={Error} />
+      </Router>
+    </Provider>

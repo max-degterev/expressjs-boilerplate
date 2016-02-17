@@ -3,6 +3,9 @@
     ".git",
 
     "node_modules/*",
+
+    "build/*",
+    "client/*",
     "public/*",
 
     "styles/*",

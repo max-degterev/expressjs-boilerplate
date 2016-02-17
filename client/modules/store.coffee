@@ -1,9 +1,10 @@
-{ createStore, applyMiddleware } = require('redux')
-{ syncHistory } = require('react-router-redux')
-
+{ createStore, applyMiddleware, combineReducers } = require('redux')
 { browserHistory } = require('react-router')
+
+{ syncHistory, routeReducer } = require('react-router-redux')
 thunk = require('redux-thunk')
-rootReducer = require('../reducers')
+
+rootReducer = combineReducers({ routing: routeReducer })
 
 
 module.exports = (initialState) ->
