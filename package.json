@@ -12,7 +12,7 @@
   "private": true,
   "version": "0.0.1",
 
-  "main": "cluster.coffee",
+  "main": "app.js",
   "engines": {
     "node": "4.x.x"
   },
@@ -22,13 +22,12 @@
     "cjsx": "cjsx",
     "gulp": "gulp",
 
-    "postinstall": "cd ./node_modules; ln -s \"../config/index.coffee\" \"config.coffee\"",
+    "postinstall": "cd ./node_modules; ln -s \"../config/index.coffee\" \"config.coffee\" || true",
 
-    "start": "gulp & nodemon cluster.coffee",
-    "server": "cjsx cluster.coffee",
+    "start": "gulp & nodemon app.js",
 
     "development": "npm start",
-    "production": "NODE_ENV=production gulp build && NODE_ENV=production cjsx cluster.coffee"
+    "production": "NODE_ENV=production gulp build && NODE_ENV=production SANDBOX=true node app.js"
   },
 
   "devDependencies": {
@@ -62,7 +61,7 @@
 
     "del": "2.2.0",
     "gulp-uglify": "1.5.2",
-    "gulp-minify-css": "1.2.3",
+    "gulp-clean-css": "2.0.6",
     "gulp-rev": "7.0.0",
     "gulp-gzip": "1.2.0",
 
@@ -72,11 +71,10 @@
     "morgan": "1.6.1",
     "serialize-javascript": "1.1.2",
 
-
     "coffee-react": "4.1.0",
-    "html-minifier": "1.1.1",
     "react": "0.14.7",
     "react-dom": "0.14.7",
+    "react-addons-shallow-compare": "0.14.8",
 
     "react-router": "2.0.0",
     "react-router-redux": "3.0.0",
@@ -84,8 +82,17 @@
     "redux": "3.3.1",
     "react-redux": "4.4.0",
     "redux-thunk": "1.0.3",
+    "redux-logger": "2.6.1",
 
-    "normalize.css": "3.0.3"
+    "classnames": "2.2.3",
+    "es6-promise": "3.1.2",
+    "redial": "0.4.1",
+    "superagent": "1.8.3",
+
+    "updeep": "0.14.0",
+    "fastclick": "1.0.6",
+
+    "normalize.css": "4.1.1"
   },
 
   "browser": {

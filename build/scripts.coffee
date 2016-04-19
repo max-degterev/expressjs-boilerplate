@@ -1,4 +1,4 @@
-_ = require('lodash')
+merge = require('lodash/merge')
 gulp = require('gulp')
 livereload = require('gulp-livereload')
 
@@ -46,7 +46,7 @@ process = (src, options) ->
 module.exports = (options = {}) ->
   executor = (src, name) ->
     (resolve) ->
-      settings = _.merge {}, options,
+      settings = merge {}, options,
         name: name
         dest: "#{__dirname}/../#{config.build.assets_location}"
 

@@ -1,3 +1,4 @@
+config = require('config')
 gulp = require('gulp')
 gulpSequence = require('gulp-sequence')
 rename = require('gulp-rename')
@@ -5,9 +6,8 @@ rename = require('gulp-rename')
 compileScripts = require('./build/scripts')
 compileStyles = require('./build/styles')
 
-
 MINIFICATION_RULES = suffix: '.min'
-ASSETS_LOCATION = "#{__dirname}/#{require('config').build.assets_location}"
+ASSETS_LOCATION = "#{__dirname}/#{config.build.assets_location}"
 
 
 gulp.task 'clean', (done) -> require('del')([ASSETS_LOCATION], done)
@@ -19,7 +19,7 @@ gulp.task 'decache:styles', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
     .pipe(require('gulp-css-decache')(
-      base: '#{__dirname}/public'
+      base: "#{__dirname}/public"
       logMissing: true
     ))
     .pipe(gulp.dest(ASSETS_LOCATION))
@@ -36,7 +36,7 @@ gulp.task 'minify:scripts', ->
 gulp.task 'minify:styles', ->
   gulp
     .src(["#{ASSETS_LOCATION}/*.css", "!#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.min-*"])
-    .pipe(require('gulp-minify-css')(
+    .pipe(require('gulp-clean-css')(
       processImport: false
       keepSpecialComments: 0
       aggressiveMerging: false
@@ -81,7 +81,13 @@ gulp.task 'default', ->
   ]).then ->
     require('gulp-livereload').listen()
 
-    stylesheets = [ "#{__dirname}/styles/**/*.styl", "#{__dirname}/vendor/**/*.css" ]
+    # relative paths required for watch/Gaze to detect changes in new files
+    stylesheets = [
+      "client/**/*.styl",
+      "styles/**/*.styl",
+      "vendor/**/*.css"
+    ]
+
     gulp.watch(stylesheets).on 'change', (event) ->
       require('./build/utils').watchReporter(event)
       compileStyles()

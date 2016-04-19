@@ -1,4 +1,3 @@
-_ = require('lodash')
 chalk = require('chalk')
 
 utils =
@@ -6,7 +5,7 @@ utils =
     "#{path.replace("#{__dirname}/../", '')}"
 
   sourcesNormalize: (paths) ->
-    paths = [paths] if !_.isArray(paths)
+    paths = [paths] if not Array.isArray(paths)
     paths.map(utils.pathNormalize)
 
   benchmarkReporter: (action, startTime) ->
