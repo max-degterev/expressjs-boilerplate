@@ -1,6 +1,5 @@
 winston = require('winston')
 app = require('express')()
-
 config = require('config')
 
 preRouteMiddleware = ->
@@ -9,23 +8,29 @@ preRouteMiddleware = ->
 
   app.use(require('morgan')(if config.debug then 'dev' else 'combined'))
 
-  app.use(require('serve-favicon')(__dirname + '/../public/favicon.ico'))
-  app.use(require('serve-static')(__dirname + '/../public', redirect: false))
+  # Static middleware is not needed in production, but still loaded for debug purposes
+  if config.sandbox
+    app.use(require('serve-favicon')(__dirname + '/../public/favicon.ico'))
+    app.use(require('serve-static')(__dirname + '/../public', redirect: false))
 
   app.use(require('connect-livereload')()) if config.debug
 
   # This middleware has to go last because it ends requests
-  app.use(require('./middleware/react')()) unless config.debug
+  app.use(require('./middleware/react')()) if config.server.prerender
 
 postRouteMiddleware = ->
   app.use(require('errorhandler')(dumpExceptions: true, showStack: true)) if config.debug
 
 
-module.exports = ->
+startListening = ->
+  host = process.env.HOST or config.server.host
+  port = parseInt(process.env.PORT, 10) or config.server.port or 3000
+  message = "Server listening on http://#{host or 'localhost'}:#{port}"
+
   app.enable('trust proxy') # usually sitting behind nginx
   app.disable('x-powered-by')
 
-  app.set('port', config.server.port)
+  app.set('port', port)
   app.set('views', "#{__dirname}/../templates")
   app.set('view engine', 'jade')
   app.set('json spaces', 2) if config.debug
@@ -34,11 +39,9 @@ module.exports = ->
   require('./controllers')(app)
   postRouteMiddleware()
 
-  serverMessage = "Server listening on http://#{config.server.host or 'localhost'}:#{config.server.port}"
-
-  if config.server.host
-    app.listen(config.server.port, config.server.host, ->
-      winston.info("#{serverMessage} (bound to host: #{config.server.host})")
-    )
+  if host
+    app.listen(port, host, -> winston.info("#{message} (bound to host: #{host})"))
   else
-    app.listen(config.server.port, -> winston.info(serverMessage))
+    app.listen(port, -> winston.info(message))
+
+module.exports = startListening

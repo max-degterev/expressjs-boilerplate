@@ -1,4 +1,3 @@
-_ = require('lodash')
 { Router } = require('express')
 
 HTTP_TYPES = ['get', 'post', 'head', 'put', 'delete', 'all']
@@ -14,7 +13,7 @@ injectHelpers = (controller) ->
         @router[type](route, bound...)
 
 
-module.exports = class Controller
+class BaseController
   constructor: ->
     @router = Router()
     injectHelpers(@)
@@ -22,3 +21,5 @@ module.exports = class Controller
   use: (app) ->
     @attachRoutes?()
     app.use(@router)
+
+module.exports = BaseController

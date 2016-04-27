@@ -1,0 +1,70 @@
+// Micro-reset
+*,
+*:before,
+*:after
+  box-sizing: border-box
+
+[hidden]
+  display: none !important
+
+::selection
+  background: #0af
+  color: #fff
+  text-shadow: none
+
+html
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+
+a,
+button,
+input,
+select,
+textarea
+  &:focus,
+  &:active
+    outline: none
+
+input[type="search"]
+  appearance: none
+  box-sizing: content-box
+
+input[type="file"]::-webkit-file-upload-button
+  display: none
+
+input
+  padding: 0
+  border: none
+  appearance: none
+
+select
+  background-color: transparent
+  border: none
+  appearance: none
+
+textarea
+  border: none
+  resize: vertical
+  appearance: none
+
+button
+  padding: 0
+  background-color: transparent
+  border: none
+  text-align: left
+
+ul,
+ol
+  margin: 0
+  padding: 0
+  list-style-type: none
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+  margin: 0
+
+figure
+  margin: 0

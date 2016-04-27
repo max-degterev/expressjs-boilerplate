@@ -1,3 +1,7 @@
+require('es6-promise').polyfill()
+require('object.assign').getPolyfill()
+require('fastclick')(document.body)
+
 React = require('react')
 { render } = require('react-dom')
 
@@ -9,9 +13,6 @@ match = require('react-router/lib/match')
 { Provider } = require('react-redux')
 
 { trigger } = require('redial')
-
-require('es6-promise').polyfill()
-require('fastclick')(document.body)
 
 createStore = require('./store')
 createRouter = require('./router')
@@ -50,12 +51,6 @@ startRouter = (store, history) ->
 
     match({ routes, location }, matchPage)
 
-  # React router doesn't allow for a dynamic routing configuration.
-  # Custom "dynamic" routing can be implemented:
-  #   1. Unmount currently mounted router
-  #   2. Mount new router with new routing configuration
-  #
-  # This leads to errors with active components being unmounted at wrong moments.
   renderPage(store, history, routes)
   history.listen(handleFetch) unless __appState__.error
 

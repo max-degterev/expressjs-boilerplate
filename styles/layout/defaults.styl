@@ -1,31 +1,25 @@
-// Micro-reset
-body, select, input, button, textarea
-  font: normal 14px Helvetica, Arial, sans-serif
-  line-height: 1.4em
+html
+  background: $colorSnow
 
-::selection
-  background: #0af
-  color: #fff
-  text-shadow: none
+html,
+body,
+main
+  height: 100%
 
-a:link
-  tap-highlight-color: rgba(0, 0, 0, 0)
+input[type="radio"],
+input[type="checkbox"]
+  blockInvisible()
 
-a,
-a:active,
-a:visited
-  color: #0af
-  text-decoration: underline
+input[type="password"]::-webkit-auto-fill-button
+  margin-right: 25px
+  background: $colorDark70
 
-input:focus
-  outline: none
+input,
+select,
+textarea,
+button
+  pointer-events: auto
 
-input[type="search"]
-  -webkit-appearance: textfield
-  box-sizing: content-box
-
-ul,
-ol
-  margin: 0
-  padding: 0
-  list-style-type: none
+// hack for FT Labs fastclick to work on <label> tag: https://github.com/ftlabs/fastclick/issues/275
+label > *
+  pointer-events: none

@@ -1,10 +1,8 @@
-Controller = require('../base/controller')
+BaseController = require('./base')
 
 
-class Default extends Controller
+class DefaultController extends BaseController
   default: (req, res) -> res.render('index')
+  attachRoutes: -> @get('*', @default)
 
-  attachRoutes: ->
-    @get('*', @default)
-
-module.exports = new Default()
+module.exports = new DefaultController()
