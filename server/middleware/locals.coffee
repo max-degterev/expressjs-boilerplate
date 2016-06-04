@@ -6,7 +6,7 @@ module.exports = ->
   (req, res, next) ->
     locals = {
       config,
-      pretty: config.debug # used by Jade to have unminified output
+      pretty: config.debug # used by Pug to have unminified output
 
       state: {}
 

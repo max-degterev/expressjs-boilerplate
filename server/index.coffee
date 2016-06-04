@@ -32,7 +32,7 @@ startListening = ->
 
   app.set('port', port)
   app.set('views', "#{__dirname}/../templates")
-  app.set('view engine', 'jade')
+  app.set('view engine', 'pug')
   app.set('json spaces', 2) if config.debug
 
   preRouteMiddleware()
