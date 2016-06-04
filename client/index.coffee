@@ -1,7 +1,3 @@
-require('es6-promise').polyfill()
-require('object.assign').getPolyfill()
-require('fastclick')(document.body)
-
 React = require('react')
 { render } = require('react-dom')
 
@@ -14,10 +10,14 @@ match = require('react-router/lib/match')
 
 { trigger } = require('redial')
 
+isEmpty = require('lodash/isEmpty')
+
+require('es6-promise').polyfill()
+require('fastclick')(document.body)
+
 createStore = require('./store')
 createRouter = require('./router')
 
-isEmpty = (obj) -> JSON.stringify(obj) is '{}'
 
 ###
   Router setup. Accepts history and routes.
@@ -41,9 +41,13 @@ startRouter = (store, history) ->
         location: props.location
         params: props.params
         dispatch: store.dispatch
+        state: store.getState()
 
       handleError = (error) ->
-        console.error("Request #{location.pathname} failed to fetch data:", error)
+        status = parseInt(error?.status, 10) or 500
+        payload = { status, error }
+
+        console.error("Request #{location.pathname} failed to fetch data:", payload)
 
       trigger('fetch', props.components, locals).catch(handleError) unless hasInitialData
       trigger('defer', props.components, locals).catch(handleError)
@@ -51,8 +55,15 @@ startRouter = (store, history) ->
 
     match({ routes, location }, matchPage)
 
+  # React router doesn't allow for a dynamic routing configuration.
+  # Custom "dynamic" routing can be implemented:
+  #   1. Unmount currently mounted router
+  #   2. Mount new router with new routing configuration
+  #
+  # This leads to errors with active components being unmounted at wrong moments.
   renderPage(store, history, routes)
-  history.listen(handleFetch) unless __appState__.error
+  history.listen(handleFetch) if not __appState__.error
+
 
 ###
   Call setup functions. First setup store, then initialize router.

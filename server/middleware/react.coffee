@@ -15,8 +15,9 @@ RouterContext = require('react-router/lib/RouterContext')
 createStore = require('../../client/store')
 createRouter = require('../../client/router')
 
-Error = require('../../client/containers/error')
-isError = (props) -> Error in props.components
+Error404 = require('../../client/containers/error')
+
+isError = (props) -> Error404 in props.components
 
 createComponent = (store, props) ->
   <Provider store={store}>
@@ -42,12 +43,13 @@ renderError = (res, store, error) ->
 module.exports = ->
   (req, res, next) ->
     store = createStore()
+    routes = createRouter(store)
 
     handleError = (error) ->
-      status = 500
+      status = parseInt(error?.status, 10) or 500
       payload = { status, error }
 
-      winston.error("Request #{req.url} failed to fetch data:", error)
+      winston.error("Request #{req.url} failed to fetch data:", payload)
       renderError(res, store, { status, payload })
 
     matchPage = (error, redirect, props) ->
@@ -65,10 +67,10 @@ module.exports = ->
         location: props.location
         params: props.params
         dispatch: store.dispatch
+        state: store.getState()
 
       trigger('fetch', props.components, locals)
         .then(-> renderPage(res, store, props))
         .catch(handleError)
 
-    routes = createRouter(store)
     match({ routes, location: req.url }, matchPage)

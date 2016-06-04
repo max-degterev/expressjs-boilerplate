@@ -13,7 +13,6 @@ reducers =
 
 middleware = [
   require('redux-thunk').default
-  require('./modules/promise').middleware
 ]
 
 if config.debug

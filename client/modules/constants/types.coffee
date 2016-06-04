@@ -1,3 +1,0 @@
-module.exports =
-  RESOLVED: 'RESOLVED'
-  REJECTED: 'REJECTED'
