@@ -15,6 +15,8 @@ preRouteMiddleware = ->
 
   app.use(require('connect-livereload')()) if config.debug
 
+  app.use(require('./middleware/trailingslash')())
+
   # This middleware has to go last because it ends requests
   app.use(require('./middleware/react')()) if config.server.prerender
 

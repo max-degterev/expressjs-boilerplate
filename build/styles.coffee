@@ -1,47 +1,36 @@
-merge = require('lodash/merge')
 gulp = require('gulp')
-livereload = require('gulp-livereload')
 
 config = require('config')
 utils = require('./utils')
 
-process = (src, options) ->
-  executor = (resolve, reject) ->
-    startTime = Date.now()
+source = "#{__dirname}/../styles/index.styl"
 
-    gulp
-      .src(src)
-      .pipe(require('gulp-stylus')(
-        errors: config.debug
-        sourcemaps: config.debug
-        use: [ require('nib')() ]
-        paths: [
-          "#{__dirname}/../client"
-          "#{__dirname}/../node_modules"
-        ]
-        'include css': true
-        urlfunc: 'embedurl'
-        linenos: config.debug
-      ))
-      .on('error', utils.errorReporter)
-      .pipe(require('gulp-rename')(options.name))
-      .pipe(gulp.dest(options.dest))
-      .pipe(livereload())
-      .on('end', ->
-        utils.benchmarkReporter("Stylusified #{utils.sourcesNormalize(src)}", startTime)
-        resolve()
-      )
-
-  new Promise(executor)
+stylusOptions =
+  errors: config.debug
+  sourcemaps: config.debug
+  use: [ require('nib')() ]
+  paths: [
+    "#{__dirname}/../client"
+    "#{__dirname}/../node_modules"
+  ]
+  'include css': true
+  urlfunc: 'embedurl'
+  linenos: config.debug
 
 
-module.exports = (options = {}) ->
-  executor = (src, name) ->
-    (resolve) ->
-      settings = merge {}, options,
-        name: name
-        dest: "#{__dirname}/../#{config.build.assets_location}"
+process = ->
+  startTime = Date.now()
 
-      resolve(process(src, settings))
+  gulp
+    .src(source)
+    .pipe(require('gulp-stylus')(stylusOptions))
+    .on('error', utils.errorReporter)
 
-  new Promise(executor("#{__dirname}/../styles/index.styl", 'app.css'))
+    .pipe(require('gulp-rename')('app.css'))
+    .pipe(gulp.dest("#{__dirname}/../#{config.build.assets_location}"))
+
+    .on('end', ->
+      utils.benchmarkReporter("Stylusified #{utils.sourcesNormalize(source)}", startTime)
+    )
+
+module.exports = process

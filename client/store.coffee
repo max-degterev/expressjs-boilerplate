@@ -1,15 +1,10 @@
-{ createStore, applyMiddleware, combineReducers } = require('redux')
-
-{ routerReducer } = require('react-router-redux')
-createLogger = require('redux-logger')
-
 config = require('config')
 
+{ createStore, applyMiddleware, combineReducers } = require('redux')
+createLogger = require('redux-logger')
 
 reducers =
-  routing: routerReducer
-  # Add reducers here
-
+  route: require('./modules/routes/state').reducer
 
 middleware = [
   require('redux-thunk').default

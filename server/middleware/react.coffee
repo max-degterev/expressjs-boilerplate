@@ -1,8 +1,6 @@
 winston = require('winston')
 config = require('config')
 
-assign = require('lodash/assign')
-
 React = require('react')
 { renderToString } = require('react-dom/server')
 
@@ -15,9 +13,11 @@ RouterContext = require('react-router/lib/RouterContext')
 createStore = require('../../client/store')
 createRouter = require('../../client/router')
 
-Error404 = require('../../client/containers/error')
+Error404 = require('../../client/containers/error_404').default
+{ setRoute } = require('../../client/modules/routes/state').actions
 
-isError = (props) -> Error404 in props.components
+
+isError404 = (props) -> Error404 in props.components
 
 createComponent = (store, props) ->
   <Provider store={store}>
@@ -25,32 +25,30 @@ createComponent = (store, props) ->
   </Provider>
 
 renderPage = (res, store, props) ->
-  status = if isError(props) then 404 else 200
-  res.status(status)
+  statusCode = if isError404(props) then 404 else 200
+  res.status(statusCode)
 
   Component = createComponent(store, props)
   content = renderToString(Component)
 
-  assign(res.locals.state, store.getState())
+  Object.assign(res.locals.state, store.getState())
   res.render('index', { content })
 
-renderError = (res, store, error) ->
-  res.status(error.status)
+renderError = (res, store) ->
+  state = store.getState()
+  Object.assign(res.locals.state, state)
 
-  assign(res.locals.state, store.getState())
+  res.status(state.error.statusCode or 500)
   res.render('index')
 
 module.exports = ->
   (req, res, next) ->
     store = createStore()
-    routes = createRouter(store)
+    store.dispatch(setRoute(req.path))
 
     handleError = (error) ->
-      status = parseInt(error?.status, 10) or 500
-      payload = { status, error }
-
-      winston.error("Request #{req.url} failed to fetch data:", payload)
-      renderError(res, store, { status, payload })
+      winston.error("Request #{req.url} failed to fetch data:", error)
+      renderError(res, store)
 
     matchPage = (error, redirect, props) ->
       if error
@@ -64,6 +62,7 @@ module.exports = ->
         return next()
 
       locals =
+        isFirstRender: true
         location: props.location
         params: props.params
         dispatch: store.dispatch
@@ -73,4 +72,6 @@ module.exports = ->
         .then(-> renderPage(res, store, props))
         .catch(handleError)
 
+
+    routes = createRouter(store)
     match({ routes, location: req.url }, matchPage)

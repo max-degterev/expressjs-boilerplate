@@ -1,21 +1,16 @@
 fs = require('fs')
 merge = require('lodash/merge')
+{ version } = require('../package')
 
-version = require('../package').version
+
+getConfigs = (paths) ->
+  for path in paths
+    continue unless fs.existsSync(path)
+    require(path)
 
 nodeEnv = process.env.NODE_ENV or 'development'
 isDebug = nodeEnv is 'development' and not ('build' in process.argv)
 isSandbox = process.env.SANDBOX is 'true' or isDebug
-
-readConfigs = (path) ->
-  envConfPath = "#{__dirname}/#{nodeEnv}.coffee"
-  localConfPath = "#{__dirname}/local.coffee"
-
-  confs = [require("#{__dirname}/default.coffee")]
-  confs.push(require(envConfPath)) if fs.existsSync(envConfPath)
-  confs.push(require(localConfPath)) if fs.existsSync(localConfPath)
-
-  confs
 
 base =
   environment: nodeEnv
@@ -23,4 +18,10 @@ base =
   sandbox: isSandbox
   client: { version }
 
-module.exports = merge(base, readConfigs('./')...)
+overrides = getConfigs([
+  "#{__dirname}/default.coffee"
+  "#{__dirname}/#{nodeEnv}.coffee"
+  "#{__dirname}/local.coffee"
+])
+
+module.exports = merge(base, overrides...)

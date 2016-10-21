@@ -1,15 +1,11 @@
 React = require('react')
-
 Route = require('react-router/lib/Route')
-Redirect = require('react-router/lib/Redirect')
 
 
 createRouter = (store) ->
-  <Route>
-    <Redirect from="/*/" to="/*" />
-
-    <Route path="/" component={require('./containers/home')} />
-    <Route path="*" component={require('./containers/error')} />
-  </Route>
+  <div>
+    <Route path="/" component={require('./containers/home').default} />
+    <Route path="*" component={require('./containers/error_404').default} />
+  </div>
 
 module.exports = createRouter

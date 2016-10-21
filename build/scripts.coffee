@@ -1,55 +1,42 @@
-merge = require('lodash/merge')
 gulp = require('gulp')
-livereload = require('gulp-livereload')
 
 config = require('config')
 utils = require('./utils')
 
-process = (src, options) ->
-  executor = (resolve, reject) ->
-    opts =
-      entries: src
-      extensions: ['.coffee', '.cjsx']
-      debug: config.debug
-      cache: {}
-      packageCache: {}
-      fullPaths: config.debug
+source = "#{__dirname}/../client/index.coffee"
 
-    bundler = require('browserify')(opts)
-    bundler = require('watchify')(bundler) if options.watch
+browserifyOptions =
+  entries: source
+  extensions: ['.coffee', '.cjsx', '.es', '.jsx']
+  debug: config.debug
 
-    bundler.transform(require('coffee-reactify'))
+  cache: {}
+  packageCache: {}
+  fullPaths: true
 
-    compile = (files) ->
-      startTime = Date.now()
-
-      utils.watchReporter(path: file, type: 'changed') for file in files if files
-
-      bundler
-        .bundle()
-        .on('error', utils.errorReporter)
-        .pipe(require('vinyl-source-stream')(options.name))
-        .pipe(gulp.dest(options.dest))
-        .pipe(livereload())
-        .on('end', ->
-          utils.benchmarkReporter("Browserified #{utils.sourcesNormalize(src)}", startTime)
-          resolve()
-        )
-
-    # bundler.on('file', (file) -> console.log(chalk.cyan("Browserifying #{utils.pathNormalize(file)}")))
-    bundler.on('update', compile) if options.watch
-    compile()
-
-  new Promise(executor)
+cacheOptions =
+  cacheFile: "#{__dirname}/.browserify-cache.json"
 
 
-module.exports = (options = {}) ->
-  executor = (src, name) ->
-    (resolve) ->
-      settings = merge {}, options,
-        name: name
-        dest: "#{__dirname}/../#{config.build.assets_location}"
+process = (options = {}) ->
+  browserifyOptions.fullPaths = Boolean(options.watch)
+  startTime = Date.now()
 
-      resolve(process(src, settings))
+  bundler = require('browserify')(browserifyOptions)
+  bundler = require('browserify-incremental')(bundler, cacheOptions) if options.watch
 
-  new Promise(executor("#{__dirname}/../client/index.coffee", 'app.js'))
+  bundler.transform(require('coffee-reactify'))
+  bundler.transform(require("babelify").configure(extensions: ['.es', '.jsx', '.js']))
+
+  bundler
+    .bundle()
+    .on('error', utils.errorReporter)
+
+    .pipe(require('vinyl-source-stream')('app.js'))
+    .pipe(gulp.dest("#{__dirname}/../#{config.build.assets_location}"))
+
+    .on('end', ->
+      utils.benchmarkReporter("Browserified #{utils.sourcesNormalize(source)}", startTime)
+    )
+
+module.exports = process

@@ -1,10 +1,5 @@
 config = require('config')
 gulp = require('gulp')
-gulpSequence = require('gulp-sequence')
-rename = require('gulp-rename')
-
-compileScripts = require('./build/scripts')
-compileStyles = require('./build/styles')
 
 MINIFICATION_RULES = suffix: '.min'
 ASSETS_LOCATION = "#{__dirname}/#{config.build.assets_location}"
@@ -12,8 +7,8 @@ ASSETS_LOCATION = "#{__dirname}/#{config.build.assets_location}"
 
 gulp.task 'clean', (done) -> require('del')([ASSETS_LOCATION], done)
 
-gulp.task 'scripts', -> compileScripts()
-gulp.task 'styles', -> compileStyles()
+gulp.task 'scripts', -> require('./build/scripts')()
+gulp.task 'styles', -> require('./build/styles')()
 
 gulp.task 'decache:styles', ->
   gulp
@@ -30,7 +25,7 @@ gulp.task 'minify:scripts', ->
     .pipe(require('gulp-uglify')(
       compress: { drop_console: true }
     ))
-    .pipe(rename(MINIFICATION_RULES))
+    .pipe(require('gulp-rename')(MINIFICATION_RULES))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
 gulp.task 'minify:styles', ->
@@ -41,7 +36,7 @@ gulp.task 'minify:styles', ->
       keepSpecialComments: 0
       aggressiveMerging: false
     ))
-    .pipe(rename(MINIFICATION_RULES))
+    .pipe(require('gulp-rename')(MINIFICATION_RULES))
     .pipe(gulp.dest(ASSETS_LOCATION))
 
 gulp.task 'hashify', ->
@@ -56,38 +51,28 @@ gulp.task 'hashify', ->
 
 gulp.task 'compress', ->
   gulp
-    .src(["#{ASSETS_LOCATION}/*.min.*", "!#{ASSETS_LOCATION}/*.gz"])
+    .src(["#{ASSETS_LOCATION}/app-*.min.*", "!#{ASSETS_LOCATION}/*.gz"])
     .pipe(require('gulp-gzip')())
     .pipe(gulp.dest(ASSETS_LOCATION))
 
-gulp.task('build', gulpSequence(
-  'clean',
+gulp.task('build', require('gulp-sequence')(
+  'clean'
 
-  ['scripts','styles'],
-  'decache:styles',
+  ['scripts', 'styles'],
+  'decache:styles'
 
   ['minify:scripts', 'minify:styles']
-  'hashify',
+  'hashify'
 
   'compress'
 ))
 
-gulp.task('compile', ['scripts','styles'])
+gulp.task('compile', ['scripts', 'styles'])
 
 gulp.task 'default', ->
-  Promise.all([
-    compileScripts(watch: true),
-    compileStyles()
-  ]).then ->
-    require('gulp-livereload').listen()
+  actions = [
+    require('./build/scripts')(watch: true)
+    require('./build/styles')()
+  ]
 
-    # relative paths required for watch/Gaze to detect changes in new files
-    stylesheets = [
-      "client/**/*.styl",
-      "styles/**/*.styl",
-      "vendor/**/*.css"
-    ]
-
-    gulp.watch(stylesheets).on 'change', (event) ->
-      require('./build/utils').watchReporter(event)
-      compileStyles()
+  Promise.all(actions).then(require('./build/watcher'))

@@ -1,3 +1,6 @@
+require('es6-promise').polyfill()
+Object.assign ?= require('object.assign/polyfill')()
+
 React = require('react')
 { render } = require('react-dom')
 
@@ -5,24 +8,21 @@ Router = require('react-router/lib/Router')
 browserHistory = require('react-router/lib/browserHistory')
 match = require('react-router/lib/match')
 
-{ syncHistoryWithStore } = require('react-router-redux')
 { Provider } = require('react-redux')
-
 { trigger } = require('redial')
 
 isEmpty = require('lodash/isEmpty')
 
-require('es6-promise').polyfill()
 require('fastclick')(document.body)
 
 createStore = require('./store')
 createRouter = require('./router')
 
+{ setRoute } = require('./modules/routes/state').actions
 
-###
-  Router setup. Accepts history and routes.
-  Both history and routes are relying on store and dispatching events.
-###
+startSession = (store) ->
+  store.dispatch(setRoute(global.location.pathname))
+
 renderPage = (store, history, routes) ->
   Component =
     <Provider store={store}>
@@ -33,41 +33,40 @@ renderPage = (store, history, routes) ->
 
 startRouter = (store, history) ->
   hasInitialData = not isEmpty(__appState__)
+  isFirstLoad = true
+
   routes = createRouter(store)
+  previousComponents = []
 
   handleFetch = (location) ->
     matchPage = (error, redirect, props) ->
-      locals =
+      getLocals = (component) ->
+        isFirstRender: previousComponents.indexOf(component) is -1
         location: props.location
         params: props.params
         dispatch: store.dispatch
         state: store.getState()
 
-      handleError = (error) ->
-        status = parseInt(error?.status, 10) or 500
-        payload = { status, error }
+      handleError = (error) -> console.error(error)
 
-        console.error("Request #{location.pathname} failed to fetch data:", payload)
+      store.dispatch(setRoute(location.pathname)) unless isFirstLoad
+      return handleError(error) if error
 
-      trigger('fetch', props.components, locals).catch(handleError) unless hasInitialData
-      trigger('defer', props.components, locals).catch(handleError)
+      trigger('fetch', props.components, getLocals).catch(handleError) unless hasInitialData
+      trigger('defer', props.components, getLocals).catch(handleError)
       hasInitialData = false
+      isFirstLoad = false
+      previousComponents = props.components
 
     match({ routes, location }, matchPage)
 
-  # React router doesn't allow for a dynamic routing configuration.
-  # Custom "dynamic" routing can be implemented:
-  #   1. Unmount currently mounted router
-  #   2. Mount new router with new routing configuration
-  #
-  # This leads to errors with active components being unmounted at wrong moments.
   renderPage(store, history, routes)
-  history.listen(handleFetch) if not __appState__.error
+  history.listen(handleFetch)
 
 
 ###
   Call setup functions. First setup store, then initialize router.
 ###
 store = createStore(__appState__)
-history = syncHistoryWithStore(browserHistory, store)
-startRouter(store, history)
+startSession(store)
+startRouter(store, browserHistory)

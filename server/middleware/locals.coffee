@@ -1,19 +1,20 @@
-assign = require('lodash/assign')
 config = require('config')
+pick = require('lodash/pick')
+asset = require('../../build/assetmanager')
+serialize = require('serialize-javascript')
 
 
 module.exports = ->
   (req, res, next) ->
     locals = {
-      config,
       pretty: config.debug # used by Pug to have unminified output
-
       state: {}
 
-      pick: require('lodash/pick')
-      asset: require('../../build/assetmanager')
-      serialize: require('serialize-javascript')
+      config
+      pick
+      asset
+      serialize
     }
 
-    assign(res.locals, locals)
+    Object.assign(res.locals, locals)
     next()

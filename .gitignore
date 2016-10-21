@@ -32,8 +32,10 @@ node_modules/*
 # MacOS bullshit
 .DS_Store
 
+# Build
+build/.browserify-cache.json
+
 # Local config
-config/development.*
 config/local.*
 
 # Generated static stuff

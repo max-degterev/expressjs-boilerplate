@@ -31,6 +31,9 @@ input[type="search"]
 input[type="file"]::-webkit-file-upload-button
   display: none
 
+input[readonly]
+  user-select: none
+
 input
   padding: 0
   border: none
@@ -41,10 +44,14 @@ select
   border: none
   appearance: none
 
+  &::-ms-expand
+    display: none
+
 textarea
   border: none
   resize: vertical
   appearance: none
+  -ms-overflow-style: none
 
 button
   padding: 0

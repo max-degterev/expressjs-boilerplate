@@ -1,8 +1,8 @@
-createDomain = require('domain').create
+{ create } = require('domain')
 
 module.exports = ->
   (req, res, next) ->
-    domain = createDomain()
+    domain = create()
     domain.add(req)
     domain.add(res)
     domain.run(next)

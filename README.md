@@ -1,7 +1,7 @@
 ExpressJS Boilerplate
 =====================
 
-ExpressJS boilerplate with React SPA frontend. Includes CoffeeScript, CJSX, Redux and React Router. Built-in server side React rendering.
+ExpressJS boilerplate with React SPA frontend. Includes CoffeeScript, CJSX, Babel, Redux and React Router. Built-in server side React rendering.
 
 ## Usage:
 
