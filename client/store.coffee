@@ -11,6 +11,8 @@ middleware = [
 ]
 
 if config.debug
+  middleware.push(require('redux-immutable-state-invariant')())
+
   if not process.browser
     loggerOptions =
       duration: true
