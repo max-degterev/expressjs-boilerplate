@@ -26,7 +26,7 @@ process = (options = {}) ->
   bundler = require('browserify-incremental')(bundler, cacheOptions) if options.watch
 
   bundler.transform(require('coffee-reactify'))
-  bundler.transform(require("babelify").configure(extensions: ['.es', '.jsx', '.js']))
+  bundler.transform(require('babelify').configure(extensions: ['.es', '.jsx']))
 
   bundler
     .bundle()
