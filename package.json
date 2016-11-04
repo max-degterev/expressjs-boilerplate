@@ -46,10 +46,15 @@
 
     "babel-register": "6.16.3",
     "babel-preset-es2015": "6.16.0",
+    "babel-preset-es2016": "6.16.0",
     "babel-preset-react": "6.16.0",
-    "babel-preset-stage-0": "6.16.0",
+
     "babel-plugin-transform-react-constant-elements": "6.9.1",
     "babel-plugin-transform-react-remove-prop-types": "0.2.10",
+
+    "babel-plugin-transform-react-jsx-self": "6.11.0",
+    "babel-plugin-transform-react-inline-elements": "6.8.0",
+
     "core-js": "2.4.1",
 
     "chalk": "1.1.3",
@@ -103,12 +108,18 @@
   },
 
   "babel": {
-    "presets": ["es2015", "stage-0", "react"],
+    "presets": ["es2015", "es2016", "react"],
     "env": {
+      "development": {
+        "plugins": [
+          "transform-react-jsx-self"
+        ]
+      }
       "production": {
         "plugins": [
           "transform-react-constant-elements",
           "transform-react-remove-prop-types"
+          "transform-react-inline-elements"
         ]
       }
     }

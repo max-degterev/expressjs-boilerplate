@@ -1,6 +1,5 @@
-require('core-js/es6/object')
-require('core-js/es6/array')
-require('core-js/es6/promise')
+require('./polyfills')
+require('./es6_test_remove_me').default()
 
 React = require('react')
 { render } = require('react-dom')
