@@ -29,4 +29,8 @@ class Dog extends Animal {
 let rex = new Dog('Rex');
 rex.run()
 
-export default () => console.log('It works')
+let Component = function (props) {
+  return (<div className="amazing-component">Awesome Stuff!</div>);
+};
+
+export default () => console.log('Babel works!')
