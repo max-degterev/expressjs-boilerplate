@@ -19,8 +19,7 @@
 
   "scripts": {
     "coffee": "coffee",
-    "cjsx": "cjsx",
-    "babel": "babel",
+    "babel": "babel-node",
     "gulp": "gulp",
 
     "postinstall": "cd ./node_modules; ln -s \"../config/index.coffee\" \"config.coffee\" || true",
