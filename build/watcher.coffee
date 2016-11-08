@@ -58,7 +58,7 @@ watcher = ->
   runLinter = ->
     gulp.src(lintable)
       .pipe(eslint(cache: true, cacheLocation: "#{__dirname}"))
-      .pipe(eslint.format())
+      .pipe(eslint.format('codeframe'))
 
   livereload.listen()
   nodemon = require('gulp-nodemon')(nodemonOptions)

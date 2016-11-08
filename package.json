@@ -131,12 +131,14 @@
   },
 
   "eslintConfig": {
-    "extends": "airbnb",
-    "plugins": [ "import", "jsx-a11y", "react" ],
-    "env": {
-      "commonjs": true
-    },
+    "extends": [ "airbnb" ],
     "rules": {
+      "no-console": "off",
+      "func-names": ["error", "never"],
+      "no-restricted-syntax": [ "error", "ForInStatement", "LabeledStatement", "WithStatement" ],
+
+      "import/no-unresolved": ["error", { "commonjs": false }],
+      "react/jsx-filename-extension": [1, { "extensions": [".es", ".jsx"] }]
     }
   }
 }
