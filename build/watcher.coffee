@@ -21,6 +21,7 @@ SERVER_RESTART_TIME = 1000 # can dick around checking if port is up, but fuck it
 
 watcher = ->
   livereload = require('gulp-livereload')
+  eslint = require('gulp-eslint')
   compileScripts = require('./scripts')
   compileStyles = require('./styles')
 
@@ -44,7 +45,20 @@ watcher = ->
     'templates/**/*.pug'
   ]
 
+  lintable = [
+    'client/**/*.es'
+    'config/**/*.es'
+    'server/**/*.es'
+    '*.es'
+    '*.js'
+  ]
+
   reloadPage = -> livereload.reload(SERVER_PATH)
+
+  runLinter = ->
+    gulp.src(lintable)
+      .pipe(eslint(cache: true, cacheLocation: "#{__dirname}"))
+      .pipe(eslint.format())
 
   livereload.listen()
   nodemon = require('gulp-nodemon')(nodemonOptions)
@@ -66,6 +80,10 @@ watcher = ->
     reloadPage()
   )
 
+  gulp.watch(lintable).on('change', (event) ->
+    runLinter()
+  )
+
   nodemon.on('start', ->
     setTimeout(reloadPage, SERVER_RESTART_TIME) if nodemonRestarts
     nodemonRestarts++
@@ -78,5 +96,7 @@ watcher = ->
       event.path = path
       utils.watchReporter(event)
   )
+
+  runLinter()
 
 module.exports = watcher

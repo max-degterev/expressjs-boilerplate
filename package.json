@@ -36,7 +36,13 @@
     "gulp-livereload": "3.8.1",
     "connect-livereload": "0.6.0",
 
-    "babel-cli": "6.16.0"
+    "babel-cli": "6.16.0",
+
+    "gulp-eslint": "3.0.1",
+    "eslint-plugin-import": "2.2.0",
+    "eslint-plugin-jsx-a11y": "2.2.3",
+    "eslint-plugin-react": "6.6.0",
+    "eslint-config-airbnb": "13.0.0"
   },
 
   "dependencies": {
@@ -121,6 +127,16 @@
           "transform-react-inline-elements"
         ]
       }
+    }
+  },
+
+  "eslintConfig": {
+    "extends": "airbnb",
+    "plugins": [ "import", "jsx-a11y", "react" ],
+    "env": {
+      "commonjs": true
+    },
+    "rules": {
     }
   }
 }
