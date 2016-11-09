@@ -25,8 +25,6 @@ watcher = ->
   compileScripts = require('./scripts')
   compileStyles = require('./styles')
 
-  stylint = require('gulp-stylint')
-
   nodemonRestarts = 0
 
   # relative paths required for watch/Gaze to detect changes in new files
