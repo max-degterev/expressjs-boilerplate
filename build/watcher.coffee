@@ -1,4 +1,5 @@
 { resolve } = require('path')
+{ exec } = require('child-process')
 gulp = require('gulp')
 
 config = require('config')
@@ -25,6 +26,8 @@ watcher = ->
   compileScripts = require('./scripts')
   compileStyles = require('./styles')
 
+  stylint = require('gulp-stylint')
+
   nodemonRestarts = 0
 
   # relative paths required for watch/Gaze to detect changes in new files
@@ -45,7 +48,8 @@ watcher = ->
     'templates/**/*.pug'
   ]
 
-  lintable = [
+  lintableScripts = [
+    'build/**/*.es'
     'client/**/*.es'
     'config/**/*.es'
     'server/**/*.es'
@@ -53,12 +57,23 @@ watcher = ->
     '*.js'
   ]
 
+  lintableStyles = [
+    'client/**/*.styl'
+    'styles/**/*.styl'
+  ]
+
   reloadPage = -> livereload.reload(SERVER_PATH)
 
-  runLinter = ->
-    gulp.src(lintable)
+  lintScripts = ->
+    gulp.src(lintableScripts)
       .pipe(eslint(cache: true, cacheLocation: "#{__dirname}"))
       .pipe(eslint.format('codeframe'))
+
+  lintStyles = ->
+    # gulp.src(lintableStyles)
+    #   .pipe(stylint())
+    #   .pipe(stylint.reporter())
+
 
   livereload.listen()
   nodemon = require('gulp-nodemon')(nodemonOptions)
@@ -80,8 +95,12 @@ watcher = ->
     reloadPage()
   )
 
-  gulp.watch(lintable).on('change', (event) ->
-    runLinter()
+  gulp.watch(lintableScripts).on('change', (event) ->
+    lintScripts()
+  )
+
+  gulp.watch(lintableStyles).on('change', (event) ->
+    lintStyles()
   )
 
   nodemon.on('start', ->
@@ -97,6 +116,7 @@ watcher = ->
       utils.watchReporter(event)
   )
 
-  runLinter()
+  lintScripts()
+  lintStyles()
 
 module.exports = watcher
