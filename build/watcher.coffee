@@ -62,9 +62,8 @@ watcher = ->
   reloadPage = -> livereload.reload(SERVER_PATH)
 
   lintScripts = ->
-    gulp.src(lintableScripts)
-      .pipe(eslint(cache: true, cacheLocation: "#{__dirname}"))
-      .pipe(eslint.format('codeframe'))
+    command = 'eslint -f codeframe --cache --cache-location ./build/.eslint-cache.json ./**/*.es --color'
+    utils.proxy(command)
 
   lintStyles = ->
     commands = for path in lintableStyles
