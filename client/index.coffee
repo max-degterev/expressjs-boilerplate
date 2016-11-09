@@ -33,13 +33,18 @@ renderPage = (store, history, routes) ->
 
 startRouter = (store, history) ->
   hasInitialData = not isEmpty(__appState__)
-  isFirstLoad = true
 
   routes = createRouter(store)
   previousComponents = []
 
   handleFetch = (location) ->
     matchPage = (error, redirect, props) ->
+      shouldFetch = not hasInitialData
+      hasInitialData = false
+
+      return handleError(error) if error
+      return if redirect
+
       getLocals = (component) ->
         isFirstRender: previousComponents.indexOf(component) is -1
         location: props.location
@@ -49,19 +54,16 @@ startRouter = (store, history) ->
 
       handleError = (error) -> console.error(error)
 
-      store.dispatch(setRoute(location.pathname)) unless isFirstLoad
-      return handleError(error) if error
-
-      trigger('fetch', props.components, getLocals).catch(handleError) unless hasInitialData
+      trigger('fetch', props.components, getLocals).catch(handleError) if shouldFetch
       trigger('defer', props.components, getLocals).catch(handleError)
-      hasInitialData = false
-      isFirstLoad = false
       previousComponents = props.components
 
+    store.dispatch(setRoute(location.pathname))
     match({ routes, location }, matchPage)
 
-  renderPage(store, history, routes)
   history.listen(handleFetch)
+  handleFetch(history.getCurrentLocation())
+  renderPage(store, history, routes)
 
 
 ###
