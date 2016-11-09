@@ -21,7 +21,6 @@ SERVER_RESTART_TIME = 1000 # can dick around checking if port is up, but fuck it
 
 watcher = ->
   livereload = require('gulp-livereload')
-  eslint = require('gulp-eslint')
   compileScripts = require('./scripts')
   compileStyles = require('./styles')
 
