@@ -1,4 +1,4 @@
-{ exec } = require('child-process')
+{ exec } = require('child_process')
 chalk = require('chalk')
 
 utils =

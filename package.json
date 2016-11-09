@@ -34,7 +34,6 @@
     "browserify-incremental": "3.1.1",
     "gulp-nodemon": "2.2.1",
     "gulp-livereload": "3.8.1",
-    "gulp-shell": "0.5.2",
     "connect-livereload": "0.6.0",
 
     "babel-cli": "6.18.0",
@@ -45,7 +44,7 @@
     "eslint-plugin-react": "6.6.0",
     "eslint-config-airbnb": "13.0.0",
 
-    "gulp-stylint": "4.0.0",
+    "stylint": "1.5.7",
     "stylint-stylish": "1.4.0"
   },
 
@@ -117,7 +116,7 @@
 
   "babel": {
     "presets": ["es2015", "es2016", "react"],
-    "plugins": [ [ "transform-runtime", { "polyfill": false, "regenerator": false, "helpers": true } ] ],
+    "plugins": [["transform-runtime", { "polyfill": false, "regenerator": false, "helpers": true }]],
     "env": {
       "development": {
         "plugins": [
@@ -135,11 +134,11 @@
   },
 
   "eslintConfig": {
-    "extends": [ "airbnb" ],
+    "extends": ["airbnb"],
     "rules": {
       "no-console": "off",
       "func-names": ["error", "never"],
-      "no-restricted-syntax": [ "error", "ForInStatement", "LabeledStatement", "WithStatement" ],
+      "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
 
       "import/no-unresolved": ["error", { "commonjs": false }],
       "react/jsx-filename-extension": [1, { "extensions": [".es", ".jsx"] }]
@@ -155,35 +154,37 @@
     "blocks": false,
     "brackets": "never",
     "colons": "always",
-    "colors": "always",
+    "colors": false,
     "commaSpace": "always",
     "commentSpace": "always",
     "cssLiteral": "never",
+
     "customProperties": [],
-    "depthLimit": false,
+
+    "depthLimit": 4,
     "duplicates": true,
     "efficient": "always",
-    "exclude": [],
-    "extendPref": false,
-    "globalDupe": false,
+    "exclude": ["vendor/**/*", "node_modules/**/*"],
+    "extendPref": "@extends",
+    "globalDupe": true,
     "groupOutputByFile": true,
-    "indentPref": false,
+    "indentPref": 2,
     "leadingZero": "never",
     "maxErrors": false,
     "maxWarnings": false,
-    "mixed": false,
-    "mixins": [],
+    "mixed": true,
+
     "namingConvention": false,
     "namingConventionStrict": false,
-    "none": "never",
-    "noImportant": true,
-    "parenSpace": false,
+    "none": "always",
+    "noImportant": false,
+    "parenSpace": "never",
     "placeholders": "always",
     "prefixVarsWithDollar": "always",
-    "quotePref": false,
+    "quotePref": "single",
 
     "semicolons": "never",
-    "sortOrder": "alphabetical",
+    "sortOrder": ["margin", "padding", "float", "position"],
     "stackedProperties": "never",
     "trailingWhitespace": "never",
     "universal": false,

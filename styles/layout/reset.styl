@@ -24,20 +24,20 @@ textarea
   &:active
     outline: none
 
-input[type="search"]
-  appearance: none
-  box-sizing: content-box
-
-input[type="file"]::-webkit-file-upload-button
-  display: none
-
-input[readonly]
-  user-select: none
-
 input
   padding: 0
   border: none
   appearance: none
+
+  &[type='search']
+    appearance: none
+    box-sizing: content-box
+
+  &[type='file']::-webkit-file-upload-button
+    display: none
+
+  &[readonly]
+    user-select: none
 
 select
   background-color: transparent

@@ -1,5 +1,4 @@
 { resolve } = require('path')
-{ exec } = require('child-process')
 gulp = require('gulp')
 
 config = require('config')
@@ -70,10 +69,10 @@ watcher = ->
       .pipe(eslint.format('codeframe'))
 
   lintStyles = ->
-    # gulp.src(lintableStyles)
-    #   .pipe(stylint())
-    #   .pipe(stylint.reporter())
+    commands = for path in lintableStyles
+      "stylint ./#{path.replace('**/*.styl', '')} --color"
 
+    utils.proxy(commands.join(';'))
 
   livereload.listen()
   nodemon = require('gulp-nodemon')(nodemonOptions)
