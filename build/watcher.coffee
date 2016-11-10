@@ -67,10 +67,7 @@ watcher = ->
       .pipe(eslint.format('codeframe'))
 
   lintStyles = ->
-    commands = for path in lintableStyles
-      "stylint ./#{path.replace('**/*.styl', '')} --color"
-
-    utils.proxy(commands.join(';'))
+    utils.run("stylint ./#{path.replace('**/*.styl', '')}") for path in lintableStyles
 
   livereload.listen()
   nodemon = require('gulp-nodemon')(nodemonOptions)

@@ -1,4 +1,4 @@
-{ exec } = require('child_process')
+{ spawn } = require('child_process')
 chalk = require('chalk')
 
 utils =
@@ -18,10 +18,8 @@ utils =
   errorReporter: (e) ->
     console.log(chalk.bold.red("Build error!\n#{e.stack or e}"))
 
-  proxy: (command) ->
-    runner = exec(command)
-    runner.stdout.on('data', (data)-> process.stdout.write(data.toString()))
-    runner.stderr.on('data', (data)-> process.stderr.write(data.toString()))
-    runner
+  run: (string) ->
+    [ command, args... ] = string.split(' ')
+    spawn(command, args, stdio: 'inherit')
 
 module.exports = utils
