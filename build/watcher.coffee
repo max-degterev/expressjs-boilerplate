@@ -21,6 +21,7 @@ SERVER_RESTART_TIME = 1000 # can dick around checking if port is up, but fuck it
 
 watcher = ->
   livereload = require('gulp-livereload')
+  eslint = require('gulp-eslint')
   compileScripts = require('./scripts')
   compileStyles = require('./styles')
 
@@ -61,8 +62,9 @@ watcher = ->
   reloadPage = -> livereload.reload(SERVER_PATH)
 
   lintScripts = ->
-    command = 'eslint -f codeframe --cache --cache-location ./build/.eslint-cache.json ./**/*.es --color'
-    utils.proxy(command)
+    gulp.src(lintableScripts)
+      .pipe(eslint())
+      .pipe(eslint.format('codeframe'))
 
   lintStyles = ->
     commands = for path in lintableStyles
