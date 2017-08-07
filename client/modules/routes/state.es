@@ -1,14 +1,20 @@
-types =
-  ROUTE_SET: 'ROUTE_SET'
+export const types = {
+  ROUTE_SET: 'ROUTE_SET',
+};
 
-actions =
-  setRoute: (payload) -> { type: types.ROUTE_SET, payload }
+export const actions = {
+  setRoute(payload) {
+    return { type: types.ROUTE_SET, payload };
+  },
+};
 
-reducer = (state = null, action) ->
-  switch action.type
-    when types.ROUTE_SET
-      action.payload
-    else
-      state
-
-module.exports = { types, actions, reducer }
+export const reducer = (state = null, action) => {
+  switch (action.type) {
+    case types.ROUTE_SET: {
+      return action.payload;
+    }
+    default: {
+      return state;
+    }
+  }
+};

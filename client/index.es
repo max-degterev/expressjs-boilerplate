@@ -1,82 +1,83 @@
-require('./modules/polyfills')
+import React from 'react';
+import { render } from 'react-dom';
 
-React = require('react')
-{ render } = require('react-dom')
+import Router from 'react-router/lib/Router';
+import browserHistory from 'react-router/lib/browserHistory';
+import match from 'react-router/lib/match';
 
-Router = require('react-router/lib/Router')
-browserHistory = require('react-router/lib/browserHistory')
-match = require('react-router/lib/match')
+import { Provider } from 'react-redux';
+import { trigger } from 'redial';
 
-{ Provider } = require('react-redux')
-{ trigger } = require('redial')
+import isEmpty from 'lodash/isEmpty';
 
-isEmpty = require('lodash/isEmpty')
+import createStore from './store';
+import createRouter from './modules/routes';
+import { getRoutesParams } from './modules/routes/utils';
 
-require('fastclick')(document.body)
+import { actons as errorActions } from './components/errorhandler/state';
+import { actons as routeActions } from './modules/routes/state';
 
-createStore = require('./store')
-createRouter = require('./modules/routes')
-{ getRoutesParams } = require('./modules/routes/utils')
+require('./modules/polyfills');
+require('fastclick')(document.body);
 
-{ setError } = require('./components/errorhandler/state').actions
-{ setRoute } = require('./modules/routes/state').actions
+const { setError } = errorActions;
+const { setRoute } = routeActions;
 
 // Router setup. Accepts history and routes.
 // Both history and routes are relying on store and dispatching events.
-renderPage = (store, history, routes) ->
-  node =
+const renderPage = (store, history, routes) => {
+  const node = (
     <Provider store={store}>
       <Router history={history} routes={routes} />
     </Provider>
+  );
 
-  render(node, document.getElementById('main'))
+  render(node, document.getElementById('main'));
+};
 
-startRouter = (store, history) ->
-  hasInitialData = not isEmpty(__appState__)
+const startRouter = (store, history) => {
+  const { subscribeRouter, routes } = createRouter(store);
 
-  { subscribeRouter, routes } = createRouter(store)
-  previousComponents = []
+  let hasInitialData = !isEmpty(global.__appState__);
+  let previousComponents = [];
 
-  handleFetch = (location) ->
-    matchPage = (error, redirect, props) ->
-      shouldFetch = not hasInitialData
-      hasInitialData = false
+  const handleFetch = (location) => {
+    const matchPage = (error, redirect, props) => {
+      const shouldFetch = !hasInitialData;
+      hasInitialData = false;
 
-      return handleError(error) if error
-      return if redirect
+      const getLocals = (component) => ({
+        isFirstRender: !previousComponents.includes(component),
+        location: props.location,
+        params: props.params,
+        dispatch: store.dispatch,
+        state: store.getState(),
+        route: getRoutesParams(props.routes),
+      });
 
-      getLocals = (component) ->
-        isFirstRender: previousComponents.indexOf(component) is -1
-        location: props.location
-        params: props.params
-        dispatch: store.dispatch
-        state: store.getState()
-        route: getRoutesParams(props.routes)
+      const handleError = (networkError) => store.dispatch(setError(networkError));
 
-      handleError = (error) -> store.dispatch(setError(error))
+      if (error) return handleError(error);
+      if (redirect) return;
 
-      trigger('fetch', props.components, getLocals).catch(handleError) if shouldFetch
-      trigger('defer', props.components, getLocals).catch(handleError)
-      previousComponents = props.components
+      if (shouldFetch) trigger('fetch', props.components, getLocals).catch(handleError);
+      trigger('defer', props.components, getLocals).catch(handleError);
+      previousComponents = props.components;
+    };
 
-    store.dispatch(setRoute(location.pathname))
-    match({ routes, location, history }, matchPage)
+    store.dispatch(setRoute(location.pathname));
+    match({ routes, location, history }, matchPage);
+  };
 
-  // React router doesn't allow for a dynamic routing configuration.
-  // Custom "dynamic" routing can be implemented:
-  //   1. Unmount currently mounted router
-  //   2. Mount new router with new routing configuration
-  //
-  // This leads to errors with active components being unmounted at wrong moments.
-  if not __appState__.error or __appState__.error.statusCode is 404
-    subscribeRouter?()
-    history.listen(handleFetch)
-    handleFetch(history.getCurrentLocation())
+  if (!global.__appState__.error || global.__appState__.error.statusCode === 404) {
+    if (subscribeRouter) subscribeRouter();
+    history.listen(handleFetch);
+    handleFetch(history.getCurrentLocation());
+  }
 
-  renderPage(store, history, routes)
-
-
+  renderPage(store, history, routes);
+};
 
 // Call setup functions. First setup store, then initialize router.
-store = createStore(__appState__)
-startRouter(store, browserHistory)
+const store = createStore(global.__appState__);
+startRouter(store, browserHistory);
