@@ -1,0 +1,142 @@
+{
+  "reporter": "stylint-stylish",
+  "reporterOptions": {
+    "absolutePath": true,
+    "ruleName": true
+  },
+
+  "blocks": false,
+  "brackets": "never",
+  "colons": "always",
+  "colors": false,
+  "commaSpace": "always",
+  "commentSpace": "always",
+  "cssLiteral": "never",
+
+  "depthLimit": 4,
+  "duplicates": true,
+  "efficient": "always",
+  "exclude": ["vendor/**/*", "node_modules/**/*"],
+  "extendPref": "@extends",
+  "globalDupe": true,
+  "groupOutputByFile": true,
+  "indentPref": 2,
+  "leadingZero": "never",
+  "maxErrors": false,
+  "maxWarnings": 0,
+  "mixed": true,
+
+  "namingConvention": false,
+  "namingConventionStrict": false,
+  "none": "always",
+  "noImportant": false,
+  "parenSpace": "never",
+  "placeholders": "always",
+  "prefixVarsWithDollar": "always",
+  "quotePref": "single",
+
+  "semicolons": "never",
+  "stackedProperties": "never",
+  "trailingWhitespace": "never",
+  "universal": false,
+  "valid": true,
+  "zeroUnits": "never",
+  "zIndexNormalize": false,
+
+  "customProperties": [
+    "blockRound",
+    "blockResponsive",
+    "blockInvisible",
+    "blockSize",
+    "blockCenter",
+    "blockFill",
+    "textCenter",
+    "textInvisible",
+    "textShortened",
+    "backgroundFill",
+    "backgroundFixed",
+    "backgroundAdaptive",
+    "cursorDraggable",
+    "iconSize",
+    "preventDrag",
+
+    "absolute",
+    "placeholder"
+  ],
+
+  "sortOrder": [
+    "min-width",
+    "min-height",
+    "max-width",
+    "max-height",
+
+    "width",
+    "height",
+
+    "margin",
+    "margin-top",
+    "margin-right",
+    "margin-bottom",
+    "margin-left",
+
+    "padding",
+    "padding-top",
+    "padding-right",
+    "padding-bottom",
+    "padding-left",
+
+    "content",
+    "display",
+
+    "float",
+    "clear",
+    "vertical-align",
+
+    "flex",
+    "flex-grow",
+    "flex-shrink",
+    "flex-basis",
+    "flex-direction",
+
+    "flex-order",
+    "flex-wrap",
+    "flex-flow",
+
+    "order",
+    "justify-content",
+    "align-self",
+    "align-items",
+    "align-content",
+    "flex-pack",
+    "flex-align",
+
+    "overflow",
+    "overflow-x",
+    "overflow-y",
+
+    "position",
+    "top",
+    "right",
+    "bottom",
+    "left",
+
+    "transform",
+    "transform-origin",
+
+    "z-index",
+
+    "visibility",
+    "opacity",
+
+    "border",
+    "border-width",
+    "border-top",
+    "border-top-width",
+    "border-right",
+    "border-right-width",
+    "border-bottom",
+    "border-bottom-width",
+    "border-left",
+    "border-left-width"
+  ]
+}

@@ -1,3 +1,12 @@
+getImageSize($path)
+  $image = $publicRoot + $path
+  $size = image-size($image)
+  ($size[0] / 2) ($size[1] / 2)
+
+getImageRatio($path)
+  $size = getImageSize($path)
+  percentage($size[1]/$size[0])
+
 blockRound($width)
   width: $width
   height: @width
@@ -15,11 +24,18 @@ blockInvisible()
   margin: -1px
   padding: 0
 
-  position: absolute
   overflow: hidden
+  position: absolute
 
   border: none
   clip: rect(0 0 0 0)
+
+blockSize($width, $horizontalSpacing = 0, $verticalSpacing = 0)
+  max-width: $width
+  margin: 0 auto
+
+  if $verticalSpacing or $horizontalSpacing
+    padding: $verticalSpacing $horizontalSpacing
 
 blockCenter()
   absolute: top 50% left 50%
@@ -46,16 +62,32 @@ textCenter($selector = null)
       text-align: left
 
 textInvisible()
+  overflow: hidden
   color: transparent !important
   text-shadow: none
   text-decoration: none
   user-select: none
   cursor: default
 
+textShortened()
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+
 backgroundFill($type = cover)
   background-repeat: no-repeat
   background-position: center center
   background-size: $type
+
+backgroundFixed($image)
+  background-attachment: fixed
+  backgroundAdaptive($image)
+
+backgroundAdaptive($image)
+  $extRegex = '\.([a-z]+)$'
+  background-image: url($image)
+  @media $mediaM
+    background-image: url(replace($extRegex, '-desktop.$1', $image))
 
 iconSize($width, $height = null)
   if !$height

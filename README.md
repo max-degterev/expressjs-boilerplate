@@ -25,6 +25,18 @@ ExpressJS boilerplate with React SPA frontend. Includes CoffeeScript, CJSX, Babe
 
 5. PROFIT
 
+## Production mode:
+
+`npm run production`
+
+Supported environment variables:
+
+````
+NODE_ENV(string): environment to use, like 'production'
+PORT(int): port to bind to
+SANDBOX(bool): run in sandboxed mode - useful for running fake production environment
+````
+
 Read through source for more information.
 
 ## License

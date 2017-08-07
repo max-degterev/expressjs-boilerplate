@@ -24,6 +24,8 @@ nvm/
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
 node_modules/*
 
+build/.browserify-cache.json
+
 # Users Environment Variables
 .lock-wscript
 .idea
@@ -32,9 +34,6 @@ node_modules/*
 # MacOS bullshit
 .DS_Store
 
-# Build
-build/.browserify-cache.json
-
 # Local config
 config/local.*
 
@@ -42,3 +41,8 @@ config/local.*
 public/assets/*.*
 public/*.gz
 public/*.html
+
+.compiled
+
+# NPM can't generate this file properly, best to just ignore it
+package-lock.json

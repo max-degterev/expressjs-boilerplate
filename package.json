@@ -5,7 +5,7 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "homepage": "http://max.degterev.me/",
-  "author": "Max Degterev <max@degterev.me> (http://max.degterev.me/)",
+  "author": "Max Degterev <max@degterev.me>",
   "repository": "suprMax/expressjs-boilerplate",
   "bugs": "https://github.com/suprMax/expressjs-boilerplate/issues",
 
@@ -14,183 +14,130 @@
 
   "main": "app.js",
   "engines": {
-    "node": "6.x.x"
+    "node": "^6.x.x"
   },
 
   "scripts": {
-    "coffee": "coffee",
     "babel": "babel-node",
     "gulp": "gulp",
 
-    "postinstall": "cd ./node_modules; ln -s \"../config/index.coffee\" \"config.coffee\" || true",
-
     "start": "gulp",
-    "production": "NODE_ENV=production gulp build && NODE_ENV=production SANDBOX=true node app.js"
+    "production": "NODE_ENV=production SANDBOX=true gulp build && NODE_ENV=production SANDBOX=true node app.js",
+
+    "decache": "rm ./build/.browserify-cache.json || true",
+    "lint": "gulp lint || true",
+
+    "test": "env TZ='Europe/Berlin' mocha",
+    "testwatch": "env TZ='Europe/Berlin' mocha -w",
+    "test:tofile": "mocha --no-colors -R spec 2>&1 | tee test-report.log"
   },
 
   "devDependencies": {
-    "errorhandler": "1.4.3",
+    "errorhandler": "1.5.0",
 
     "browserify-incremental": "3.1.1",
     "gulp-nodemon": "2.2.1",
     "gulp-livereload": "3.8.1",
     "connect-livereload": "0.6.0",
 
-    "babel-cli": "6.18.0",
+    "gulp-eslint": "4.0.0",
+    "stream-exhaust": "1.0.1",
+    "eslint": "4.3.0",
+    "eslint-plugin-import": "2.7.0",
+    "eslint-plugin-jsx-a11y": "5.1.1",
+    "eslint-plugin-react": "7.1.0",
+    "eslint-config-airbnb": "15.1.0",
+    "stylint": "1.5.9",
+    "stylint-stylish": "1.4.0",
+    "stylint-json-reporter": "0.3.1",
 
-    "gulp-eslint": "3.0.1",
-    "eslint-plugin-import": "2.2.0",
-    "eslint-plugin-jsx-a11y": "2.2.3",
-    "eslint-plugin-react": "6.6.0",
-    "eslint-config-airbnb": "13.0.0",
-
-    "stylint": "1.5.7",
-    "stylint-stylish": "1.4.0"
+    "mocha": "3.4.2",
+    "chai": "4.1.0"
   },
 
   "dependencies": {
-    "lodash": "4.16.6",
-    "coffee-script": "1.11.1",
+    "lodash": "4.17.4",
+    "uni-config": "0.0.1",
 
-    "babel-register": "6.18.0",
-    "babel-runtime": "6.18.0",
-    "babel-preset-es2015": "6.18.0",
-    "babel-preset-es2016": "6.16.0",
-    "babel-preset-react": "6.16.0",
+    "core-js": "2.4.1",
+    "babel-cli": "6.24.1",
+    "babel-register": "6.24.1",
+    "babel-preset-es2015": "6.24.1",
+    "babel-preset-es2016": "6.24.1",
+    "babel-preset-stage-3": "6.24.1",
+    "babel-preset-react": "6.24.1",
+    "babel-plugin-transform-runtime": "6.23.0",
+    "babel-plugin-transform-node-env-inline": "0.1.1",
+    "babel-plugin-transform-react-constant-elements": "6.23.0",
+    "babel-plugin-transform-react-remove-prop-types": "0.4.6",
+    "babel-plugin-transform-react-jsx-self": "6.22.0",
+    "babel-plugin-transform-react-inline-elements": "6.22.0",
 
-    "babel-plugin-transform-runtime": "6.15.0",
-    "babel-plugin-transform-react-constant-elements": "6.9.1",
-    "babel-plugin-transform-react-remove-prop-types": "0.2.10",
-    "babel-plugin-transform-react-jsx-self": "6.11.0",
-    "babel-plugin-transform-react-inline-elements": "6.8.0",
-
-    "chalk": "1.1.3",
+    "chalk": "2.0.1",
     "gulp": "3.9.1",
     "gulp-sequence": "0.4.6",
     "gulp-rename": "1.2.2",
 
-    "browserify": "13.1.1",
+    "browserify": "14.4.0",
+
     "vinyl-source-stream": "1.1.0",
-    "coffee-reactify": "5.1.0",
     "babelify": "7.3.0",
+    "browserify-replace": "0.9.0",
+    "uglifyify": "4.0.3",
 
     "gulp-stylus": "2.6.0",
     "nib": "1.1.2",
-    "gulp-css-decache": "0.0.8",
+    "gulp-css-decache": "1.0.0",
 
-    "del": "2.2.2",
-    "gulp-uglify": "2.0.0",
-    "gulp-clean-css": "2.0.13",
-    "gulp-rev": "7.1.2",
+    "del": "3.0.0",
+    "gulp-uglify": "3.0.0",
+    "gulp-clean-css": "3.7.0",
+    "gulp-rev": "8.0.0",
     "gulp-gzip": "1.4.0",
 
-    "winston": "2.3.0",
-    "express": "4.14.0",
-    "pug": "2.0.0-beta6",
-    "morgan": "1.7.0",
-    "serve-favicon": "2.3.0",
-    "serve-static": "1.11.1",
-    "serialize-javascript": "1.3.0",
+    "winston": "2.3.1",
+    "express": "4.15.3",
+    "pug": "2.0.0-rc.2",
+    "morgan": "1.8.2",
 
-    "coffee-react": "5.0.1",
-    "react": "15.3.2",
-    "react-dom": "15.3.2",
+    "serve-favicon": "2.4.3",
+    "serve-static": "1.12.3",
 
-    "react-router": "3.0.0",
+    "express-domain-middleware": "0.1.0",
+    "middleware-sanitizeurl": "0.0.1",
+    "middleware-trailingslash": "0.0.1",
+    "serialize-javascript": "1.4.0",
 
-    "redux": "3.6.0",
-    "react-redux": "4.4.5",
-    "redux-thunk": "2.1.0",
-    "redux-logger": "2.7.4",
-    "redux-immutable-state-invariant": "1.2.4",
+    "raven": "2.1.0",
+    "raven-js": "3.17.0",
+    "cookie-parser": "1.4.3",
+    "js-cookie": "2.1.4",
 
+    "react": "15.6.1",
+    "react-dom": "15.6.1",
+    "prop-types": "15.5.10",
+    "react-side-effect": "1.1.3",
+    "react-router": "3.0.5",
+    "redux": "3.7.2",
+    "react-redux": "5.0.5",
+    "redux-thunk": "2.2.0",
+    "redux-logger": "3.0.6",
+    "redux-immutable-state-invariant": "2.0.0",
+    "classnames": "2.2.5",
+    "node-polyglot": "2.2.2",
     "redial": "0.5.0",
-    "fastclick": "1.0.6",
+    "superagent": "3.5.2",
+    "local-storage": "1.4.2",
+    "updeep": "1.0.0",
+    "normalizr": "3.2.3",
 
-    "normalize.css": "5.0.0"
+    "fastclick": "1.0.6",
+    "moment": "2.18.1",
+
+    "normalize.css": "7.0.0"
   },
 
   "browser": {
-    "config": "./config/client.coffee"
-  },
-
-  "babel": {
-    "presets": ["es2015", "es2016", "react"],
-    "plugins": [["transform-runtime", { "polyfill": false, "regenerator": false, "helpers": true }]],
-    "env": {
-      "development": {
-        "plugins": [
-          "transform-react-jsx-self"
-        ]
-      },
-      "production": {
-        "plugins": [
-          "transform-react-constant-elements",
-          "transform-react-remove-prop-types",
-          "transform-react-inline-elements"
-        ]
-      }
-    }
-  },
-
-  "eslintConfig": {
-    "extends": ["airbnb"],
-    "rules": {
-      "no-console": "off",
-      "func-names": ["error", "never"],
-      "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
-
-      "import/no-unresolved": ["error", { "commonjs": false }],
-      "react/jsx-filename-extension": [1, { "extensions": [".es", ".jsx"] }]
-    }
-  },
-
-  "stylintrc": {
-    "reporter": "stylint-stylish",
-    "reporterOptions": {
-      "absolutePath": true,
-      "ruleName": true
-    },
-
-    "blocks": false,
-    "brackets": "never",
-    "colons": "always",
-    "colors": false,
-    "commaSpace": "always",
-    "commentSpace": "always",
-    "cssLiteral": "never",
-
-    "customProperties": [],
-
-    "depthLimit": 4,
-    "duplicates": true,
-    "efficient": "always",
-    "exclude": ["vendor/**/*", "node_modules/**/*"],
-    "extendPref": "@extends",
-    "globalDupe": true,
-    "groupOutputByFile": true,
-    "indentPref": 2,
-    "leadingZero": "never",
-    "maxErrors": false,
-    "maxWarnings": false,
-    "mixed": true,
-
-    "namingConvention": false,
-    "namingConventionStrict": false,
-    "none": "always",
-    "noImportant": false,
-    "parenSpace": "never",
-    "placeholders": "always",
-    "prefixVarsWithDollar": "always",
-    "quotePref": "single",
-
-    "semicolons": "never",
-    "sortOrder": ["margin", "padding", "float", "position"],
-    "stackedProperties": "never",
-    "trailingWhitespace": "never",
-    "universal": false,
-    "valid": true,
-    "zeroUnits": "never",
-    "zIndexNormalize": false
+    "uni-config": "uni-config/client.js"
   }
 }

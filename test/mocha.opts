@@ -1,0 +1,7 @@
+--compilers es:babel-register
+--globals document
+--check-leaks
+--recursive
+--ui bdd
+--reporter nyan
+--timeout 2000

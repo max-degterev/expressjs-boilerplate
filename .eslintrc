@@ -1,0 +1,63 @@
+{
+  "extends": ["airbnb"],
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "no-console": "off",
+    "no-restricted-syntax": [
+      "error",
+
+      "LabeledStatement",
+      "WithStatement",
+      "YieldExpression"
+    ],
+    "space-before-function-paren": ["error", "never"],
+    "global-require": "off",
+    "default-case": "off",
+    "no-continue": "off",
+    "prefer-template": "warn",
+    "arrow-parens": ["error", "always"],
+    "no-floating-decimal": "off",
+    "func-names": ["error", "never"],
+    "camelcase": "off",
+    "consistent-return": "off",
+    "no-mixed-operators": ["error", { "allowSamePrecedence": true }],
+    "no-param-reassign": ["error", { "props": false }],
+    "class-methods-use-this": "off", // can be enabled after coffee->es6 migration is complete
+    "no-underscore-dangle": "off",
+
+    "import/no-unresolved": "off",
+    "import/no-dynamic-require": "off",
+    "import/extensions": "off",
+    "import/no-extraneous-dependencies": "off",
+    "import/prefer-default-export": "off",
+
+    "react/jsx-filename-extension": ["error", { "extensions": [".es"] }],
+    "react/jsx-no-bind": "off",
+    "react/prop-types": ["error", { "skipUndeclared": true }], // TODO: remove this check
+    "react/forbid-prop-types": "off",
+    "react/no-did-mount-set-state": "off",
+    "react/no-danger": "off",
+    "react/require-default-props": "off",
+    "react/jsx-max-props-per-line": ["error", { "maximum": 3, "when": "multiline" }],
+    "react/sort-comp": ["error", {
+      "order": [
+        "static-methods",
+        "lifecycle",
+        "/^(get|set)(?!(DefaultState$|DefaultProps$|ChildContext$)).+$/",
+        "/^(get|set).+$/",
+        "everything-else",
+        "/^handle.+$/",
+        "/^render.+$/",
+        "render"
+      ]
+    }],
+
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/anchor-has-content": "off",
+    "jsx-a11y/media-has-caption": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "jsx-a11y/label-has-for": "off",
+  }
+}
