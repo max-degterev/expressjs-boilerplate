@@ -25,7 +25,6 @@ const watcher = () => {
   const livereload = require('gulp-livereload');
   const compileScripts = require('./scripts');
   const compileStyles = require('./styles');
-  const compileLocales = require('./i18n');
 
   let nodemonRestarts = 0;
 
@@ -44,11 +43,6 @@ const watcher = () => {
     'styles/**/*.styl',
     'styles/**/*.css',
     'vendor/**/*.css',
-  ];
-
-  const locales = [
-    'i18n/**/*.js',
-    'i18n/**/*.json',
   ];
 
   const templates = [
@@ -76,11 +70,6 @@ const watcher = () => {
   gulp.watch(templates).on('change', (event) => {
     utils.watchReporter(event);
     reloadPage();
-  });
-
-  gulp.watch(locales).on('change', (event) => {
-    utils.watchReporter(event);
-    compileLocales().then(reloadPage);
   });
 
   nodemon.on('start', () => {

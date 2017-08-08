@@ -6,7 +6,6 @@ const setRequestHandlers = () => {
   app.use(require('express-domain-middleware'));
   app.use(require('middleware-sanitizeurl')({ log: true }));
   app.use(require('morgan')(config.debug ? 'dev' : 'combined'));
-  if (config.server.csp) app.use(require('./middleware/csp')());
 
   // Static middleware is not needed in production, but still loaded for debug purposes,
   // E.g. running production mode locally

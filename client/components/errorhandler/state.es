@@ -1,18 +1,23 @@
-config = require('uni-config')
+import config from 'uni-config';
 
-types =
-  ERROR_SET: 'ERROR_SET'
+export const types = {
+  ERROR_SET: 'ERROR_SET',
+};
 
-actions =
-  setError: (payload) ->
-    console.error(payload.stack) if config.debug and payload instanceof Error
-    { type: types.ERROR_SET, payload }
+export const actions = {
+  setError(payload) {
+    if (config.debug && payload instanceof Error) console.error(payload.stack);
+    return { type: types.ERROR_SET, payload };
+  },
+};
 
-reducer = (state = null, action) ->
-  switch action.type
-    when types.ERROR_SET
-      action.payload
-    else
-      state
-
-module.exports = { types, actions, reducer }
+export const reducer = (state = null, action) => {
+  switch (action.type) {
+    case types.ERROR_SET: {
+      return action.payload;
+    }
+    default: {
+      return state;
+    }
+  }
+};

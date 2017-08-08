@@ -49,8 +49,6 @@ const process = (targetFolder) => {
         .src([
           `${base}/client/**/*.js`,
           `${base}/server/**/*.js`,
-          `${base}/i18n/**/*.js`,
-          `${base}/i18n/**/*.json`,
         ], { base })
         .on('error', utils.errorReporter)
         .pipe(gulp.dest(targetFolder))

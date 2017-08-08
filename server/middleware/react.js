@@ -1,5 +1,4 @@
 const { error: logError } = require('winston');
-const config = require('uni-config');
 
 const React = require('react');
 const { renderToString } = require('react-dom/server');
@@ -11,33 +10,27 @@ const { Provider } = require('react-redux');
 const { trigger } = require('redial');
 
 const createStore = require('../../client/store');
-const createRouter = require('../../client/router');
-
+const createRouter = require('../../client/modules/routes');
 const { getRoutesParams } = require('../../client/modules/routes/utils');
 
-const { International } = require('../../client/modules/i18n');
 const Error404 = require('../../client/containers/error_404');
-const MicroHelmet = require('../../client/ui/micro_helmet');
 
 const { setError } = require('../../client/components/errorhandler/state').actions;
 const { setRoute } = require('../../client/modules/routes/state').actions;
 
 
-const createComponent = (locale, store, props) => {
+const createComponent = (store, props) => {
   const context = React.createElement(RouterContext, props);
-  const provider = React.createElement(Provider, { store }, context);
-  return React.createElement(International, { locale }, provider);
+  return React.createElement(Provider, { store }, context);
 };
 
 const renderPage = (res, store, props) => {
   const statusCode = props.components.includes(Error404) ? 404 : 200;
 
-  const Component = createComponent(res.locals.locale, store, props);
+  const Component = createComponent(store, props);
   const content = renderToString(Component);
-  const meta = MicroHelmet.rewind();
 
   Object.assign(res.locals.state, store.getState());
-  Object.assign(res.locals.meta, meta);
   res.status(statusCode).render('index', { content });
 };
 
@@ -72,7 +65,6 @@ const prerender = (req, res, next) => {
       isFirstRender: true,
       location: props.location,
       params: props.params,
-      locale: res.locals.locale,
       dispatch: store.dispatch,
       state: store.getState(),
       route: getRoutesParams(props.routes),

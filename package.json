@@ -1,45 +1,35 @@
 {
   "name": "expressjs-boilerplate",
   "description": "ExpressJS boilerplate with React SPA frontend",
-
   "license": "MIT",
   "readmeFilename": "README.md",
   "homepage": "http://max.degterev.me/",
   "author": "Max Degterev <max@degterev.me>",
   "repository": "suprMax/expressjs-boilerplate",
   "bugs": "https://github.com/suprMax/expressjs-boilerplate/issues",
-
   "private": true,
   "version": "0.0.1",
-
   "main": "app.js",
   "engines": {
     "node": "^6.x.x"
   },
-
   "scripts": {
     "babel": "babel-node",
     "gulp": "gulp",
-
     "start": "gulp",
     "production": "NODE_ENV=production SANDBOX=true gulp build && NODE_ENV=production SANDBOX=true node app.js",
-
     "decache": "rm ./build/.browserify-cache.json || true",
     "lint": "gulp lint || true",
-
     "test": "env TZ='Europe/Berlin' mocha",
     "testwatch": "env TZ='Europe/Berlin' mocha -w",
     "test:tofile": "mocha --no-colors -R spec 2>&1 | tee test-report.log"
   },
-
   "devDependencies": {
     "errorhandler": "1.5.0",
-
     "browserify-incremental": "3.1.1",
     "gulp-nodemon": "2.2.1",
     "gulp-livereload": "3.8.1",
     "connect-livereload": "0.6.0",
-
     "gulp-eslint": "4.0.0",
     "stream-exhaust": "1.0.1",
     "eslint": "4.3.0",
@@ -50,15 +40,12 @@
     "stylint": "1.5.9",
     "stylint-stylish": "1.4.0",
     "stylint-json-reporter": "0.3.1",
-
     "mocha": "3.4.2",
     "chai": "4.1.0"
   },
-
   "dependencies": {
     "lodash": "4.17.4",
     "uni-config": "0.0.1",
-
     "core-js": "2.4.1",
     "babel-cli": "6.24.1",
     "babel-register": "6.24.1",
@@ -72,47 +59,37 @@
     "babel-plugin-transform-react-remove-prop-types": "0.4.6",
     "babel-plugin-transform-react-jsx-self": "6.22.0",
     "babel-plugin-transform-react-inline-elements": "6.22.0",
-
     "chalk": "2.0.1",
     "gulp": "3.9.1",
     "gulp-sequence": "0.4.6",
     "gulp-rename": "1.2.2",
-
     "browserify": "14.4.0",
-
     "vinyl-source-stream": "1.1.0",
     "babelify": "7.3.0",
     "browserify-replace": "0.9.0",
     "uglifyify": "4.0.3",
-
     "gulp-stylus": "2.6.0",
     "nib": "1.1.2",
     "gulp-css-decache": "1.0.0",
-
     "del": "3.0.0",
     "gulp-uglify": "3.0.0",
     "gulp-clean-css": "3.7.0",
     "gulp-rev": "8.0.0",
     "gulp-gzip": "1.4.0",
-
     "winston": "2.3.1",
     "express": "4.15.3",
     "pug": "2.0.0-rc.2",
     "morgan": "1.8.2",
-
     "serve-favicon": "2.4.3",
     "serve-static": "1.12.3",
-
     "express-domain-middleware": "0.1.0",
     "middleware-sanitizeurl": "0.0.1",
     "middleware-trailingslash": "0.0.1",
     "serialize-javascript": "1.4.0",
-
     "raven": "2.1.0",
     "raven-js": "3.17.0",
     "cookie-parser": "1.4.3",
     "js-cookie": "2.1.4",
-
     "react": "15.6.1",
     "react-dom": "15.6.1",
     "prop-types": "15.5.10",
@@ -130,13 +107,10 @@
     "local-storage": "1.4.2",
     "updeep": "1.0.0",
     "normalizr": "3.2.3",
-
     "fastclick": "1.0.6",
     "moment": "2.18.1",
-
     "normalize.css": "7.0.0"
   },
-
   "browser": {
     "uni-config": "uni-config/client.js"
   }

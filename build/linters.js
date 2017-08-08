@@ -7,7 +7,7 @@ const getLinters = () => {
   const exhaustively = require('stream-exhaust');
 
   const scripts = [
-    './**/*.es',
+    '*.es',
     '*.js',
   ];
 

@@ -7,8 +7,4 @@ module.exports = {
   server: {
     prerender: false,
   },
-
-  client: {
-    language: 'de-DE', // default locale
-  },
 };

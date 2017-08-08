@@ -14,8 +14,8 @@ import createStore from './store';
 import createRouter from './modules/routes';
 import { getRoutesParams } from './modules/routes/utils';
 
-import { actons as errorActions } from './components/errorhandler/state';
-import { actons as routeActions } from './modules/routes/state';
+import { actions as errorActions } from './components/errorhandler/state';
+import { actions as routeActions } from './modules/routes/state';
 
 require('./modules/polyfills');
 require('fastclick')(document.body);
