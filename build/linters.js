@@ -7,8 +7,12 @@ const getLinters = () => {
   const exhaustively = require('stream-exhaust');
 
   const scripts = [
-    '*.es',
-    '*.js',
+    '!./public/**/*',
+    '!./node_modules/**/*',
+    '!./vendor/**/*',
+
+    '**/*.es',
+    '**/*.js',
   ];
 
   const styles = [
