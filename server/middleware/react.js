@@ -9,8 +9,8 @@ const RouterContext = require('react-router/lib/RouterContext');
 const { Provider } = require('react-redux');
 const { trigger } = require('redial');
 
-const createStore = require('../../client/store');
-const createRouter = require('../../client/modules/routes');
+const createStore = require('../../client/store').default;
+const createRouter = require('../../client/modules/routes').default;
 const { getRoutesParams } = require('../../client/modules/routes/utils');
 
 const Error404 = require('../../client/containers/error_404');
