@@ -1,7 +1,11 @@
 {
-  "presets": ["es2015", "es2016", "stage-3", "react"],
+  "presets": [
+    ["env", { "useBuiltIns": true }],
+    "stage-3",
+    "react"
+  ],
   "plugins": [
-    ["transform-runtime", { "polyfill": false, "regenerator": false, "helpers": true }]
+    ["transform-runtime", { "polyfill": false, "regenerator": true, "helpers": true }]
   ],
   "env": {
     "development": {

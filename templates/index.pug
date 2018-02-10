@@ -28,4 +28,6 @@ html(lang="en-US")
     script.
       var __appConfig__=!{serialize(pick(config, 'client', 'debug', 'sandbox'), { isJSON: true })};
       var __appState__=!{serialize(state, { isJSON: true })};
+
+    script(src=asset('polyfills.js'))
     script(src=asset('app.js') async)

@@ -36,6 +36,7 @@ const watcher = () => {
     'vendor/**/*.js',
     'client/**/*.json',
     'vendor/**/*.json',
+    '!client/polyfills.es',
   ];
 
   const stylesheets = [
@@ -58,7 +59,7 @@ const watcher = () => {
     const options = { watch: true };
     if (!config.server.prerender) options.pipe = (stream) => stream.pipe(livereload());
     utils.watchReporter(event);
-    compileScripts(options);
+    compileScripts('app.js', options);
   });
 
   gulp.watch(stylesheets).on('change', (event) => {

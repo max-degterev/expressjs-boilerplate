@@ -27,9 +27,7 @@ const process = (targetFolder) => {
     ];
 
     const promises = folders.map((dir) => (
-      utils.run(`ln -s ../${dir} ${dir}`, { options: {
-        cwd: targetFolder,
-      } })
+      utils.run(`ln -s ../${dir} ${dir}`, { options: { cwd: targetFolder } })
     ));
 
     const promise = Promise.all(promises);
