@@ -86,19 +86,19 @@ gulp.task('compress', () => (
 const buildSequence = [
   'clean',
 
-  ['scripts', 'styles'],
+  gulp.parallel('scripts', 'styles'),
   'decache:styles',
 
-  ['minify:scripts', 'minify:styles'],
+  gulp.parallel('minify:scripts', 'minify:styles'),
   'hashify',
 
   'compress',
 ];
 
-gulp.task('build', require('gulp-sequence')(...buildSequence));
+gulp.task('build', gulp.series(...buildSequence));
 
-gulp.task('compile', ['scripts', 'styles']);
-gulp.task('compile:server', require('gulp-sequence')('clean:server', 'scripts:server'));
+gulp.task('compile', gulp.parallel('scripts', 'styles'));
+gulp.task('compile:server', gulp.series('clean:server', 'scripts:server'));
 
 gulp.task('lint', () => require('./build/linters')().lintRun());
 gulp.task('lint:scripts', () => require('./build/linters')().lintScripts());
@@ -107,8 +107,10 @@ gulp.task('lint:tofile', () => require('./build/linters')().lintRun({ toFile: tr
 
 gulp.task('default', () => {
   // Gotta make sure each of these functions returns a promise
+  const compileScripts = require('./build/scripts');
   const promises = [
-    require('./build/scripts')({ watch: true }),
+    compileScripts('polyfills.js'),
+    compileScripts('app.js', { watch: true }),
     require('./build/styles')(),
   ];
 

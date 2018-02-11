@@ -19,8 +19,8 @@ const utils = {
     console.log(chalk.magenta(`${action} in ${((Date.now() - startTime) / 1000).toFixed(2)}s`));
   },
 
-  watchReporter(e) {
-    console.log(chalk.cyan(`File ${utils.pathNormalize(e.path)} ${e.type}, flexing 💪`));
+  watchReporter(path) {
+    console.log(chalk.cyan(`File ${utils.pathNormalize(path)} changed, flexing 💪`));
   },
 
   errorReporter(e) {

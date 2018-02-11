@@ -15,7 +15,6 @@ const setRequestHandlers = () => {
   }
 
   app.use(require('middleware-trailingslash')());
-  app.use(require('cookie-parser')());
   app.use(require('./middleware/locals')());
   if (config.debug) app.use(require('connect-livereload')());
 

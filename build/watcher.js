@@ -55,21 +55,21 @@ const watcher = () => {
   livereload.listen();
   const nodemon = require('gulp-nodemon')(nodemonOptions);
 
-  gulp.watch(scripts).on('change', (event) => {
+  gulp.watch(scripts).on('change', (path) => {
     const options = { watch: true };
     if (!config.server.prerender) options.pipe = (stream) => stream.pipe(livereload());
-    utils.watchReporter(event);
+    utils.watchReporter(path);
     compileScripts('app.js', options);
   });
 
-  gulp.watch(stylesheets).on('change', (event) => {
-    utils.watchReporter(event);
+  gulp.watch(stylesheets).on('change', (path) => {
+    utils.watchReporter(path);
     const pipe = (stream) => stream.pipe(livereload());
     compileStyles({ pipe });
   });
 
-  gulp.watch(templates).on('change', (event) => {
-    utils.watchReporter(event);
+  gulp.watch(templates).on('change', (path) => {
+    utils.watchReporter(path);
     reloadPage();
   });
 
@@ -79,12 +79,7 @@ const watcher = () => {
   });
 
   nodemon.on('restart', (files) => {
-    const event = { type: 'change' };
-
-    files.forEach((path) => {
-      event.path = path;
-      utils.watchReporter(event);
-    });
+    files.forEach(utils.watchReporter);
   });
 };
 
