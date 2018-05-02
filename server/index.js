@@ -1,9 +1,10 @@
-const { info } = require('winston');
 const app = require('express')();
 const config = require('uni-config');
+const { middleware: gracefulMiddleware, start: gracefulStart } = require('gracefultools');
 
 const setRequestHandlers = () => {
   app.use(require('express-domain-middleware'));
+  app.use(gracefulMiddleware());
   app.use(require('middleware-sanitizeurl')({ log: true }));
   app.use(require('morgan')(config.debug ? 'dev' : 'combined'));
 
@@ -28,7 +29,6 @@ const setRequestHandlers = () => {
 const startListening = () => {
   const host = process.env.HOST || config.server.host;
   const port = parseInt(process.env.PORT, 10) || config.server.port || 3000;
-  const message = `Server listening on http://${host || 'localhost'}:${port}`;
 
   // usually sitting behind nginx
   app.enable('trust proxy');
@@ -41,11 +41,7 @@ const startListening = () => {
 
   setRequestHandlers();
 
-  if (host) {
-    app.listen(port, host, () => info(`${message} (bound to host: ${host})`));
-  } else {
-    app.listen(port, () => info(message));
-  }
+  gracefulStart(app, { host, port });
 };
 
 module.exports = startListening;
