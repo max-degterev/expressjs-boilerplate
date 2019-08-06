@@ -2,18 +2,16 @@ import config from 'uni-config';
 import React from 'react';
 import { render, hydrate } from 'react-dom';
 
-import Router from 'react-router/lib/Router';
-import browserHistory from 'react-router/lib/browserHistory';
-import match from 'react-router/lib/match';
+import { Router } from 'react-router';
+import { createBrowserHistory } from 'history';
+import { matchRoutes, renderRoutes } from 'react-router-config';
 
 import { Provider } from 'react-redux';
-import { trigger } from 'redial';
 
 import isEmpty from 'lodash/isEmpty';
 
 import createStore from './store';
 import createRouter from './modules/routes';
-import { getRoutesParams } from './modules/routes/utils';
 
 import { actions as errorActions } from './components/error_handler/state';
 import { actions as routeActions } from './modules/routes/state';
@@ -26,7 +24,9 @@ const { setRoute } = routeActions;
 const renderPage = (store, history, routes) => {
   const Component = (
     <Provider store={store}>
-      <Router history={history} routes={routes} />
+      <Router history={history}>
+        {renderRoutes(routes)}
+      </Router>
     </Provider>
   );
 
@@ -38,39 +38,45 @@ const startRouter = (store, history) => {
   const { subscribeRouter, routes } = createRouter(store);
   const handleError = (networkError) => store.dispatch(setError(networkError));
 
-  let hasInitialData = !isEmpty(global.__appState__);
-  let previousComponents = [];
+  // let hasInitialData = !isEmpty(global.__appState__);
+  // let previousComponents = [];
 
   const handleFetch = (location) => {
-    const matchPage = (error, redirect, props) => {
-      const shouldFetch = !hasInitialData;
-      hasInitialData = false;
+    const matchPage = () => {
+      // const shouldFetch = !hasInitialData;
+      // hasInitialData = false;
+      //
+      // if (error) return handleError(error);
+      // if (redirect) return;
 
-      if (error) return handleError(error);
-      if (redirect) return;
+      // const getLocals = () => ({
+      //   // isFirstRender: !previousComponents.includes(component),
+      //   // location: props.location,
+      //   // params: props.params,
+      //   // dispatch: store.dispatch,
+      //   // state: store.getState(),
+      //   // route: getRoutesParams(props.routes),
+      // });
 
-      const getLocals = (component) => ({
-        isFirstRender: !previousComponents.includes(component),
-        location: props.location,
-        params: props.params,
-        dispatch: store.dispatch,
-        state: store.getState(),
-        route: getRoutesParams(props.routes),
-      });
-
-      if (shouldFetch) trigger('fetch', props.components, getLocals).catch(handleError);
-      trigger('defer', props.components, getLocals).catch(handleError);
-      previousComponents = props.components;
+      // if (shouldFetch) trigger('fetch', props.components, getLocals).catch(handleError);
+      // trigger('defer', props.components, getLocals).catch(handleError);
+      // previousComponents = props.components;
     };
 
     store.dispatch(setRoute(location.pathname));
-    match({ routes, location, history }, matchPage);
+    const branch = matchRoutes(routes, location.pathname);
+
+    const promises = branch.map(({ route }) => (
+      route.component.loadData ? route.component.loadData({ dispatch: store.dispatch }) : Promise.resolve(null)
+    ));
+
+    Promise.all(promises).then(matchPage).catch(handleError);
   };
 
   if (!global.__appState__.error || global.__appState__.error.statusCode === 404) {
     if (subscribeRouter) subscribeRouter();
     history.listen(handleFetch);
-    handleFetch(history.getCurrentLocation());
+    handleFetch(history.location);
   }
 
   renderPage(store, history, routes);
@@ -79,4 +85,5 @@ const startRouter = (store, history) => {
 // Call setup functions. First setup store, then initialize router.
 if (config.debug) console.log(`Loading React v${React.version}`);
 const store = createStore(global.__appState__);
-startRouter(store, browserHistory);
+const history = createBrowserHistory();
+startRouter(store, history);

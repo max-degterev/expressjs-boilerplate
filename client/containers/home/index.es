@@ -1,5 +1,4 @@
 import React from 'react';
-import { provideHooks } from 'redial';
 import { connect } from 'react-redux';
 
 import ErrorCatcher from '../../components/error_handler';
@@ -16,12 +15,8 @@ const HomePage = ({ homeData }) => (
   </ErrorBoundary>
 );
 
-const hooks = {
-  fetch({ dispatch }) {
-    return dispatch(fetchHomeData());
-  },
-};
+HomePage.loadData = ({ dispatch }) => dispatch(fetchHomeData());
 
 const mapStateToProps = ({ homeData }) => ({ homeData });
 
-export default provideHooks(hooks)(connect(mapStateToProps)(HomePage));
+export default connect(mapStateToProps)(HomePage);
