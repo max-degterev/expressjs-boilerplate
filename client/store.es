@@ -4,6 +4,7 @@ import { createStore, applyMiddleware, combineReducers } from 'redux';
 const reducers = {
   route: require('./modules/routes/state').reducer,
   error: require('./components/error_handler/state').reducer,
+  homeData: require('./containers/home/state').reducer,
 };
 
 const middleware = [
