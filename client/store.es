@@ -10,29 +10,31 @@ const middleware = [
   require('redux-thunk').default,
 ];
 
-if (config.debug) middleware.push(require('redux-immutable-state-invariant').default());
+if (config.debug) {
+  middleware.push(require('redux-immutable-state-invariant').default());
+}
 
 if (config.sandbox) {
-  const options = { duration: true };
-
+  const loggerOptions = { duration: true };
   if (!process.browser) {
-    Object.assign(options, {
+    const extras = {
       duration: true,
       colors: false,
       level: {
-        prevState: () => false,
-        nextState: () => false,
-        action: () => 'log',
-        error: () => 'error',
+        prevState() { return false; },
+        nextState() { return false; },
+        action() { return 'log'; },
+        error() { return 'error'; },
       },
-    });
+    };
+    Object.assign(loggerOptions, extras);
   }
 
-  const { createLogger } = require('redux-logger');
-  middleware.push(createLogger(options));
+  middleware.push(require('redux-logger').createLogger(loggerOptions));
 }
 
-
-export default (initialState) => (
+const createFromState = (initialState) => (
   createStore(combineReducers(reducers), initialState, applyMiddleware(...middleware))
 );
+
+export default createFromState;
