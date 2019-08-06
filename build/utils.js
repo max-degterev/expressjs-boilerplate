@@ -1,5 +1,9 @@
+const config = require('uni-config');
 const { spawn } = require('child_process');
+const { resolve: pathResolve } = require('path');
 const chalk = require('chalk');
+
+const ROOT_PATH = `${pathResolve(`${__dirname}/..`)}/`;
 
 const utils = {
   isBuild() {
@@ -7,12 +11,7 @@ const utils = {
   },
 
   pathNormalize(path) {
-    return `${path.replace(`${__dirname}/../`, '')}`;
-  },
-
-  sourcesNormalize(input) {
-    const paths = Array.isArray(input) ? input : [input];
-    return paths.map(utils.pathNormalize);
+    return `${path.replace(`${__dirname}/../`, '').replace(ROOT_PATH, '')}`;
   },
 
   benchmarkReporter(action, startTime) {
@@ -20,7 +19,7 @@ const utils = {
   },
 
   watchReporter(path) {
-    console.log(chalk.cyan(`File ${utils.pathNormalize(path)} changed, flexing 💪`));
+    console.log(chalk.cyan(`File ${path} changed, flexing 💪`));
   },
 
   errorReporter(e) {
@@ -59,6 +58,14 @@ const utils = {
     };
 
     return new Promise(executor);
+  },
+
+  getReplacementRules() {
+    return [
+      { from: /config\.debug/g, to: config.debug },
+      { from: /config\.sandbox/g, to: config.sandbox },
+      { from: /process\.browser/g, to: true },
+    ];
   },
 };
 

@@ -3,21 +3,21 @@ const gulp = require('gulp');
 const config = require('uni-config');
 const utils = require('./utils');
 
+const POLYFILLS_FILE = 'polyfills.js';
+const APP_FILE = 'app.js';
+
 const FILE_MAP = {
-  'polyfills.js': `${__dirname}/../client/polyfills.es`,
-  'app.js': `${__dirname}/../client/index.es`,
+  [POLYFILLS_FILE]: `${__dirname}/../client/polyfills.es`,
+  [APP_FILE]: `${__dirname}/../client/index.es`,
 };
 
-const setTransforms = (bundler) => {
+const ASSETS_LOCATION = `${__dirname}/../${config.build.assets_location}`;
+const buildInProgress = {};
+
+const setTransforms = (name, bundler) => {
   // Make sure to work on *source* files, otherwise matching isn't guaranteed
   if (utils.isBuild()) {
-    const replaceOptions = {
-      replace: [
-        { from: /config\.debug/g, to: config.debug },
-        { from: /config\.sandbox/g, to: config.sandbox },
-        { from: /process\.browser/g, to: true },
-      ],
-    };
+    const replaceOptions = { replace: utils.getReplacementRules() };
 
     bundler.transform(require('browserify-replace'), replaceOptions);
   }
@@ -42,11 +42,21 @@ const setTransforms = (bundler) => {
     bundler.plugin(require('bundle-collapser/plugin'));
   }
 
+  if (name === APP_FILE) {
+    // vendorify fails if directory doesn't exist
+    require('mkdirp').sync(ASSETS_LOCATION);
+    bundler.plugin(require('vendorify'), { outfile: `${ASSETS_LOCATION}/vendor.js` });
+  }
+
   return bundler;
 };
 
 const compile = (source, name, options = {}) => {
   const startTime = Date.now();
+
+  // Browserify incremental tends to fail to cancel build in progress
+  if (options.watch && buildInProgress[name]) return Promise.resolve(name);
+  buildInProgress[name] = true;
 
   const browserifyOptions = {
     entries: source,
@@ -66,19 +76,24 @@ const compile = (source, name, options = {}) => {
 
   let bundler = require('browserify')(browserifyOptions);
   if (options.watch) bundler = require('browserify-incremental')(bundler, cacheOptions);
-  bundler = setTransforms(bundler);
+
+  bundler = setTransforms(name, bundler);
 
   const executor = (resolve) => {
     const stream = bundler
       .bundle()
-      .on('error', utils.errorReporter)
+      .on('error', (error) => {
+        buildInProgress[name] = false;
+        utils.errorReporter(error);
+      })
 
       .pipe(require('vinyl-source-stream')(name))
-      .pipe(gulp.dest(`${__dirname}/../${config.build.assets_location}`))
+      .pipe(gulp.dest(ASSETS_LOCATION))
 
       .on('end', () => {
-        utils.benchmarkReporter(`Browserified ${utils.sourcesNormalize(source)}`, startTime);
-        resolve();
+        utils.benchmarkReporter(`Browserified ${utils.pathNormalize(source)}`, startTime);
+        buildInProgress[name] = false;
+        resolve(name);
       });
 
     if (options.pipe) options.pipe(stream);
@@ -91,6 +106,7 @@ const process = (name, options) => {
   if (name && !FILE_MAP[name]) throw new Error('File isn\'t supported!');
   const files = name ? [name] : Object.keys(FILE_MAP);
   const promises = files.map((key) => compile(FILE_MAP[key], key, options));
+  if (promises.length === 1) return promises[0];
   return Promise.all(promises);
 };
 

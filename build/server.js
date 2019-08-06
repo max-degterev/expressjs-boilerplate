@@ -96,7 +96,6 @@ const process = (targetFolder) => {
     createSymlinks(),
     copyFiles(),
     compileBabel('./client'),
-    compileBabel('./i18n'),
     compileBabel('./server'),
     createLauncher(),
   ]));

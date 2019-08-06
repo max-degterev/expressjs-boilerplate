@@ -1,4 +1,3 @@
-const { resolve } = require('path');
 const gulp = require('gulp');
 
 const config = require('uni-config');
@@ -10,19 +9,30 @@ const nodemonOptions = {
   watch: [
     'config/*',
     'server/*',
-    'app.js',
+  ],
+  ignore: [
+    'build/*',
+    'test/*',
+    'vendor/*',
   ],
 };
 
-if (config.server.prerender) nodemonOptions.watch.push('client/*');
+const clientFiles = [
+  'client/*',
+];
 
-const SERVER_PATH = resolve(`${__dirname}/../app.js`);
+if (config.server.prerender) {
+  nodemonOptions.watch = nodemonOptions.watch.concat(clientFiles);
+} else {
+  nodemonOptions.ignore = nodemonOptions.ignore.concat(clientFiles);
+}
+
 // can dick around checking if port is up, but fuck it
 const SERVER_RESTART_TIME = 1500;
 
 
 const watcher = () => {
-  const livereload = require('gulp-livereload');
+  const livereload = require('tiny-lr');
   const compileScripts = require('./scripts');
   const compileStyles = require('./styles');
 
@@ -50,37 +60,39 @@ const watcher = () => {
     'templates/**/*.pug',
   ];
 
-  const reloadPage = () => livereload.reload(SERVER_PATH);
+  livereload().listen();
+  const nodemon = require('nodemon')(nodemonOptions);
 
-  livereload.listen();
-  const nodemon = require('gulp-nodemon')(nodemonOptions);
+  const handleReload = (name) => livereload.changed(name);
+  const handleNoPrerenderReload = (name) => { if (!config.server.prerender) handleReload(name); };
+  const handleServerReload = () => setTimeout(() => handleReload('server.js'), SERVER_RESTART_TIME);
 
   gulp.watch(scripts).on('change', (path) => {
     const options = { watch: true };
-    if (!config.server.prerender) options.pipe = (stream) => stream.pipe(livereload());
     utils.watchReporter(path);
-    compileScripts('app.js', options);
+    compileScripts('app.js', options).then(handleNoPrerenderReload);
   });
 
   gulp.watch(stylesheets).on('change', (path) => {
     utils.watchReporter(path);
-    const pipe = (stream) => stream.pipe(livereload());
-    compileStyles({ pipe });
+    compileStyles().then(handleReload);
   });
 
   gulp.watch(templates).on('change', (path) => {
     utils.watchReporter(path);
-    reloadPage();
+    handleServerReload();
   });
 
   nodemon.on('start', () => {
-    if (nodemonRestarts) setTimeout(reloadPage, SERVER_RESTART_TIME);
+    if (nodemonRestarts) handleServerReload();
     nodemonRestarts += 1;
   });
 
-  nodemon.on('restart', (files) => {
-    files.forEach(utils.watchReporter);
+  nodemon.on('restart', (files = []) => {
+    files.map(utils.pathNormalize).forEach(utils.watchReporter);
   });
+
+  nodemon.on('log', (log) => { console.log(log.colour); });
 };
 
 module.exports = watcher;

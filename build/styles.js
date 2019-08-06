@@ -8,7 +8,6 @@ const source = `${__dirname}/../styles/index.styl`;
 const stylusOptions = {
   errors: config.debug,
   sourcemaps: config.debug,
-  use: [require('nib')()],
   paths: [
     `${__dirname}/../client`,
     `${__dirname}/../node_modules`,
@@ -23,19 +22,24 @@ const stylusOptions = {
 
 const process = (options = {}) => {
   const startTime = Date.now();
+  const name = 'app.css';
 
   const executor = (resolve) => {
     const stream = gulp
       .src(source)
       .pipe(require('gulp-stylus')(stylusOptions))
+      .pipe(require('gulp-postcss')([
+        require('autoprefixer')(),
+        require('postcss-flexbugs-fixes'),
+      ]))
       .on('error', utils.errorReporter)
 
-      .pipe(require('gulp-rename')('app.css'))
+      .pipe(require('gulp-rename')(name))
       .pipe(gulp.dest(`${__dirname}/../${config.build.assets_location}`))
 
       .on('end', () => {
-        utils.benchmarkReporter(`Stylusified ${utils.sourcesNormalize(source)}`, startTime);
-        resolve();
+        utils.benchmarkReporter(`Stylusified ${utils.pathNormalize(source)}`, startTime);
+        resolve(name);
       });
 
     if (options.pipe) options.pipe(stream);
