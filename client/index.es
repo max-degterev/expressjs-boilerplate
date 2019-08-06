@@ -67,7 +67,9 @@ const startRouter = (store, history) => {
     const branch = matchRoutes(routes, location.pathname);
 
     const promises = branch.map(({ route }) => (
-      route.component.loadData ? route.component.loadData({ dispatch: store.dispatch }) : Promise.resolve(null)
+      route.component.loadData ?
+        route.component.loadData({ dispatch: store.dispatch }) :
+        Promise.resolve(null)
     ));
 
     Promise.all(promises).then(matchPage).catch(handleError);
