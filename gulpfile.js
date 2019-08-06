@@ -37,7 +37,8 @@ gulp.task('minify:scripts', () => (
       `!${ASSETS_LOCATION}/*.min.*`,
       `!${ASSETS_LOCATION}/*.min-*`,
     ])
-    .pipe(require('gulp-uglify')({
+    .pipe(require('gulp-minify')({
+      mangle: true,
       compress: { drop_console: true },
       output: { max_line_len: 64000 },
     }))
@@ -75,8 +76,7 @@ gulp.task('hashify', () => {
 gulp.task('compress', () => (
   gulp
     .src([
-      `${ASSETS_LOCATION}/app-*.min.*`,
-      `${ASSETS_LOCATION}/locale-*.min.*`,
+      `${ASSETS_LOCATION}/*-*.min.*`,
       `!${ASSETS_LOCATION}/*.gz`,
     ])
     .pipe(require('gulp-gzip')())
@@ -85,19 +85,21 @@ gulp.task('compress', () => (
 
 const buildSequence = [
   'clean',
-
   gulp.parallel('scripts', 'styles'),
   'decache:styles',
-
   gulp.parallel('minify:scripts', 'minify:styles'),
   'hashify',
-
   'compress',
+];
+
+const compileSequence = [
+  'clean',
+  gulp.parallel('scripts', 'styles'),
 ];
 
 gulp.task('build', gulp.series(...buildSequence));
 
-gulp.task('compile', gulp.parallel('scripts', 'styles'));
+gulp.task('compile', gulp.series(...compileSequence));
 gulp.task('compile:server', gulp.series('clean:server', 'scripts:server'));
 
 gulp.task('lint', () => require('./build/linters')().lintRun());

@@ -1,2 +1,2 @@
-require('babel-register')({ extensions: ['.es'] });
+require('@babel/register')({ extensions: ['.es'] });
 require('./server')();

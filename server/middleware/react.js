@@ -1,5 +1,3 @@
-const { error: logError } = require('winston');
-
 const React = require('react');
 const { renderToString } = require('react-dom/server');
 
@@ -9,13 +7,13 @@ const RouterContext = require('react-router/lib/RouterContext');
 const { Provider } = require('react-redux');
 const { trigger } = require('redial');
 
-const createStore = require('../../client/store').default;
-const createRouter = require('../../client/modules/routes').default;
+const createStore = require('../../client/store');
+const createRouter = require('../../client/modules/routes');
 const { getRoutesParams } = require('../../client/modules/routes/utils');
 
 const Error404 = require('../../client/containers/error_404');
 
-const { setError } = require('../../client/components/errorhandler/state').actions;
+const { setError } = require('../../client/components/error_handler/state').actions;
 const { setRoute } = require('../../client/modules/routes/state').actions;
 
 
@@ -46,13 +44,13 @@ const prerender = (req, res, next) => {
 
   const handleError = (error) => {
     store.dispatch(setError(error));
-    logError(`Request ${req.url} failed to fetch data:`, error);
+    console.error(`Request ${req.url} failed to fetch data:`, error);
     renderError(res, store);
   };
 
   const matchPage = (error, redirect, props) => {
     if (error) {
-      logError(`Request ${req.url} failed to route:`, error.message);
+      console.error(`Request ${req.url} failed to route:`, error.message);
       return next();
     }
 

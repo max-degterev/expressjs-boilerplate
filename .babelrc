@@ -1,24 +1,27 @@
 {
   "presets": [
-    ["env", { "useBuiltIns": true }],
-    "stage-3",
-    "react"
+    "@babel/preset-env",
+    "@babel/preset-react"
   ],
   "plugins": [
-    ["transform-runtime", { "polyfill": false, "regenerator": true, "helpers": true }]
+    ["add-module-exports", { "addDefaultProperty": true }],
+    "@babel/plugin-transform-strict-mode",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-json-strings"
   ],
   "env": {
     "development": {
       "plugins": [
-        "transform-react-jsx-self"
+        "@babel/plugin-transform-react-jsx-self"
       ]
     },
     "production": {
       "plugins": [
+        "@babel/plugin-transform-runtime",
         "transform-node-env-inline",
-        "transform-react-constant-elements",
+        "@babel/plugin-transform-react-constant-elements",
         "transform-react-remove-prop-types",
-        "transform-react-inline-elements"
+        "@babel/plugin-transform-react-inline-elements"
       ]
     }
   }

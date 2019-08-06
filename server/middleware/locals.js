@@ -1,7 +1,7 @@
 const config = require('uni-config');
 const pick = require('lodash/pick');
-const asset = require('../../build/assetmanager');
 const serialize = require('serialize-javascript');
+const asset = require('../../build/assetmanager');
 
 
 const injectLocals = (req, res, next) => {

@@ -1,4 +1,4 @@
---compilers es:babel-register
+--require require_hooks
 --globals document
 --check-leaks
 --recursive

@@ -13,6 +13,7 @@ export const reducer = (state = null, action) => {
     case types.ROUTE_SET: {
       return action.payload;
     }
+
     default: {
       return state;
     }

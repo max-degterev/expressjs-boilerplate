@@ -1,37 +1,38 @@
 // WARNING!
 // Do not require this file in the main bundle! It is loaded separately to improve caching.
 
-require('core-js/es6/map'); // Used by React
-require('core-js/es6/set'); // Used by React
+require('core-js/es/map'); // Used by React
+require('core-js/es/set'); // Used by React
 
-require('core-js/fn/array/from'); // Used by Babel
-require('core-js/fn/symbol'); // Used by Babel
-require('core-js/fn/symbol/iterator'); // Used by Babel
+require('core-js/es/array/from'); // Used by Babel
+require('core-js/es/symbol'); // Used by Babel
+require('core-js/es/symbol/iterator'); // Used by Babel
+require('core-js/es/object/assign'); // Used by Babel
 
-require('core-js/fn/object/assign');
-require('core-js/fn/object/is');
+require('core-js/es/object/is');
 
-require('core-js/fn/array/entries');
-require('core-js/fn/array/every');
-require('core-js/fn/array/find');
-require('core-js/fn/array/find-index');
-require('core-js/fn/array/includes');
-require('core-js/fn/array/keys');
-require('core-js/fn/array/values');
+require('core-js/es/array/entries');
+require('core-js/es/array/every');
+require('core-js/es/array/find');
+require('core-js/es/array/find-index');
+require('core-js/es/array/includes');
+require('core-js/es/array/keys');
+require('core-js/es/array/values');
 
-require('core-js/fn/promise');
+require('core-js/es/promise');
+require('core-js/es/promise/finally');
 
-require('core-js/fn/number/is-finite');
-require('core-js/fn/number/is-nan');
-require('core-js/fn/number/is-integer');
-require('core-js/fn/number/is-safe-integer');
+require('core-js/es/number/is-finite');
+require('core-js/es/number/is-nan');
+require('core-js/es/number/is-integer');
+require('core-js/es/number/is-safe-integer');
 
-require('core-js/fn/math/sign');
+require('core-js/es/math/sign');
 
-require('core-js/fn/string/ends-with');
-require('core-js/fn/string/includes');
-require('core-js/fn/string/repeat');
-require('core-js/fn/string/starts-with');
+require('core-js/es/string/ends-with');
+require('core-js/es/string/includes');
+require('core-js/es/string/repeat');
+require('core-js/es/string/starts-with');
 
 require('fastclick')(document.body);
 

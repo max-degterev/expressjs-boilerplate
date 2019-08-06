@@ -16,7 +16,7 @@ import createStore from './store';
 import createRouter from './modules/routes';
 import { getRoutesParams } from './modules/routes/utils';
 
-import { actions as errorActions } from './components/errorhandler/state';
+import { actions as errorActions } from './components/error_handler/state';
 import { actions as routeActions } from './modules/routes/state';
 
 const { setError } = errorActions;

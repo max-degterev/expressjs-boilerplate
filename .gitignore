@@ -40,6 +40,5 @@ config/local.*
 # Generated static stuff
 public/assets/*.*
 public/*.gz
-public/*.html
 
 .compiled
