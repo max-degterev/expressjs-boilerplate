@@ -11,7 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import createStore from './store';
 import createRouter from './modules/routes';
-import { getResolver, renderRoutes } from './modules/resolver';
+import { runResolver, renderRoutes } from './modules/resolver';
 
 import { actions as errorActions } from './components/error_handler/state';
 import { actions as routeActions } from './modules/routes/state';
@@ -22,29 +22,26 @@ const { setRoute } = routeActions;
 // Router setup. Accepts history and routes.
 // Both history and routes are relying on store and dispatching events.
 const renderPage = (store, history, routes) => {
-  const Component = (
+  const content = (
     <Provider store={store}>
-      <Router history={history}>
-        {renderRoutes(routes)}
-      </Router>
+      <Router history={history}>{renderRoutes(routes)}</Router>
     </Provider>
   );
 
   const renderer = isEmpty(global.__appState__) ? render : hydrate;
-  return renderer(Component, document.getElementById('main'));
+  return renderer(content, document.getElementById('main'));
 };
 
 const startRouter = (store, history) => {
   const { subscribeRouter, routes } = createRouter(store);
+  const getLocals = (details) => ({ ...details, store });
   const handleError = (networkError) => store.dispatch(setError(networkError));
 
   let shouldFetch = isEmpty(global.__appState__);
-
   const handleFetch = (location) => {
     const { pathname } = location;
-    const getLocals = (details) => ({ ...details, store });
     store.dispatch(setRoute(pathname));
-    if (shouldFetch) getResolver(routes, pathname, getLocals).catch(handleError);
+    if (shouldFetch) runResolver(routes, pathname, getLocals).catch(handleError);
     shouldFetch = true;
   };
 

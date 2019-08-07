@@ -4,7 +4,7 @@ const { renderToString } = require('react-dom/server');
 const { StaticRouter } = require('react-router');
 
 const { Provider } = require('react-redux');
-const { getResolver, renderRoutes } = require('../../client/modules/resolver');
+const { runResolver, renderRoutes } = require('../../client/modules/resolver');
 
 const createStore = require('../../client/store');
 const createRouter = require('../../client/modules/routes');
@@ -13,10 +13,11 @@ const { setError } = require('../../client/components/error_handler/state').acti
 const { setRoute } = require('../../client/modules/routes/state').actions;
 
 
-const renderApp = ({ routes, store, location, context }) => {
-  const router = React.createElement(StaticRouter, { location, context }, renderRoutes(routes));
-  const content = React.createElement(Provider, { store }, router);
-  return renderToString(content);
+const renderContent = ({ routes, store, location, context }) => {
+  const routeComponents = renderRoutes(routes);
+  const routerComponent = React.createElement(StaticRouter, { location, context }, routeComponents);
+  const storeComponent = React.createElement(Provider, { store }, routerComponent);
+  return renderToString(storeComponent);
 };
 
 const renderPage = (res, store, context, content) => {
@@ -28,7 +29,6 @@ const renderPage = (res, store, context, content) => {
 const renderError = (res, store) => {
   const state = store.getState();
   Object.assign(res.locals.state, state);
-
   res.status(state.error.statusCode || 500).render('index');
 };
 
@@ -46,13 +46,13 @@ const prerender = (req, res) => {
 
   const matchPage = () => {
     const context = {};
-    const content = renderApp({ routes, store, context, location: req.url });
-    if (context.url) return res.redirect(301, context.url);
+    const content = renderContent({ routes, store, context, location: req.url });
+    if (context.url) return res.redirect(context.statusCode || 301, context.url);
     renderPage(res, store, context, content);
   };
 
   store.dispatch(setRoute(req.path));
-  getResolver(routes, req.path, getLocals).then(matchPage).catch(handleError);
+  runResolver(routes, req.path, getLocals).then(matchPage).catch(handleError);
 };
 
 module.exports = () => prerender;

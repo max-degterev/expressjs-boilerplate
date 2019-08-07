@@ -1,8 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { connectResolver } from '../../modules/resolver';
-
 import ErrorCatcher from '../../components/error_handler';
 import ErrorBoundary from '../../components/error_boundary';
 
@@ -17,7 +15,6 @@ const HomePage = ({ homeData }) => (
   </ErrorBoundary>
 );
 
-const getResolverPromise = ({ store }) => store.dispatch(fetchHomeData());
-
+HomePage.resolver = ({ store }) => store.dispatch(fetchHomeData());
 const mapStateToProps = ({ homeData }) => ({ homeData });
-export default connectResolver(getResolverPromise, connect(mapStateToProps)(HomePage));
+export default connect(mapStateToProps)(HomePage);
