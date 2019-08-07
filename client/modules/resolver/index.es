@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { matchPath, Switch, Route, Redirect } from 'react-router';
 
 const RESOLVER_PROP_NAME = '__runResolverPromise__';
@@ -62,11 +62,14 @@ const renderRoute = (route) => {
 };
 
 const renderItem = (route, i) => {
-  const { key, statusCode, ...options } = route;
-  const Wrapper = statusCode ? ResponseStatus : Fragment;
+  const { key: _key, statusCode, ...options } = route;
+  const key = _key || i;
+  if (!statusCode) options.key = key;
   const content = route.from ? <Redirect {...options} /> : renderRoute(options);
 
-  return <Wrapper key={key || i} statusCode={statusCode}>{content}</Wrapper>;
+  if (!statusCode) return content;
+
+  return <ResponseStatus key={key} statusCode={statusCode}>{content}</ResponseStatus>;
 };
 
 export const renderRoutes = (routes) => {
