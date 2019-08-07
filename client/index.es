@@ -39,27 +39,13 @@ const startRouter = (store, history) => {
   const handleError = (networkError) => store.dispatch(setError(networkError));
 
   let shouldFetch = isEmpty(global.__appState__);
-  let previousLocation = null;
 
   const handleFetch = (location) => {
     const { pathname } = location;
-    const getLocals = ({ route, match }) => ({
-      route,
-      previousLocation,
-      location,
-      params: match.params,
-      dispatch: store.dispatch,
-      state: store.getState(),
-    });
-
-    const matchPage = () => {
-      shouldFetch = true;
-      previousLocation = location;
-    };
-
+    const getLocals = (details) => ({ ...details, store });
     store.dispatch(setRoute(pathname));
-    if (shouldFetch) getResolver(routes, pathname, getLocals).then(matchPage).catch(handleError);
-    else matchPage();
+    if (shouldFetch) getResolver(routes, pathname, getLocals).catch(handleError);
+    shouldFetch = true;
   };
 
   if (!global.__appState__.error || global.__appState__.error.statusCode === 404) {

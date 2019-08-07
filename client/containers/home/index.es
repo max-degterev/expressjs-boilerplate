@@ -17,7 +17,7 @@ const HomePage = ({ homeData }) => (
   </ErrorBoundary>
 );
 
-const getResolverPromise = ({ dispatch }) => dispatch(fetchHomeData());
+const getResolverPromise = ({ store }) => store.dispatch(fetchHomeData());
 
 const mapStateToProps = ({ homeData }) => ({ homeData });
 export default connectResolver(getResolverPromise, connect(mapStateToProps)(HomePage));

@@ -1,3 +1,7 @@
+import React from 'react';
+import Error404 from '../../containers/error_404';
+
+
 export default () => {
   const routes = [
     {
@@ -6,7 +10,14 @@ export default () => {
       component: require('../../containers/home'),
     },
     {
-      component: require('../../containers/error_404'),
+      from: '/redirect',
+      to: '/',
+    },
+    {
+      render: ({ staticContext }) => {
+        if (staticContext) staticContext.statusCode = 404;
+        return <Error404 />;
+      },
     },
   ];
 
