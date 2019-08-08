@@ -41,7 +41,7 @@ const injectStatusCode = (context, statusCode) => {
   if (context && statusCode) context.statusCode = statusCode;
 };
 
-export const ResponseStatus = ({ statusCode, children, ...props }) => {
+export const RouteStatus = ({ statusCode, children, ...props }) => {
   const render = ({ staticContext }) => {
     injectStatusCode(staticContext, statusCode);
     return children;
@@ -56,9 +56,9 @@ const renderRedirect = (route) => {
 
   const { key, ...props } = options;
   return (
-    <ResponseStatus {...{ key, statusCode }} path={options.from}>
+    <RouteStatus {...{ key, statusCode }} path={options.from}>
       <Redirect {...props} />
-    </ResponseStatus>
+    </RouteStatus>
   );
 };
 
