@@ -37,23 +37,40 @@ export const runResolver = (routes, path, getLocals = defaultGetLocals) => {
   return resolver(getLocals(details));
 };
 
-export const ResponseStatus = ({ statusCode, children }) => {
+const injectStatusCode = (context, statusCode) => {
+  if (context && statusCode) context.statusCode = statusCode;
+};
+
+export const ResponseStatus = ({ statusCode, children, ...props }) => {
   const render = ({ staticContext }) => {
-    if (staticContext) staticContext.statusCode = statusCode;
+    injectStatusCode(staticContext, statusCode);
     return children;
   };
 
-  return <Route render={render} />;
+  return <Route {...props} render={render} />;
+};
+
+const renderRedirect = (route) => {
+  const { statusCode, ...options } = route;
+  if (!statusCode) return <Redirect {...options} />;
+
+  const { key, ...props } = options;
+  return (
+    <ResponseStatus {...{ key, statusCode }} path={options.from}>
+      <Redirect {...props} />
+    </ResponseStatus>
+  );
 };
 
 const renderRoute = (route) => {
-  const { component: RouteComponent, props, ...options } = route;
+  const { component: RouteComponent, statusCode, props, ...options } = route;
   if (!route.render && !RouteComponent) {
     console.error('Either `component` or `render` is required for every route.');
     return null;
   }
 
   const render = (routeProps) => {
+    injectStatusCode(routeProps.staticContext, statusCode);
     if (route.render) return route.render({ ...routeProps, ...props });
     return <RouteComponent {...routeProps} {...props} />;
   };
@@ -62,14 +79,10 @@ const renderRoute = (route) => {
 };
 
 const renderItem = (route, i) => {
-  const { key: _key, statusCode, ...options } = route;
-  const key = _key || i;
-  if (!statusCode) options.key = key;
-  const content = route.from ? <Redirect {...options} /> : renderRoute(options);
-
-  if (!statusCode) return content;
-
-  return <ResponseStatus key={key} statusCode={statusCode}>{content}</ResponseStatus>;
+  const { ...options } = route;
+  if (!options.key) options.key = i;
+  if (options.from) return renderRedirect(options);
+  return renderRoute(options);
 };
 
 export const renderRoutes = (routes) => {

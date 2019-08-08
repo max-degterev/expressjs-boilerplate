@@ -8,6 +8,7 @@ export default () => {
     {
       from: '/redirect',
       to: '/',
+      statusCode: 302,
     },
     {
       component: require('../../containers/error_404'),
