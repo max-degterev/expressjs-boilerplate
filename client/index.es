@@ -34,12 +34,12 @@ const renderPage = (store, history, routes) => {
 
 const startRouter = (store, history) => {
   const { subscribeRouter, routes } = createRouter(store);
-  const getLocals = (details) => ({ ...details, store });
   const handleError = (networkError) => store.dispatch(setError(networkError));
 
   let shouldFetch = isEmpty(global.__appState__);
   const handleFetch = (location) => {
     const { pathname } = location;
+    const getLocals = (details) => ({ ...details, store, location });
     store.dispatch(setRoute(pathname));
     if (shouldFetch) runResolver(routes, pathname, getLocals).catch(handleError);
     shouldFetch = true;

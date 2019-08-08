@@ -2,6 +2,7 @@ const React = require('react');
 const { renderToString } = require('react-dom/server');
 
 const { StaticRouter } = require('react-router');
+const { createLocation } = require('history');
 
 const { Provider } = require('react-redux');
 const { runResolver, renderRoutes } = require('../../client/modules/resolver');
@@ -35,6 +36,7 @@ const renderError = (res, store) => {
 const prerender = (req, res) => {
   const store = createStore();
   const { routes } = createRouter(store);
+  const location = createLocation(req.url);
 
   const handleError = (error) => {
     store.dispatch(setError(error));
@@ -42,7 +44,7 @@ const prerender = (req, res) => {
     renderError(res, store);
   };
 
-  const getLocals = (details) => ({ ...details, store });
+  const getLocals = (details) => ({ ...details, store, location });
 
   const matchPage = () => {
     const context = {};
