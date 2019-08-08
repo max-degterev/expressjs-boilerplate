@@ -37,7 +37,7 @@ export const runResolver = (routes, path, getLocals = defaultGetLocals) => {
   return resolver(getLocals(details));
 };
 
-const injectStatusCode = (context, statusCode) => {
+export const injectStatusCode = (context, statusCode) => {
   if (context && statusCode) context.statusCode = statusCode;
 };
 
@@ -50,7 +50,7 @@ export const RouteStatus = ({ statusCode, children, ...props }) => {
   return <Route {...props} render={render} />;
 };
 
-const renderRedirect = (route) => {
+export const renderRedirect = (route) => {
   const { statusCode, ...options } = route;
   if (!statusCode) return <Redirect {...options} />;
 
@@ -62,8 +62,8 @@ const renderRedirect = (route) => {
   );
 };
 
-const renderRoute = (route) => {
-  const { component: RouteComponent, statusCode, props, ...options } = route;
+export const renderRoute = (route) => {
+  const { component: RouteComponent, statusCode, props, onEnter, ...options } = route;
   if (!route.render && !RouteComponent) {
     console.error('Either `component` or `render` is required for every route.');
     return null;
@@ -71,7 +71,9 @@ const renderRoute = (route) => {
 
   const render = (routeProps) => {
     injectStatusCode(routeProps.staticContext, statusCode);
-    if (route.render) return route.render({ ...routeProps, ...props });
+    const redirect = typeof onEnter === 'function' && onEnter(routeProps);
+    if (redirect) return renderRedirect(typeof redirect === 'string' ? { to: redirect } : redirect);
+    if (route.render) return route.render(routeProps);
     return <RouteComponent {...routeProps} {...props} />;
   };
 
@@ -81,8 +83,8 @@ const renderRoute = (route) => {
 const renderItem = (route, i) => {
   const { ...options } = route;
   if (!options.key) options.key = i;
-  if (options.from) return renderRedirect(options);
-  return renderRoute(options);
+  const render = options.from ? renderRedirect : renderRoute;
+  return render(options);
 };
 
 export const renderRoutes = (routes) => {
