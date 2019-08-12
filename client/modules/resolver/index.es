@@ -1,3 +1,4 @@
+/* eslint no-use-before-define: ["off"] */
 import React from 'react';
 import { matchPath, Switch, Route, Redirect } from 'react-router';
 
@@ -15,10 +16,21 @@ export const connectResolver = (getPromise, Component) => {
 };
 
 const matchRoute = (routes, path) => {
+  let matches = [];
+
   for (const route of routes) {
     const match = matchPath(path, route);
-    if (match) return { route, match };
+    if (!match) continue;
+
+    matches.push({ route, match });
+    if (Array.isArray(route.routes)) {
+      const nested = matchRoute(route.routes, path);
+      if (nested) matches = matches.concat(nested);
+    }
+
+    return matches;
   }
+
   return null;
 };
 
@@ -28,13 +40,17 @@ const getResolver = ({ component }) => {
 };
 
 export const runResolver = (routes, path, getLocals = defaultGetLocals) => {
-  const details = matchRoute(routes, path);
-  if (!details) return emptyPromise;
+  const matches = matchRoute(routes, path);
+  if (!matches || !matches.length) return emptyPromise;
 
-  const resolver = getResolver(details.route);
-  if (!resolver) return emptyPromise;
+  const promises = matches.map((details) => {
+    const resolver = getResolver(details.route);
+    if (!resolver) return emptyPromise;
 
-  return resolver(getLocals(details));
+    return resolver(getLocals(details));
+  });
+
+  return Promise.all(promises);
 };
 
 export const injectStatusCode = (context, statusCode) => {
@@ -63,18 +79,21 @@ export const renderRedirect = (route) => {
 };
 
 export const renderRoute = (route) => {
-  const { component: RouteComponent, statusCode, props, onEnter, ...options } = route;
+  const { component: RouteComponent, statusCode, props, routes, onEnter, ...options } = route;
   if (!route.render && !RouteComponent) {
     console.error('Either `component` or `render` is required for every route.');
     return null;
   }
 
+  let nestedRoutes;
+  if (Array.isArray(routes)) nestedRoutes = renderRoutes(routes);
+
   const render = (routeProps) => {
     injectStatusCode(routeProps.staticContext, statusCode);
     const redirect = typeof onEnter === 'function' && onEnter(routeProps);
     if (redirect) return renderRedirect(typeof redirect === 'string' ? { to: redirect } : redirect);
-    if (route.render) return route.render(routeProps);
-    return <RouteComponent {...routeProps} {...props} />;
+    if (route.render) return route.render({ ...routeProps, nestedRoutes });
+    return <RouteComponent {...routeProps} {...props}>{nestedRoutes}</RouteComponent>;
   };
 
   return <Route {...options} render={render} />;
