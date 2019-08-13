@@ -13,11 +13,12 @@ class HomePage extends PureComponent {
   }
 
   render() {
-    const { homeData } = this.props;
+    const { homeData, wrapperData } = this.props;
     return (
       <ErrorBoundary>
         <div className="HomePage">
-          It works! Times data was loaded: {homeData.loadedTimes || 0}.
+          It works!
+          <pre>{JSON.stringify({ homeData, wrapperData }, null, 2)}</pre>
           <ErrorCatcher />
         </div>
       </ErrorBoundary>
@@ -28,5 +29,5 @@ class HomePage extends PureComponent {
 // Fetch on server side here
 HomePage.resolver = ({ store }) => store.dispatch(fetchHomeData());
 
-const mapStateToProps = ({ homeData }) => ({ homeData });
+const mapStateToProps = ({ homeData, wrapperData }) => ({ homeData, wrapperData });
 export default connect(mapStateToProps)(HomePage);

@@ -1,19 +1,19 @@
-const DataLoader = ({ children }) => children;
-DataLoader.resolver = () => {
-  console.log('Nested routes worked properly.');
-  return Promise.resolve();
-};
+
 
 export default () => {
   const routes = [
     {
       path: '*', // Needed for the fetch to work, OK to leave empty for 404s that don't load data
-      component: DataLoader,
+      component: require('../../containers/wrapper'),
       routes: [
         {
           path: '/',
           exact: true,
           component: require('../../containers/home'),
+        },
+        {
+          path: '/prompt',
+          component: require('../../containers/prompt'),
         },
         {
           from: '/redirect',

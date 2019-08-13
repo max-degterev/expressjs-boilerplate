@@ -5,6 +5,7 @@ const reducers = {
   route: require('./modules/routes/state').reducer,
   error: require('./components/error_handler/state').reducer,
   homeData: require('./containers/home/state').reducer,
+  wrapperData: require('./containers/wrapper/state').reducer,
 };
 
 const middleware = [
