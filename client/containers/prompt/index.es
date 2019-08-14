@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Link, Prompt } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import ErrorBoundary from '../../components/error_boundary';
 
@@ -8,12 +8,24 @@ class PromptPage extends PureComponent {
   constructor(props) {
     super(props);
     this.state = { checked: true };
+
+    this.handleNavigate = this.handleNavigate.bind(this);
     this.handleUpdate = this.handleUpdate.bind(this);
   }
 
   componentDidMount() {
     // Fetch additional information here
     console.log('Prompt page mounted');
+    this.unblock = this.props.history.block(this.handleNavigate);
+  }
+
+  componentWillUnmount() {
+    this.unblock();
+  }
+
+  handleNavigate(location) {
+    console.warn(`Attempting to navigate to ${location.pathname}`);
+    return !this.state.checked;
   }
 
   handleUpdate({ target: { checked } }) {
@@ -38,10 +50,6 @@ class PromptPage extends PureComponent {
             Prevent navigation?
           </label>
           <Link to="/">Home page</Link>
-          <Prompt
-            when={checked}
-            message={this.handleMessage}
-          />
         </div>
       </ErrorBoundary>
     );
