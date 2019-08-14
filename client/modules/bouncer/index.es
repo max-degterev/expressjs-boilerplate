@@ -1,6 +1,6 @@
 const getReplay = (history, location, action) => {
   // attempting to replay `POP` with goBack simply returns to the same state as before.
-  const key = action === 'POP' ? 'replace' : action.toLoweCase();
+  const key = action === 'POP' ? 'replace' : action.toLowerCase();
   return () => history[key](location);
 };
 
