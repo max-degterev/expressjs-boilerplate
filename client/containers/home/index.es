@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
+import { Link } from 'react-router-dom';
+
 import ErrorCatcher from '../../components/error_handler';
 import ErrorBoundary from '../../components/error_boundary';
 
@@ -17,7 +19,7 @@ class HomePage extends PureComponent {
     return (
       <ErrorBoundary>
         <div className="HomePage">
-          It works!
+          It works! <Link to="/prompt">Prompt?</Link>
           <pre>{JSON.stringify({ homeData, wrapperData }, null, 2)}</pre>
           <ErrorCatcher />
         </div>

@@ -1,43 +1,42 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 
+import bouncer from '../../modules/bouncer';
+
 import ErrorBoundary from '../../components/error_boundary';
 
 
 class PromptPage extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { checked: true };
+    this.state = { prevent: true, delay: true };
 
     this.handleNavigate = this.handleNavigate.bind(this);
-    this.handleUpdate = this.handleUpdate.bind(this);
   }
 
   componentDidMount() {
     // Fetch additional information here
     console.log('Prompt page mounted');
-    this.unblock = this.props.history.block(this.handleNavigate);
+    this.unblock = bouncer(this.props.history, this.handleNavigate);
   }
 
   componentWillUnmount() {
     this.unblock();
   }
 
-  handleNavigate(location) {
-    console.warn(`Attempting to navigate to ${location.pathname}`);
-    return !this.state.checked;
+  handleNavigate(location, action, callback) {
+    const { prevent, delay } = this.state;
+    console.warn(`Attempting to navigate to ${location.pathname}`, this.state);
+    if (!delay) return !prevent;
+    setTimeout(() => callback(!prevent), 1500);
   }
 
-  handleUpdate({ target: { checked } }) {
-    this.setState({ checked });
-  }
-
-  handleMessage(location) {
-    return `Are you sure you want to go to ${location.pathname}?`;
+  handleUpdate(prop) {
+    return ({ target: { checked } }) => this.setState({ [prop]: checked });
   }
 
   render() {
-    const { checked } = this.state;
+    const { prevent, delay } = this.state;
     return (
       <ErrorBoundary>
         <div className="PromptPage">
@@ -45,9 +44,17 @@ class PromptPage extends PureComponent {
           <label>
             <input
               type="checkbox"
-              checked={checked} onChange={this.handleUpdate}
+              checked={prevent} onChange={this.handleUpdate('prevent')}
             />
             Prevent navigation?
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={delay} onChange={this.handleUpdate('delay')}
+            />
+            Delay?
           </label>
           <Link to="/">Home page</Link>
         </div>
