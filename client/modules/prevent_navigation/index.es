@@ -64,14 +64,14 @@ const addListener = (callback) => {
   };
 };
 
-const noopBlock = () => console.error('history.block is unavailable, please use replacer method');
+const noop = () => console.error('history.block is unavailable, please use the replacer method');
 
 const patchHistory = (history, methodName = 'block') => {
   if (!process.browser) throw new Error('This can only work in a browser environment.');
 
   instance = history;
   history.block(handleNavigate);
-  if (methodName !== 'block') history.block = noopBlock;
+  if (methodName !== 'block') history.block = noop;
   history[methodName] = addListener;
 
   return history;
