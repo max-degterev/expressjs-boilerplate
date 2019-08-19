@@ -32,16 +32,19 @@ const handleNavigate = (location, action) => {
 
   for (const callback of listeners) {
     const result = callback(location, action, handleResponse);
+    const type = typeof result;
 
     // Proceed to the next listener, this one clears the action
     if (result === true) continue;
 
     // Listener waits for an asynchronous confirmation
-    if (typeof result !== 'boolean') return false;
+    if (type === 'undefined') return false;
 
-    // Listener returned false, navigation impossible
+    // Otherwise synchronous, no need to keep the action in memory
     preventedAction = null;
-    return false;
+
+    // This result needs to be passed to the original method as is (value is a string or false)
+    return result;
   }
 
   // Every registered listener cleared this transition
@@ -63,12 +66,12 @@ const addListener = (callback) => {
 
 const noopBlock = () => console.error('history.block is unavailable, please use replacer method');
 
-const patchHistory = (history, methodName = 'preventNavigation') => {
+const patchHistory = (history, methodName = 'block') => {
   if (!process.browser) throw new Error('This can only work in a browser environment.');
 
   instance = history;
   history.block(handleNavigate);
-  history.block = noopBlock;
+  if (methodName !== 'block') history.block = noopBlock;
   history[methodName] = addListener;
 
   return history;

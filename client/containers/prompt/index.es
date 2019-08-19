@@ -15,7 +15,7 @@ class PromptPage extends PureComponent {
   componentDidMount() {
     // Fetch additional information here
     console.log('Prompt page mounted');
-    this.unblock = this.props.history.preventNavigation(this.handleNavigate);
+    this.unblock = this.props.history.block(this.handleNavigate);
   }
 
   componentWillUnmount() {
