@@ -11,6 +11,7 @@ import isEmpty from 'lodash/isEmpty';
 
 import createStore from './store';
 import createRouter from './modules/routes';
+import preventNavigationPatch from './modules/prevent_navigation';
 import { runResolver, renderRoutes } from './modules/resolver';
 
 import { actions as errorActions } from './components/error_handler/state';
@@ -57,5 +58,5 @@ const startRouter = (store, history) => {
 // Call setup functions. First setup store, then initialize router.
 if (config.debug) console.log(`Loading React v${React.version}`);
 const store = createStore(global.__appState__);
-const history = createBrowserHistory();
+const history = preventNavigationPatch(createBrowserHistory());
 startRouter(store, history);

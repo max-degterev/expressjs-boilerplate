@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 
-import bouncer from '../../modules/bouncer';
-
 import ErrorBoundary from '../../components/error_boundary';
 
 
@@ -17,7 +15,7 @@ class PromptPage extends PureComponent {
   componentDidMount() {
     // Fetch additional information here
     console.log('Prompt page mounted');
-    this.unblock = bouncer(this.props.history, this.handleNavigate);
+    this.unblock = this.props.history.preventNavigation(this.handleNavigate);
   }
 
   componentWillUnmount() {
