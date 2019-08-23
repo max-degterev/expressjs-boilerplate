@@ -2,18 +2,17 @@ import config from 'uni-config';
 import React from 'react';
 import { render, hydrate } from 'react-dom';
 
-import Router from 'react-router/lib/Router';
-import browserHistory from 'react-router/lib/browserHistory';
-import match from 'react-router/lib/match';
+import { Router } from 'react-router';
+import { runResolver, renderRoutes } from 'react-router-manager';
+import { createBrowserHistory } from 'history';
+import patchBlockFn from 'history-block-async';
 
 import { Provider } from 'react-redux';
-import { trigger } from 'redial';
 
 import isEmpty from 'lodash/isEmpty';
 
 import createStore from './store';
 import createRouter from './modules/routes';
-import { getRoutesParams } from './modules/routes/utils';
 
 import { actions as errorActions } from './components/error_handler/state';
 import { actions as routeActions } from './modules/routes/state';
@@ -24,53 +23,33 @@ const { setRoute } = routeActions;
 // Router setup. Accepts history and routes.
 // Both history and routes are relying on store and dispatching events.
 const renderPage = (store, history, routes) => {
-  const Component = (
+  const content = (
     <Provider store={store}>
-      <Router history={history} routes={routes} />
+      <Router history={history}>{renderRoutes(routes)}</Router>
     </Provider>
   );
 
   const renderer = isEmpty(global.__appState__) ? render : hydrate;
-  return renderer(Component, document.getElementById('main'));
+  return renderer(content, document.getElementById('main'));
 };
 
 const startRouter = (store, history) => {
   const { subscribeRouter, routes } = createRouter(store);
   const handleError = (networkError) => store.dispatch(setError(networkError));
 
-  let hasInitialData = !isEmpty(global.__appState__);
-  let previousComponents = [];
-
+  let shouldFetch = isEmpty(global.__appState__);
   const handleFetch = (location) => {
-    const matchPage = (error, redirect, props) => {
-      const shouldFetch = !hasInitialData;
-      hasInitialData = false;
-
-      if (error) return handleError(error);
-      if (redirect) return;
-
-      const getLocals = (component) => ({
-        isFirstRender: !previousComponents.includes(component),
-        location: props.location,
-        params: props.params,
-        dispatch: store.dispatch,
-        state: store.getState(),
-        route: getRoutesParams(props.routes),
-      });
-
-      if (shouldFetch) trigger('fetch', props.components, getLocals).catch(handleError);
-      trigger('defer', props.components, getLocals).catch(handleError);
-      previousComponents = props.components;
-    };
-
-    store.dispatch(setRoute(location.pathname));
-    match({ routes, location, history }, matchPage);
+    const { pathname } = location;
+    const getLocals = (details) => ({ ...details, store, location });
+    store.dispatch(setRoute(pathname));
+    if (shouldFetch) runResolver(routes, pathname, getLocals).catch(handleError);
+    shouldFetch = true;
   };
 
   if (!global.__appState__.error || global.__appState__.error.statusCode === 404) {
     if (subscribeRouter) subscribeRouter();
     history.listen(handleFetch);
-    handleFetch(history.getCurrentLocation());
+    handleFetch(history.location);
   }
 
   renderPage(store, history, routes);
@@ -79,4 +58,5 @@ const startRouter = (store, history) => {
 // Call setup functions. First setup store, then initialize router.
 if (config.debug) console.log(`Loading React v${React.version}`);
 const store = createStore(global.__appState__);
-startRouter(store, browserHistory);
+const history = patchBlockFn(createBrowserHistory());
+startRouter(store, history);
