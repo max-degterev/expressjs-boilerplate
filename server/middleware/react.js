@@ -5,7 +5,7 @@ const { StaticRouter } = require('react-router');
 const { createLocation } = require('history');
 
 const { Provider } = require('react-redux');
-const { runResolver, renderRoutes } = require('../../client/modules/resolver');
+const { runResolver, renderRoutes } = require('react-router-manager');
 
 const createStore = require('../../client/store');
 const createRouter = require('../../client/modules/routes');

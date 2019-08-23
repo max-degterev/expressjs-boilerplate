@@ -3,7 +3,9 @@ import React from 'react';
 import { render, hydrate } from 'react-dom';
 
 import { Router } from 'react-router';
+import { runResolver, renderRoutes } from 'react-router-manager';
 import { createBrowserHistory } from 'history';
+import patchBlockFn from 'history-block-async';
 
 import { Provider } from 'react-redux';
 
@@ -11,8 +13,6 @@ import isEmpty from 'lodash/isEmpty';
 
 import createStore from './store';
 import createRouter from './modules/routes';
-import preventNavigationPatch from './modules/prevent_navigation';
-import { runResolver, renderRoutes } from './modules/resolver';
 
 import { actions as errorActions } from './components/error_handler/state';
 import { actions as routeActions } from './modules/routes/state';
@@ -58,5 +58,5 @@ const startRouter = (store, history) => {
 // Call setup functions. First setup store, then initialize router.
 if (config.debug) console.log(`Loading React v${React.version}`);
 const store = createStore(global.__appState__);
-const history = preventNavigationPatch(createBrowserHistory());
+const history = patchBlockFn(createBrowserHistory());
 startRouter(store, history);
