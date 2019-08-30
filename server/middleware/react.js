@@ -49,12 +49,12 @@ const prerender = (req, res) => {
   const matchPage = () => {
     const context = {};
     const content = renderContent({ routes, store, context, location: req.url });
-    if (context.url) return res.redirect(context.statusCode || 301, context.url);
+    if (context.url) return res.redirect(context.statusCode || 302, context.url);
     renderPage(res, store, context, content);
   };
 
   store.dispatch(setRoute(req.path));
-  runResolver(routes, req.path, getLocals).then(matchPage).catch(handleError);
+  Promise.all(runResolver(routes, req.path, getLocals)).then(matchPage).catch(handleError);
 };
 
 module.exports = () => prerender;

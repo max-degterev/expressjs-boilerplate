@@ -42,7 +42,7 @@ const startRouter = (store, history) => {
     const { pathname } = location;
     const getLocals = (details) => ({ ...details, store, location });
     store.dispatch(setRoute(pathname));
-    if (shouldFetch) runResolver(routes, pathname, getLocals).catch(handleError);
+    if (shouldFetch) Promise.all(runResolver(routes, pathname, getLocals)).catch(handleError);
     shouldFetch = true;
   };
 

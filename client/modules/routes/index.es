@@ -1,7 +1,7 @@
 export default () => {
   const routes = [
     {
-      path: '*', // Needed for the fetch to work, OK to leave empty for 404s that don't load data
+      path: '*', // Needed for the fetch to work, OK to leave empty for routes that don't load data
       component: require('../../containers/wrapper'),
       routes: [
         {
@@ -16,12 +16,12 @@ export default () => {
         {
           from: '/redirect',
           to: '/',
-          statusCode: 302,
+          statusCode: 307,
         },
         {
           path: '/onenter',
           onEnter() {
-            if (Math.random() > .5) return { statusCode: 302, to: '/redirectedfromonenter' };
+            return { statusCode: 307, to: '/redirectedfromonenter' };
           },
           render() {
             return 'AwesomeRoute!';
