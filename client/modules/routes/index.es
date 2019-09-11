@@ -10,6 +10,20 @@ export default () => {
           component: require('../../containers/home'),
         },
         {
+          path: '/testroute/:id(\\d+)',
+          exact: false,
+          component: require('../../containers/testroute'),
+          routes: [
+            {
+              path: '/testroute/:id(\\d+)/:name',
+              component: require('../../containers/testroute'),
+            },
+            {
+              to: '/youfailed',
+            },
+          ],
+        },
+        {
           path: '/prompt',
           component: require('../../containers/prompt'),
         },
