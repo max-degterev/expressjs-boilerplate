@@ -53,7 +53,7 @@
   max-width: $width;
   margin: 0 auto;
 
-  @if ($verticalSpacing or $horizontalSpacing) {
+  @if ($verticalSpacing != 0 or $horizontalSpacing != 0) {
     padding: $verticalSpacing $horizontalSpacing;
   }
 }
@@ -122,7 +122,7 @@
   $extRegex: '\.([a-z]+)$';
   background-image: url($image);
   @media ($mediaM) {
-    background-image: url(replace($extRegex, $image, '-desktop.$1'));
+    background-image: url('#{replace($extRegex, $image, '-desktop.$1')}');
   }
 }
 
@@ -138,8 +138,8 @@
 
   &:after {
     @include blockResponsive(getImageRatio($image));
-    content: '';
     @include backgroundFill();
+    content: '';
     background-image: url($image);
   }
 }
