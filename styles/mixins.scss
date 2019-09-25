@@ -1,141 +1,178 @@
-// getImageSize($path)
-//   $image = $publicRoot + $path
-//   $size = image-size($image)
-//   ($size[0] / 2) ($size[1] / 2)
-//
-// getImageRatio($path)
-//   $size = getImageSize($path)
-//   percentage($size[1]/$size[0])
-//
-// clearfix()
-//   &:after
-//     content: ''
-//     display: table
-//     clear: both
-//
-// blockRound($width)
-//   width: $width
-//   height: @width
-//   display: inline-block
-//   border-radius: 50%
-//
-// blockResponsive($ratio = 100%)
-//   padding-top: $ratio
-//   display: block
-//
-// // Invisible, but accessible to screen readers
-// blockInvisible()
-//   width: 1px
-//   height: 1px
-//   margin: -1px
-//   padding: 0
-//
-//   overflow: hidden
-//   position: absolute
-//
-//   border: none
-//   clip: rect(0 0 0 0)
-//
-// blockSize($width, $horizontalSpacing = 0, $verticalSpacing = 0)
-//   max-width: $width
-//   margin: 0 auto
-//
-//   if $verticalSpacing or $horizontalSpacing
-//     padding: $verticalSpacing $horizontalSpacing
-//
-// blockCenter()
-//   position: absolute
-//   top: 50%
-//   left: 50%
-//   transform: translate(-50%, -50%)
-//
-// blockFill($width = 100%, $height = 100%)
-//   width: $width
-//   height: $height
-//   position: absolute
-//   top: 0
-//   left: 0
-//
-// textCenter($selector = null)
-//   text-align: center
-//
-//   &:before
-//     height: 100%
-//     content: ''
-//     display: inline-block
-//     vertical-align: middle
-//
-//   if $selector
-//     {$selector}
-//       display: inline-block
-//       vertical-align: middle
-//       text-align: left
-//
-// textInvisible()
-//   overflow: hidden
-//   color: transparent !important
-//   text-shadow: none
-//   text-decoration: none
-//   user-select: none
-//   cursor: default
-//
-// textShortened()
-//   overflow: hidden
-//   text-overflow: ellipsis
-//   white-space: nowrap
-//
-// backgroundFill($type = cover)
-//   background-repeat: no-repeat
-//   background-position: center center
-//   background-size: $type
-//
-// backgroundFixed($image)
-//   background-attachment: fixed
-//   backgroundAdaptive($image)
-//
-// backgroundAdaptive($image)
-//   $extRegex = '\.([a-z]+)$'
-//   background-image: url($image)
-//   @media $mediaM
-//     background-image: url(replace($extRegex, '-desktop.$1', $image))
-//
-// illustrationFluid($image)
-//   $size = getImageSize($image)
-//   max-width: $size[0]
-//   max-height: $size[1]
-//   margin: 0 auto
-//   display: block
-//
-//   &:after
-//     blockResponsive(percentage($size[1]/$size[0]))
-//     content: ''
-//     backgroundFill()
-//     background-image: url($image)
-//
-// cursorDraggable()
-//   cursor: -webkit-grab // @stylint ignore
-//   cursor: -moz-grab // @stylint ignore
-//   cursor: grab
-//
-//   &:active
-//     cursor: -webkit-grabbing // @stylint ignore
-//     cursor: -moz-grabbing // @stylint ignore
-//     cursor: grabbing
-//
-// iconSize($width, $height = null)
-//   if !$height
-//     $height = $width
-//
-//   width: $width
-//   height: $height
-//   display: inline-block
-//   font-size: @width
-//   line-height: @height
-//
-// preventDrag()
-//   -moz-user-select: none
-//   -ms-user-select: none
-//   -webkit-user-drag: none
-//   -webkit-user-select: none
-//   user-drag: none
-//   user-select: none
+@function getImageSize($image) {
+  $size: image-size($image);
+  $width: map-get($size, 'width');
+  $height: map-get($size, 'height');
+
+  @return ('width': $width / 2, 'height': $height / 2);
+}
+
+@function getImageRatio($image) {
+  $size: getImageSize($image);
+
+  $width: map-get($size, 'width');
+  $height: map-get($size, 'height');
+
+  @return percentage($height / $width);
+}
+
+@mixin clearfix {
+  &:after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
+@mixin blockRound($width) {
+  width: $width;
+  height: $width;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+@mixin blockResponsive($ratio: 100%) {
+  padding-top: $ratio;
+  display: block;
+}
+
+// Invisible, but accessible to screen readers
+@mixin blockInvisible {
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+
+  overflow: hidden;
+  position: absolute;
+
+  border: none;
+  clip: rect(0 0 0 0);
+}
+
+@mixin blockSize($width, $horizontalSpacing: 0, $verticalSpacing: 0) {
+  max-width: $width;
+  margin: 0 auto;
+
+  @if ($verticalSpacing or $horizontalSpacing) {
+    padding: $verticalSpacing $horizontalSpacing;
+  }
+}
+
+@mixin blockCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin blockFill($width: 100%, $height: 100%) {
+  width: $width;
+  height: $height;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+@mixin textCenter($selector: null) {
+  text-align: center;
+
+  &:before {
+    height: 100%;
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  @if $selector {
+    #{$selector} {
+      display: inline-block;
+      vertical-align: middle;
+      text-align: left;
+    }
+  }
+}
+
+@mixin textInvisible {
+  overflow: hidden;
+  color: transparent !important;
+  text-shadow: none;
+  text-decoration: none;
+  user-select: none;
+  cursor: default;
+}
+
+@mixin textShortened {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin backgroundFill($type: cover) {
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: $type;
+}
+
+@mixin backgroundFixed($image) {
+  background-attachment: fixed;
+  @include backgroundAdaptive($image);
+}
+
+@mixin backgroundAdaptive($image) {
+  $extRegex: '\.([a-z]+)$';
+  background-image: url($image);
+  @media ($mediaM) {
+    background-image: url(replace($extRegex, $image, '-desktop.$1'));
+  }
+}
+
+@mixin illustrationFluid($image) {
+  $size: getImageSize($image);
+  $width: map-get($size, 'width');
+  $height: map-get($size, 'height');
+
+  max-width: $width;
+  max-height: $height;
+  margin: 0 auto;
+  display: block;
+
+  &:after {
+    @include blockResponsive(getImageRatio($image));
+    content: '';
+    @include backgroundFill();
+    background-image: url($image);
+  }
+}
+
+@mixin cursorDraggable {
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  cursor: grab;
+
+  &:active {
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+    cursor: grabbing;
+  }
+}
+
+@mixin iconSize($width, $height: null) {
+  @if not $height {
+    $height: $width;
+  }
+
+  width: $width;
+  height: $height;
+  display: inline-block;
+  font-size: $width;
+  line-height: $height;
+}
+
+@mixin preventDrag {
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  user-drag: none;
+  user-select: none;
+}
