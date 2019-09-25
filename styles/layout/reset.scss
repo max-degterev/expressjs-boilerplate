@@ -1,0 +1,100 @@
+// Micro-reset
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+::selection {
+  background: #0af;
+  color: #fff;
+  text-shadow: none;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  &:focus,
+  &:active {
+    outline: none;
+  }
+}
+
+input {
+  padding: 0;
+  border: none;
+  appearance: none;
+
+  &[type='search'] {
+    appearance: none;
+  }
+
+  &[type='file']::-webkit-file-upload-button {
+    display: none;
+  }
+
+  &[readonly] {
+    user-select: none;
+  }
+
+  &[type='number'] {
+    -moz-appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+}
+
+
+select {
+  background-color: transparent;
+  border: none;
+  appearance: none;
+
+  &::-ms-expand {
+    display: none;
+  }
+}
+
+textarea {
+  border: none;
+  resize: vertical;
+  appearance: none;
+  -ms-overflow-style: none;
+}
+
+button {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  text-align: left;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+figure {
+  margin: 0;
+}

@@ -1,0 +1,11 @@
+input,
+select,
+textarea,
+button {
+  pointer-events: auto;
+}
+
+// hack for FT Labs fastclick to work on <label> tag: https://github.com/ftlabs/fastclick/issues/275
+label > * {
+  pointer-events: none;
+}

@@ -1,0 +1,16 @@
+// Modules
+@import 'mixins';
+@import 'config';
+
+// Dependencies
+@import 'normalize.css/normalize';
+
+// Layout and typography
+@import 'layout/reset';
+@import 'layout/defaults';
+
+// Components, order doesn't matter
+@import 'components/**/*.scss';
+
+// Containers, order doesn't matter
+@import 'containers/**/*.scss';
