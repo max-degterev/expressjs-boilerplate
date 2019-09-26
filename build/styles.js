@@ -93,7 +93,7 @@ const process = (options = {}) => {
 
     const stream = gulp
       .src(sassSource)
-      .pipe(gulpSass(sassOptions))
+      .pipe(gulpSass(sassOptions).on('error', gulpSass.logError))
       .pipe(require('gulp-postcss')([
         require('autoprefixer')(),
         require('postcss-flexbugs-fixes'),
