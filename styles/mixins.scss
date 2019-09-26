@@ -16,7 +16,7 @@
 }
 
 @mixin clearfix {
-  &:after {
+  &::after {
     content: '';
     display: table;
     clear: both;
@@ -76,7 +76,7 @@
 @mixin textCenter($selector: null) {
   text-align: center;
 
-  &:before {
+  &::before {
     height: 100%;
     content: '';
     display: inline-block;
@@ -115,12 +115,14 @@
 
 @mixin backgroundFixed($image) {
   background-attachment: fixed;
+
   @include backgroundAdaptive($image);
 }
 
 @mixin backgroundAdaptive($image) {
   $extRegex: '\.([a-z]+)$';
   background-image: url($image);
+
   @media ($mediaM) {
     background-image: url('#{replace($extRegex, $image, '-desktop.$1')}');
   }
@@ -136,7 +138,7 @@
   margin: 0 auto;
   display: block;
 
-  &:after {
+  &::after {
     @include blockResponsive(getImageRatio($image));
     @include backgroundFill();
     content: '';
@@ -173,6 +175,5 @@
   -ms-user-select: none;
   -webkit-user-drag: none;
   -webkit-user-select: none;
-  user-drag: none;
   user-select: none;
 }

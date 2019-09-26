@@ -1,7 +1,7 @@
 // Micro-reset
 *,
-*:before,
-*:after {
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -13,17 +13,6 @@
   background: #0af;
   color: #fff;
   text-shadow: none;
-}
-
-a,
-button,
-input,
-select,
-textarea {
-  &:focus,
-  &:active {
-    outline: none;
-  }
 }
 
 input {
@@ -54,7 +43,6 @@ input {
   }
 }
 
-
 select {
   background-color: transparent;
   border: none;
@@ -77,6 +65,17 @@ button {
   background-color: transparent;
   border: none;
   text-align: left;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  &:focus,
+  &:active {
+    outline: none;
+  }
 }
 
 ul,
