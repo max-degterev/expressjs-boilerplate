@@ -37,6 +37,7 @@
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
     "gulp-eslint": "^6.0.0",
+    "gulp-stylelint": "^9.0.0",
     "mocha": "^6.2.0",
     "stream-exhaust": "1.0.2",
     "stylelint": "^11.0.0",
