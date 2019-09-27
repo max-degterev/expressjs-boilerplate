@@ -13,10 +13,12 @@
     },
     "declaration-empty-line-before": null,
 
+    "selector-max-id": 0,
     "selector-class-pattern": "^[a-zA-Z]+(-[\\w-]+)?$",
     "function-name-case": null,
 
     "at-rule-no-unknown": null,
+    "at-rule-blacklist": ["extend"],
     "scss/at-rule-no-unknown": true,
 
     "order/order": [
