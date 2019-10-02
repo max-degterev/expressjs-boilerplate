@@ -1,18 +1,13 @@
 @function getImageSize($image) {
   $size: image-size($image);
-  $width: map-get($size, 'width');
-  $height: map-get($size, 'height');
 
-  @return ('width': $width / 2, 'height': $height / 2);
+  @return ('width': map-get($size, 'width') / 2, 'height': map-get($size, 'height') / 2);
 }
 
 @function getImageRatio($image) {
   $size: getImageSize($image);
 
-  $width: map-get($size, 'width');
-  $height: map-get($size, 'height');
-
-  @return percentage($height / $width);
+  @return percentage(map-get($size, 'height') / map-get($size, 'width'));
 }
 
 @mixin clearfix {
