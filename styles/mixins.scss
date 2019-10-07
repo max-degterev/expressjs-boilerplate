@@ -1,11 +1,11 @@
-@function getImageSize($image) {
+@function get-image-size($image) {
   $size: image-size($image);
 
   @return ('width': map-get($size, 'width') / 2, 'height': map-get($size, 'height') / 2);
 }
 
-@function getImageRatio($image) {
-  $size: getImageSize($image);
+@function get-image-ratio($image) {
+  $size: get-image-size($image);
 
   @return percentage(map-get($size, 'height') / map-get($size, 'width'));
 }
@@ -18,20 +18,20 @@
   }
 }
 
-@mixin blockRound($width) {
+@mixin block-round($width) {
   width: $width;
   height: $width;
   display: inline-block;
   border-radius: 50%;
 }
 
-@mixin blockResponsive($ratio: 100%) {
+@mixin block-responsive($ratio: 100%) {
   padding-top: $ratio;
   display: block;
 }
 
 // Invisible, but accessible to screen readers
-@mixin blockInvisible {
+@mixin block-invisible {
   width: 1px;
   height: 1px;
   margin: -1px;
@@ -44,7 +44,7 @@
   clip: rect(0 0 0 0);
 }
 
-@mixin blockSize($width, $horizontalSpacing: 0, $verticalSpacing: 0) {
+@mixin block-size($width, $horizontalSpacing: 0, $verticalSpacing: 0) {
   max-width: $width;
   margin: 0 auto;
 
@@ -53,14 +53,14 @@
   }
 }
 
-@mixin blockCenter {
+@mixin block-center {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-@mixin blockFill($width: 100%, $height: 100%) {
+@mixin block-fill($width: 100%, $height: 100%) {
   width: $width;
   height: $height;
   position: absolute;
@@ -68,7 +68,7 @@
   left: 0;
 }
 
-@mixin textCenter($selector: null) {
+@mixin text-center($selector: null) {
   text-align: center;
 
   &::before {
@@ -87,7 +87,7 @@
   }
 }
 
-@mixin textInvisible {
+@mixin text-invisible {
   overflow: hidden;
   color: transparent !important;
   text-shadow: none;
@@ -96,52 +96,49 @@
   cursor: default;
 }
 
-@mixin textShortened {
+@mixin text-shortened {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-@mixin backgroundFill($type: cover) {
+@mixin background-fill($type: cover) {
   background-repeat: no-repeat;
   background-position: center center;
   background-size: $type;
 }
 
-@mixin backgroundFixed($image) {
+@mixin background-fixed($image) {
+  @include background-adaptive($image);
   background-attachment: fixed;
-
-  @include backgroundAdaptive($image);
 }
 
-@mixin backgroundAdaptive($image) {
-  $extRegex: '\.([a-z]+)$';
+@mixin background-adaptive($image) {
+  $regex: '\.([a-z]+)$';
   background-image: url($image);
 
-  @media ($mediaM) {
-    background-image: url('#{replace($extRegex, $image, '-desktop.$1')}');
+  @media ($media-m) {
+    background-image: url('#{replace($regex, $image, '-desktop.$1')}');
   }
 }
 
-@mixin illustrationFluid($image) {
-  $size: getImageSize($image);
-  $width: map-get($size, 'width');
-  $height: map-get($size, 'height');
+@mixin illustration-fluid($image) {
+  $size: get-image-size($image);
 
-  max-width: $width;
-  max-height: $height;
+  max-width: map-get($size, 'width');
+  max-height: map-get($size, 'height');
   margin: 0 auto;
   display: block;
 
   &::after {
-    @include blockResponsive(getImageRatio($image));
-    @include backgroundFill();
+    @include block-responsive(get-image-ratio($image));
+    @include background-fill();
     content: '';
     background-image: url($image);
   }
 }
 
-@mixin cursorDraggable {
+@mixin cursor-draggable {
   cursor: -webkit-grab;
   cursor: -moz-grab;
   cursor: grab;
@@ -153,11 +150,7 @@
   }
 }
 
-@mixin iconSize($width, $height: null) {
-  @if not $height {
-    $height: $width;
-  }
-
+@mixin icon-size($width, $height: $width) {
   width: $width;
   height: $height;
   display: inline-block;
@@ -165,7 +158,7 @@
   line-height: $height;
 }
 
-@mixin preventDrag {
+@mixin prevent-drag {
   -moz-user-select: none;
   -ms-user-select: none;
   -webkit-user-drag: none;

@@ -1,8 +1,9 @@
 const gulp = require('gulp');
 
 const config = require('uni-config');
-const sass = require('node-sass');
+const sass = require('sass');
 const gulpSass = require('gulp-sass');
+const sourcemaps = require('gulp-sourcemaps');
 const utils = require('./utils');
 
 const stylusSource = `${__dirname}/../styles/index.styl`;
@@ -25,11 +26,12 @@ const stylusOptions = {
 };
 
 const sassOptions = {
+  fiber: require('fibers'),
   includePaths: [
     `${__dirname}/../client`,
     `${__dirname}/../node_modules`,
   ],
-  functions: require('sass-functions')({ publicRoot }),
+  functions: require('sass-functions')({ sass, publicRoot }),
   importer: require('node-sass-glob-importer')(),
   outputStyle: 'expanded',
   sourceComments: config.debug,
@@ -69,6 +71,7 @@ const process = (options = {}) => {
 
     const stream = gulp
       .src(sassSource)
+      .pipe(sourcemaps.init())
       .pipe(gulpSass(sassOptions).on('error', gulpSass.logError))
       .pipe(require('gulp-postcss')([
         require('autoprefixer')(),
@@ -77,6 +80,7 @@ const process = (options = {}) => {
       .on('error', utils.errorReporter)
 
       .pipe(require('gulp-rename')(name))
+      .pipe(sourcemaps.write())
       .pipe(gulp.dest(`${__dirname}/../${config.build.assets_location}`))
 
       .on('end', () => {
