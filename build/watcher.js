@@ -52,6 +52,8 @@ const watcher = () => {
   const stylesheets = [
     'client/**/*.styl',
     'styles/**/*.styl',
+    'client/**/*.scss',
+    'styles/**/*.scss',
     'styles/**/*.css',
     'vendor/**/*.css',
   ];

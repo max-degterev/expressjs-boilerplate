@@ -4,6 +4,7 @@ const { run } = require('./utils');
 
 const getLinters = () => {
   const eslint = require('gulp-eslint');
+  const stylelint = require('gulp-stylelint');
   const exhaustively = require('stream-exhaust');
 
   const scripts = [
@@ -15,9 +16,14 @@ const getLinters = () => {
     '**/*.js',
   ];
 
-  const styles = [
+  const stylusStyles = [
     'client/**/*.styl',
     'styles/**/*.styl',
+  ];
+
+  const sassStyles = [
+    'client/**/*.scss',
+    'styles/**/*.scss',
   ];
 
   const lintScripts = (options = {}) => {
@@ -42,12 +48,12 @@ const getLinters = () => {
     return new Promise(executor);
   };
 
-  const lintStyles = (options = {}) => {
+  const lintStylusStyles = (options = {}) => {
     let lintArgs = '--colors';
     if (options.toFile) lintArgs = '--reporter stylint-json-reporter';
 
     const lintPath = (path) => run(`stylint ${lintArgs} ./${path.replace('**/*.styl', '')}`);
-    const promises = styles.map(lintPath);
+    const promises = stylusStyles.map(lintPath);
 
     const handleResults = ({ exitCode, output }) => {
       if (options.toFile) {
@@ -63,6 +69,62 @@ const getLinters = () => {
     return Promise.all(promises).catch(handleResults);
   };
 
+  const lintSassStyles = (options = {}) => {
+    const executor = (resolve) => {
+      const stylelintConfig = {
+        reporters: [
+          { formatter: 'string', console: true },
+        ],
+      };
+
+      if (options.toFile) {
+        stylelintConfig.reporters.push({
+          formatter: (list) => {
+            const formatted = list.reduce((acc, item) => {
+              if (!item.errored) return acc;
+
+              const {
+                source,
+                deprecations,
+                invalidOptionWarnings,
+                parseErrors,
+                warnings,
+                _postcssResult,
+              } = item;
+
+              const newItem = {
+                filePath: source,
+                messages: warnings.concat(parseErrors, invalidOptionWarnings, deprecations),
+                errorCount: parseErrors.length,
+                warningCount: warnings.length,
+                source: _postcssResult.css,
+              };
+
+              acc.push(newItem);
+              return acc;
+            }, []);
+
+            return JSON.stringify(formatted, null, 2);
+          },
+
+          save: `${__dirname}/../stylelint-report.log`,
+          console: false,
+        });
+      }
+
+      const stream = gulp.src(sassStyles).pipe(stylelint(stylelintConfig));
+
+      exhaustively(stream).on('end', resolve);
+    };
+
+    return new Promise(executor);
+  };
+
+  const lintStyles = (options = {}) => {
+    const promises = [lintStylusStyles(options), lintSassStyles(options)];
+    return Promise.all(promises);
+  };
+
   const lintRun = (options = {}) => {
     const promises = [lintScripts(options), lintStyles(options)];
     return Promise.all(promises);
@@ -70,11 +132,12 @@ const getLinters = () => {
 
   const lintWatch = () => {
     gulp.watch(scripts).on('change', lintScripts);
-    gulp.watch(styles).on('change', lintStyles);
+    gulp.watch(stylusStyles).on('change', lintStylusStyles);
+    gulp.watch(sassStyles).on('change', lintSassStyles);
     lintRun();
   };
 
-  return { lintScripts, lintStyles, lintRun, lintWatch };
+  return { lintScripts, lintStylusStyles, lintSassStyles, lintStyles, lintRun, lintWatch };
 };
 
 module.exports = getLinters;
