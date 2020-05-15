@@ -8,7 +8,8 @@
       "node": {
         "extensions": [
           ".js",
-          ".es"
+          ".es",
+          ".jsx"
         ]
       }
     }
@@ -22,6 +23,7 @@
       "WithStatement",
       "YieldExpression"
     ],
+    "react/jsx-props-no-spreading": "off",
     "space-before-function-paren": ["error", "never"],
     "global-require": "off",
     "default-case": "off",
@@ -49,7 +51,7 @@
     "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
     "import/prefer-default-export": "off",
 
-    "react/jsx-filename-extension": ["error", { "extensions": [".es"] }],
+    "react/jsx-filename-extension": ["error", { "extensions": [".es", ".jsx"] }],
     "react/jsx-no-bind": "off",
     "react/prop-types": ["error", { "skipUndeclared": true }], // TODO: remove this check
     "react/forbid-prop-types": "off",

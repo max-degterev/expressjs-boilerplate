@@ -42,6 +42,8 @@ const watcher = () => {
   const scripts = [
     'client/**/*.es',
     'vendor/**/*.es',
+    'client/**/*.jsx',
+    'vendor/**/*.jsx',
     'client/**/*.js',
     'vendor/**/*.js',
     'client/**/*.json',

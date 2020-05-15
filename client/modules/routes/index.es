@@ -1,3 +1,6 @@
+import React from 'react';
+import TestRoute from '../../containers/testroute';
+
 export default () => {
   const routes = [
     {
@@ -12,11 +15,11 @@ export default () => {
         {
           path: '/testroute/:id(\\d+)',
           exact: false,
-          component: require('../../containers/testroute'),
+          component: TestRoute,
           routes: [
             {
               path: '/testroute/:id(\\d+)/:name',
-              component: require('../../containers/testroute'),
+              component: TestRoute,
             },
             {
               to: '/youfailed',
@@ -39,6 +42,13 @@ export default () => {
           },
           render() {
             return 'AwesomeRoute!';
+          },
+        },
+        {
+          path: '/conditional',
+          render(props) {
+            const isTrue = true;
+            return isTrue ? 'AwesomeRoute!' : <TestRoute {...props} />;
           },
         },
         {

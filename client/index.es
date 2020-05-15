@@ -3,13 +3,14 @@ import React from 'react';
 import { render, hydrate } from 'react-dom';
 
 import { Router } from 'react-router';
-import { runResolver, renderRoutes } from 'react-router-manager';
+
 import { createBrowserHistory } from 'history';
 import patchBlockFn from 'history-block-async';
 
 import { Provider } from 'react-redux';
 
 import isEmpty from 'lodash/isEmpty';
+import { runResolver, renderRoutes } from './modules/manager';
 
 import createStore from './store';
 import createRouter from './modules/routes';
@@ -39,10 +40,9 @@ const startRouter = (store, history) => {
 
   let shouldFetch = isEmpty(global.__appState__);
   const handleFetch = (location) => {
-    const { pathname } = location;
     const getLocals = (details) => ({ ...details, store, location });
-    store.dispatch(setRoute(pathname));
-    if (shouldFetch) Promise.all(runResolver(routes, pathname, getLocals)).catch(handleError);
+    store.dispatch(setRoute(location.pathname));
+    if (shouldFetch) Promise.all(runResolver(routes, location, getLocals)).catch(handleError);
     shouldFetch = true;
   };
 

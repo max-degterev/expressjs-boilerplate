@@ -22,7 +22,7 @@ const setTransforms = (name, bundler) => {
     bundler.transform(require('browserify-replace'), replaceOptions);
   }
 
-  bundler.transform(require('babelify').configure({ extensions: ['.es'] }));
+  bundler.transform(require('babelify').configure({ extensions: ['.es', '.jsx'] }));
 
   if (utils.isBuild()) {
     const envifyOptions = {
@@ -60,7 +60,7 @@ const compile = (source, name, options = {}) => {
 
   const browserifyOptions = {
     entries: source,
-    extensions: ['.es'],
+    extensions: ['.es', '.jsx'],
     debug: config.debug,
 
     cache: {},
