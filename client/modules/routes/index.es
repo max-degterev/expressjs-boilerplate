@@ -37,7 +37,8 @@ export default () => {
         },
         {
           path: '/onenter',
-          onEnter() {
+          component: TestRoute,
+          intercept() {
             return { statusCode: 307, to: '/redirectedfromonenter' };
           },
           render() {
@@ -46,9 +47,11 @@ export default () => {
         },
         {
           path: '/conditional',
-          render(props) {
+          intercept(props) {
             const isTrue = true;
-            return isTrue ? 'AwesomeRoute!' : <TestRoute {...props} />;
+            console.log(props);
+            const component = isTrue ? require('../../containers/home') : TestRoute;
+            return { component, statusCode: 201 };
           },
         },
         {

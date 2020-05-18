@@ -6,9 +6,8 @@ const defaultGetLocals = (data) => data;
 export const getResolver = (request) => {
   const { route: originalRoute } = request;
 
-  const { hook } = originalRoute;
-  const route = isFunction(hook) ? hook(request) : originalRoute;
-  console.warn('match', request);
+  const { intercept } = originalRoute;
+  const route = isFunction(intercept) ? intercept(request) : originalRoute;
 
   const { component } = route;
   if (!component) return null;
@@ -40,12 +39,12 @@ const matchRoute = (routes, pathname) => {
 };
 
 export const runResolver = (routes, location, getLocals = defaultGetLocals) => {
-  const { pathname } = location;
-  const matches = matchRoute(routes, pathname) || [];
+  const matches = matchRoute(routes, location.pathname) || [];
 
   return matches.reduce((acc, details) => {
-    const resolver = getResolver({ location, ...details });
+    const request = { location, ...details };
+    const resolver = getResolver(request);
     if (!resolver) return acc;
-    return acc.concat(resolver(getLocals(details)));
+    return acc.concat(resolver(getLocals(request)));
   }, []);
 };
