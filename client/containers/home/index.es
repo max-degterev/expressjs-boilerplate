@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
 import { Link } from 'react-router-dom';
-import { renderRedirect } from '../../modules/manager';
+import { Redirect } from 'react-router-manager';
 
 import ErrorCatcher from '../../components/error_handler';
 import ErrorBoundary from '../../components/error_boundary';
@@ -29,7 +29,7 @@ class HomePage extends PureComponent {
     const { homeData, wrapperData } = this.props;
     const { redirect } = this.state;
 
-    if (redirect) return renderRedirect({ to: '/prompt', statusCode: 307 });
+    if (redirect) return <Redirect to="/prompt" statusCode={307} />;
 
     return (
       <ErrorBoundary>

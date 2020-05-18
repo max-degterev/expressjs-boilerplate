@@ -5,7 +5,7 @@ const { StaticRouter } = require('react-router');
 const { createLocation } = require('history');
 
 const { Provider } = require('react-redux');
-const { runResolver, renderRoutes } = require('../../client/modules/manager');
+const { runResolver, default: RouterManager } = require('react-router-manager');
 
 const createStore = require('../../client/store');
 const createRouter = require('../../client/modules/routes');
@@ -15,7 +15,7 @@ const { setRoute } = require('../../client/modules/routes/state').actions;
 
 
 const renderContent = ({ routes, store, location, context }) => {
-  const routeComponents = renderRoutes(routes);
+  const routeComponents = React.createElement(RouterManager, { routes });
   const routerComponent = React.createElement(StaticRouter, { location, context }, routeComponents);
   const storeComponent = React.createElement(Provider, { store }, routerComponent);
   return renderToString(storeComponent);
@@ -44,7 +44,7 @@ const prerender = (req, res) => {
     renderError(res, store);
   };
 
-  const getLocals = (details) => ({ ...details, store, location });
+  const getLocals = (details) => ({ ...details, store });
 
   const matchPage = () => {
     const context = {};

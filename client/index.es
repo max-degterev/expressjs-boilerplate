@@ -10,7 +10,7 @@ import patchBlockFn from 'history-block-async';
 import { Provider } from 'react-redux';
 
 import isEmpty from 'lodash/isEmpty';
-import { runResolver, renderRoutes } from './modules/manager';
+import RouterManager, { runResolver } from 'react-router-manager';
 
 import createStore from './store';
 import createRouter from './modules/routes';
@@ -26,7 +26,7 @@ const { setRoute } = routeActions;
 const renderPage = (store, history, routes) => {
   const content = (
     <Provider store={store}>
-      <Router history={history}>{renderRoutes(routes)}</Router>
+      <Router history={history}><RouterManager routes={routes} /></Router>
     </Provider>
   );
 
@@ -40,7 +40,7 @@ const startRouter = (store, history) => {
 
   let shouldFetch = isEmpty(global.__appState__);
   const handleFetch = (location) => {
-    const getLocals = (details) => ({ ...details, store, location });
+    const getLocals = (details) => ({ ...details, store });
     store.dispatch(setRoute(location.pathname));
     if (shouldFetch) Promise.all(runResolver(routes, location, getLocals)).catch(handleError);
     shouldFetch = true;
