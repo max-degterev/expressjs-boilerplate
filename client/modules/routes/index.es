@@ -1,15 +1,19 @@
 import React from 'react';
 import TestRoute from '../../containers/testroute';
 
+const Demo = () => <p>DemoRoute</p>;
+
+const myvar = 'test';
+
 export default () => {
   const routes = [
     {
       path: '*', // Needed for the fetch to work, OK to leave empty for routes that don't load data
       component: require('../../containers/wrapper'),
       routes: [
+        { from: '/', to: '/home' },
         {
-          path: '/',
-          exact: true,
+          path: '/home',
           component: require('../../containers/home'),
         },
         {
@@ -32,7 +36,7 @@ export default () => {
         },
         {
           from: '/redirect',
-          to: '/',
+          to: '/home',
           statusCode: 307,
         },
         {
@@ -47,16 +51,23 @@ export default () => {
         },
         {
           path: '/conditional',
-          intercept(props) {
-            const isTrue = true;
-            console.log(props);
-            const component = isTrue ? require('../../containers/home') : TestRoute;
+          intercept() {
+            const component = myvar === 'test' ? Demo : TestRoute;
             return { component, statusCode: 201 };
           },
         },
         {
-          component: require('../../containers/error_404'),
-          statusCode: 404,
+          path: '*',
+          intercept: () => {
+            if (myvar === 'test') {
+              return {
+                component: require('../../containers/error_404'),
+                statusCode: 404,
+              };
+            }
+
+            return { to: '/' };
+          },
         },
       ],
     },

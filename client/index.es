@@ -10,7 +10,7 @@ import patchBlockFn from 'history-block-async';
 import { Provider } from 'react-redux';
 
 import isEmpty from 'lodash/isEmpty';
-import RouterManager, { runResolver } from 'react-router-manager';
+import RouterManager, { runResolver } from './modules/manager';
 
 import createStore from './store';
 import createRouter from './modules/routes';

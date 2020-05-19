@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
 import { Link } from 'react-router-dom';
-import { Redirect } from 'react-router-manager';
+import { Redirect } from '../../modules/manager';
 
 import ErrorCatcher from '../../components/error_handler';
 import ErrorBoundary from '../../components/error_boundary';

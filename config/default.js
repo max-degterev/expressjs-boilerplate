@@ -5,6 +5,6 @@ module.exports = {
   },
 
   server: {
-    prerender: true,
+    prerender: false,
   },
 };
