@@ -18,8 +18,7 @@ const matchRoute = (routes, pathname) => {
   let matches = [];
 
   for (const route of routes) {
-    const matchableProps = getMatchableRoute(route);
-    const match = matchPath(pathname, matchableProps);
+    const match = matchPath(pathname, getMatchableRoute(route));
     if (!match) continue;
 
     matches.push({ route, match });

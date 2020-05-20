@@ -3,7 +3,7 @@ import { Switch, Route, Redirect } from 'react-router';
 import { isNumber, isFunction, getMatchableRoute } from './utils';
 
 export const getRouteProps = ({
-  component, statusCode, props, routes, intercept, ...cleanProps
+  intercept, props, component, render, statusCode, routes, ...cleanProps
 }) => (
   cleanProps
 );
@@ -18,16 +18,16 @@ export const injectStatusCode = (context = {}, statusCode) => {
   if (isNumber(statusCode)) context.statusCode = statusCode;
 };
 
-export const RouteStatus = ({ statusCode, children, ...props }) => {
-  const render = ({ staticContext }) => {
+export const renderRouteStatus = ({ statusCode, children, ...props }) => {
+  const renderProp = ({ staticContext }) => {
     injectStatusCode(staticContext, statusCode);
     return children;
   };
 
-  return <Route {...getMatchableRoute(props)} render={render} />;
+  return <Route {...getMatchableRoute(props)} render={renderProp} />;
 };
 
-// These render* functions intentionally written and used as simple functions and not React
+// These render* functions are intentionally written and used as simple functions and not React
 // components. It is done so because ReactRouter breaks silently when there are any nodes
 // rendered between Router/Switch/Route|Redirect components. This workaround solves that problem.
 export const renderRedirect = (props) => {
@@ -37,14 +37,11 @@ export const renderRedirect = (props) => {
   if (!statusCode) return redirect;
 
   const { from, to, push, ...routeProps } = route;
+  const children = <Switch>{redirect}</Switch>;
 
   // We wrap the Redirect in Switch to reset React Router's path logic.
   // Otherwise Redirect will ignore the `from` prop.
-  return (
-    <RouteStatus {...routeProps} {...{ statusCode, path: from }}>
-      <Switch>{redirect}</Switch>
-    </RouteStatus>
-  );
+  return renderRouteStatus({ ...routeProps, statusCode, path: from, children });
 };
 
 export const renderRoute = (props) => {
@@ -62,7 +59,7 @@ export const renderRoute = (props) => {
     if (!route) return null;
     if (route.to) return renderRedirect(route);
 
-    const { component: RouteComponent, statusCode, props: componentProps, routes, render } = route;
+    const { statusCode, routes, render, component: RouteComponent, props: componentProps } = route;
     // Route is to be handled here, set statusCode
     injectStatusCode(routeProps.staticContext, statusCode);
 

@@ -56,6 +56,18 @@ export default () => {
             return { component, statusCode: 201 };
           },
         },
+
+        {
+          from: '/demo',
+          to: '/fromdemo',
+          statusCode: 301,
+        },
+
+        {
+          path: '/demo/nested',
+          component: Demo,
+        },
+
         {
           path: '*',
           intercept: () => {
