@@ -86,7 +86,7 @@
     "gulp-stylus": "^2.7.0",
     "history": "^4.10.1",
     "history-block-async": "^1.0.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "loose-envify": "^1.4.0",
     "middleware-sanitizeurl": "^1.2.0",
     "middleware-trailingslash": "^2.1.0",
